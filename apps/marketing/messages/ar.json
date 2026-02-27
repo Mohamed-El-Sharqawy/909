@@ -1,0 +1,69 @@
+{
+  "common": {
+    "shopNow": "تسوق الآن",
+    "viewAll": "عرض الكل",
+    "addToCart": "أضف إلى السلة",
+    "addToWishlist": "أضف إلى المفضلة",
+    "outOfStock": "نفذت الكمية",
+    "sale": "تخفيض",
+    "new": "جديد",
+    "featured": "مميز"
+  },
+  "header": {
+    "shopAll": "تسوق الكل",
+    "women": "نساء",
+    "men": "رجال",
+    "shopByCollection": "تسوق حسب المجموعة",
+    "returnPolicy": "سياسة الإرجاع",
+    "contactUs": "اتصل بنا",
+    "search": "بحث",
+    "account": "الحساب",
+    "cart": "السلة"
+  },
+  "home": {
+    "heroMen": "رجال",
+    "heroWomen": "نساء",
+    "endOfSeasonSale": "تخفيضات نهاية الموسم",
+    "pricesStartingFrom": "الأسعار تبدأ من 350 جنيه",
+    "featured": {
+      "title": "المميزة",
+      "subtitle": "المفضلات المعتمدة للحركة اليومية."
+    },
+    "promoBanner": {
+      "title": "الجينز الواسع",
+      "description": "مصنوع من الدنيم الذي يحافظ على شكله مع الراحة اليومية.",
+      "cta": "تسوق الآن"
+    }
+  },
+  "product": {
+    "price": "السعر",
+    "compareAt": "قارن بـ",
+    "color": "اللون",
+    "size": "المقاس",
+    "quantity": "الكمية",
+    "description": "الوصف",
+    "sizeGuide": "دليل المقاسات"
+  },
+  "collection": {
+    "allProducts": "جميع المنتجات",
+    "men": "رجال",
+    "women": "نساء",
+    "filter": "فلتر",
+    "productCategories": "فئات المنتجات",
+    "availability": "التوفر",
+    "inStock": "متوفر",
+    "outOfStock": "غير متوفر",
+    "price": "السعر",
+    "allLoaded": "تم عرض جميع المنتجات",
+    "noProducts": "لا توجد منتجات"
+  },
+  "footer": {
+    "newsletter": {
+      "title": "ابق على اطلاع",
+      "subtitle": "اشترك للحصول على عروض حصرية ووصول جديد ونصائح الموضة.",
+      "placeholder": "أدخل بريدك الإلكتروني",
+      "button": "اشترك"
+    },
+    "copyright": "© 2024 المتجر الإلكتروني. جميع الحقوق محفوظة."
+  }
+}

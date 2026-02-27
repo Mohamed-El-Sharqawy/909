@@ -1,0 +1,69 @@
+{
+  "common": {
+    "shopNow": "Shop Now",
+    "viewAll": "View All",
+    "addToCart": "Add to Cart",
+    "addToWishlist": "Add to Wishlist",
+    "outOfStock": "Out of Stock",
+    "sale": "Sale",
+    "new": "New",
+    "featured": "Featured"
+  },
+  "header": {
+    "shopAll": "Shop All",
+    "women": "Women",
+    "men": "Men",
+    "shopByCollection": "Shop by Collection",
+    "returnPolicy": "Return Policy",
+    "contactUs": "Contact us",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Cart"
+  },
+  "home": {
+    "heroMen": "Men",
+    "heroWomen": "Women",
+    "endOfSeasonSale": "END OF SEASON SALE",
+    "pricesStartingFrom": "PRICES STARTING FROM 350EGP",
+    "featured": {
+      "title": "Featured",
+      "subtitle": "Street-approved Favorites For Everyday Movement."
+    },
+    "promoBanner": {
+      "title": "THE BAGGY FIT DENIM",
+      "description": "Made from denim that maintains its shape with everyday comfort.",
+      "cta": "Shop Now"
+    }
+  },
+  "product": {
+    "price": "Price",
+    "compareAt": "Compare at",
+    "color": "Color",
+    "size": "Size",
+    "quantity": "Quantity",
+    "description": "Description",
+    "sizeGuide": "Size Guide"
+  },
+  "collection": {
+    "allProducts": "All Products",
+    "men": "Men",
+    "women": "Women",
+    "filter": "FILTER",
+    "productCategories": "Product categories",
+    "availability": "Availability",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "price": "Price",
+    "allLoaded": "All products loaded",
+    "noProducts": "No products found"
+  },
+  "footer": {
+    "newsletter": {
+      "title": "Stay in the Loop",
+      "subtitle": "Subscribe to get exclusive offers, new arrivals, and style tips.",
+      "placeholder": "Enter your email",
+      "button": "Subscribe"
+    },
+    "copyright": "© 2024 E-Commerce. All rights reserved."
+  }
+}
