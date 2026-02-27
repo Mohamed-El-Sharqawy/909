@@ -1,3 +1,22 @@
+DATABASE_URL="postgresql://neondb_owner:npg_L5GBxl8vjkQK@ep-nameless-bonus-al4crm20-pooler.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+JWT_SECRET="your-jwt-secret-here"
+JWT_REFRESH_SECRET="your-jwt-refresh-secret-here"
+PORT=3001
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000,http://localhost:5173
+ADMIN_EMAIL="enemies@admin.com"
+ADMIN_PASSWORD="fhwwuf[]h12"
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME="ds1vkycgm"
+CLOUDINARY_API_KEY="971267951882223"
+CLOUDINARY_API_SECRET="nVdUJLg3UPIcxVeRIH75AeG-wVc"
+
+VITE_API_URL=http://localhost:3001
+
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
 # E-Commerce Platform
 
 A monorepo e-commerce platform for men and women, featuring a backend API, marketing website, and CMS dashboard.
