@@ -39,6 +39,16 @@ export default async function HomePage({ params }: PageProps) {
         <HeroBanner banners={banners} locale={locale} />
       )}
 
+      <AnimateOnScroll direction="up">
+        <InfiniteMarquee
+          text={t("pricesStartingFrom")}
+          className="border-y border-border py-3 bg-black"
+          textClassName="text-sm font-semibold uppercase tracking-wider text-white"
+          separator="—"
+          speed="normal"
+        />
+      </AnimateOnScroll>
+
       {heroCollections.length > 0 && (
         <section className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6 px-4 py-6 md:py-18.5">
           {heroCollections.map((collection, index) => (
@@ -56,16 +66,6 @@ export default async function HomePage({ params }: PageProps) {
           ))}
         </section>
       )}
-
-      <AnimateOnScroll direction="up">
-        <InfiniteMarquee
-          text={t("pricesStartingFrom")}
-          className="border-y border-border py-3 bg-black"
-          textClassName="text-sm font-semibold uppercase tracking-wider text-white"
-          separator="—"
-          speed="normal"
-        />
-      </AnimateOnScroll>
 
       <AnimateOnScroll direction="up">
         <FeaturedProducts locale={locale} products={featuredProducts} />

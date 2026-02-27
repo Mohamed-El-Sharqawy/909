@@ -17,16 +17,52 @@ async function getProduct(slug: string) {
   return data.data;
 }
 
-async function getRelatedProducts(collectionId?: string, excludeId?: string) {
-  const params = new URLSearchParams({ limit: "4" });
-  if (collectionId) params.set("collectionId", collectionId);
+async function getRelatedProducts(product: any) {
+  const excludeId = product.id;
+  const collectionId = product.collectionId;
   
-  const res = await fetch(`${API_URL}/api/products?${params}`, {
+  // First, try to get products from the same collection
+  if (collectionId) {
+    const params = new URLSearchParams({ limit: "6", collectionId });
+    const res = await fetch(`${API_URL}/api/products?${params}`, {
+      next: { revalidate: 60 },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const products = (data.data.data || []).filter((p: any) => p.id !== excludeId);
+      
+      // If we have enough products from the same collection, return them
+      if (products.length >= 3) {
+        return products.slice(0, 4);
+      }
+      
+      // If not enough, try to get more from parent collection
+      if (product.collection?.parentId) {
+        const parentParams = new URLSearchParams({ limit: "6", collectionId: product.collection.parentId });
+        const parentRes = await fetch(`${API_URL}/api/products?${parentParams}`, {
+          next: { revalidate: 60 },
+        });
+        if (parentRes.ok) {
+          const parentData = await parentRes.json();
+          const parentProducts = (parentData.data.data || []).filter(
+            (p: any) => p.id !== excludeId && !products.find((existing: any) => existing.id === p.id)
+          );
+          // Combine: products from same collection first, then parent collection
+          return [...products, ...parentProducts].slice(0, 4);
+        }
+      }
+      
+      return products.slice(0, 4);
+    }
+  }
+  
+  // Fallback: get featured products if no collection
+  const fallbackRes = await fetch(`${API_URL}/api/products?limit=4&isFeatured=true`, {
     next: { revalidate: 60 },
   });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data.data.data || []).filter((p: any) => p.id !== excludeId).slice(0, 4);
+  if (!fallbackRes.ok) return [];
+  const fallbackData = await fallbackRes.json();
+  return (fallbackData.data.data || []).filter((p: any) => p.id !== excludeId).slice(0, 4);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -62,7 +98,7 @@ export default async function ProductPage({ params }: Props) {
     notFound();
   }
 
-  const relatedProducts = await getRelatedProducts(product.collectionId, product.id);
+  const relatedProducts = await getRelatedProducts(product);
 
   return (
     <ProductPageClient 
