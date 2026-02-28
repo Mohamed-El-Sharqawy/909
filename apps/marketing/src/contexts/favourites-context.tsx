@@ -9,11 +9,19 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "./auth-context";
+import type { Product } from "@ecommerce/shared-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
+interface FavouriteItem {
+  id: string;
+  productId: string;
+  product: Product;
+}
+
 interface FavouritesContextType {
   favouriteIds: string[];
+  favouriteItems: FavouriteItem[];
   isLoading: boolean;
   isFavourite: (productId: string) => boolean;
   addFavourite: (productId: string) => Promise<void>;
@@ -33,13 +41,16 @@ export function useFavourites() {
 
 export function FavouritesProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessToken } = useAuth();
-  const [favouriteIds, setFavouriteIds] = useState<string[]>([]);
+  const [favouriteItems, setFavouriteItems] = useState<FavouriteItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Derive IDs from items
+  const favouriteIds = favouriteItems.map((item) => item.productId);
 
   // Fetch favourites when authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      setFavouriteIds([]);
+      setFavouriteItems([]);
       return;
     }
 
@@ -52,8 +63,12 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
         });
         if (res.ok) {
           const data = await res.json();
-          const ids = (data.data || []).map((f: any) => f.productId);
-          setFavouriteIds(ids);
+          const items = (data.data || []).map((f: any) => ({
+            id: f.id,
+            productId: f.productId,
+            product: f.product,
+          }));
+          setFavouriteItems(items);
         }
       } catch {
         console.error("Failed to fetch favourites");
@@ -74,12 +89,17 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
     async (productId: string) => {
       if (!isAuthenticated) return;
 
-      // Optimistic update
-      setFavouriteIds((prev) => [...prev, productId]);
+      // Optimistic update - add placeholder item
+      const tempItem: FavouriteItem = {
+        id: `temp-${productId}`,
+        productId,
+        product: {} as Product,
+      };
+      setFavouriteItems((prev) => [...prev, tempItem]);
 
       try {
         const token = getAccessToken();
-        await fetch(`${API_URL}/api/favourites`, {
+        const res = await fetch(`${API_URL}/api/favourites`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -87,9 +107,20 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
           },
           body: JSON.stringify({ productId }),
         });
+        if (res.ok) {
+          const data = await res.json();
+          // Replace temp item with real data
+          setFavouriteItems((prev) =>
+            prev.map((item) =>
+              item.id === `temp-${productId}`
+                ? { id: data.data.id, productId: data.data.productId, product: data.data.product }
+                : item
+            )
+          );
+        }
       } catch {
         // Revert on error
-        setFavouriteIds((prev) => prev.filter((id) => id !== productId));
+        setFavouriteItems((prev) => prev.filter((item) => item.productId !== productId));
       }
     },
     [isAuthenticated, getAccessToken]
@@ -99,8 +130,11 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
     async (productId: string) => {
       if (!isAuthenticated) return;
 
+      // Store for revert
+      const removedItem = favouriteItems.find((item) => item.productId === productId);
+
       // Optimistic update
-      setFavouriteIds((prev) => prev.filter((id) => id !== productId));
+      setFavouriteItems((prev) => prev.filter((item) => item.productId !== productId));
 
       try {
         const token = getAccessToken();
@@ -110,10 +144,12 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
         });
       } catch {
         // Revert on error
-        setFavouriteIds((prev) => [...prev, productId]);
+        if (removedItem) {
+          setFavouriteItems((prev) => [...prev, removedItem]);
+        }
       }
     },
-    [isAuthenticated, getAccessToken]
+    [isAuthenticated, getAccessToken, favouriteItems]
   );
 
   const toggleFavourite = useCallback(
@@ -131,6 +167,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
     <FavouritesContext.Provider
       value={{
         favouriteIds,
+        favouriteItems,
         isLoading,
         isFavourite,
         addFavourite,

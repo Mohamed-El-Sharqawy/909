@@ -4,10 +4,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, Minus, Plus, Star, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Minus, Plus, Star, Check, Heart, Bookmark } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
+import { useFavourites } from "@/contexts/favourites-context";
+import { useWishlist } from "@/contexts/wishlist-context";
 import { createCartItemFromVariant } from "@/lib/cart";
 import { ReviewModal } from "@/components/ui/review-modal";
+import { SizeGuideModal } from "@/components/ui/size-guide-modal";
 import type { Product, ProductVariant } from "@ecommerce/shared-types";
 import { Link } from "@/i18n/navigation";
 
@@ -20,6 +23,8 @@ interface ProductPageClientProps {
 export function ProductPageClient({ product, relatedProducts, locale }: ProductPageClientProps) {
   const t = useTranslations("product");
   const { addItem } = useCart();
+  const { favouriteIds, addFavourite, removeFavourite } = useFavourites();
+  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -55,7 +60,31 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
   const [quantity, setQuantity] = useState(1);
   const [showFixedBar, setShowFixedBar] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const productInfoRef = useRef<HTMLDivElement>(null);
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+  // Fetch reviews for this product
+  useEffect(() => {
+    const fetchReviews = async () => {
+      setIsLoadingReviews(true);
+      try {
+        const res = await fetch(`${API_URL}/api/reviews/product/${product.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setReviews(data || []);
+        }
+      } catch {
+        console.error("Failed to fetch reviews");
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+    fetchReviews();
+  }, [product.id, API_URL]);
 
   // Update URL when variant changes
   const updateURL = useCallback((variant: ProductVariant) => {
@@ -315,7 +344,11 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
                     <span className="font-medium">{isArabic ? "المقاس:" : "Size:"}</span>{" "}
                     <span>{isArabic ? selectedVariant?.size?.nameAr : selectedVariant?.size?.nameEn}</span>
                   </p>
-                  <button className="text-sm underline">
+                  <button
+                    onClick={() => product.sizeGuideUrl && setIsSizeGuideOpen(true)}
+                    className={`text-sm underline ${!product.sizeGuideUrl ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={!product.sizeGuideUrl}
+                  >
                     {isArabic ? "دليل المقاسات" : "Size Guide"}
                   </button>
                 </div>
@@ -372,6 +405,32 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
               </div>
             </div>
 
+            {/* Favourite & Wishlist */}
+            <div className="flex gap-3 mb-4">
+              <button
+                onClick={() => favouriteIds.includes(product.id) ? removeFavourite(product.id) : addFavourite(product.id)}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 border rounded transition ${
+                  favouriteIds.includes(product.id)
+                    ? "border-red-500 text-red-500 bg-red-50"
+                    : "border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-500"
+                }`}
+              >
+                <Heart className={`h-5 w-5 ${favouriteIds.includes(product.id) ? "fill-current" : ""}`} />
+                {isArabic ? "المفضلة" : "Favourite"}
+              </button>
+              <button
+                onClick={() => wishlistItems.some(item => item.productId === product.id) ? removeFromWishlist(product.id) : addToWishlist(product.id)}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 border rounded transition ${
+                  wishlistItems.some(item => item.productId === product.id)
+                    ? "border-blue-500 text-blue-500 bg-blue-50"
+                    : "border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-500"
+                }`}
+              >
+                <Bookmark className={`h-5 w-5 ${wishlistItems.some(item => item.productId === product.id) ? "fill-current" : ""}`} />
+                {isArabic ? "قائمة الرغبات" : "Wishlist"}
+              </button>
+            </div>
+
             {/* Add to Cart & Buy Now */}
             <div className="space-y-3">
               <button
@@ -391,55 +450,6 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
         </div>
       </div>
 
-      {/* Frequently Bought Together */}
-      {relatedProducts.length > 0 && (
-        <div className="container mx-auto px-4 py-12 border-t">
-          <h2 className="text-xl font-semibold text-center mb-8">
-            {isArabic ? "يُشترى معًا بشكل متكرر" : "Frequently Bought Together"}
-          </h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {relatedProducts.slice(0, 3).map((p, idx) => (
-              <div key={p.id} className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="absolute -top-2 -left-2 w-5 h-5 bg-black rounded flex items-center justify-center z-10">
-                    <Check className="h-3 w-3 text-white" />
-                  </div>
-                  <Link href={`/products/${p.slug}`} className="block">
-                    <div className="w-32 h-40 bg-neutral-100 rounded overflow-hidden relative">
-                      {p.variants?.[0]?.images?.[0]?.url && (
-                        <Image
-                          src={p.variants[0].images[0].url}
-                          alt={isArabic ? p.nameAr : p.nameEn}
-                          fill
-                          className="object-cover"
-                          sizes="128px"
-                        />
-                      )}
-                    </div>
-                    <p className="text-xs mt-2 truncate w-32">{isArabic ? p.nameAr : p.nameEn}</p>
-                    <p className="text-xs text-red-600 font-semibold">
-                      LE {p.variants?.[0]?.price?.toLocaleString()}
-                    </p>
-                  </Link>
-                </div>
-                {idx < 2 && <span className="text-2xl text-gray-400">+</span>}
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground mb-2">
-              {isArabic ? "السعر الإجمالي:" : "Total price:"}
-            </p>
-            <p className="text-xl font-bold">
-              LE {relatedProducts.slice(0, 3).reduce((sum, p) => sum + (p.variants?.[0]?.price ?? 0), price).toLocaleString()}
-            </p>
-            <button className="mt-4 px-8 py-2 border border-black rounded hover:bg-gray-100 transition">
-              {isArabic ? "أضف للسلة" : "Add to cart"}
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Customer Reviews */}
       <div className="container mx-auto px-4 py-12 border-t">
         <div className="flex items-start justify-between mb-8">
@@ -447,17 +457,33 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
             <h2 className="text-xl font-semibold mb-2">
               {isArabic ? "آراء العملاء" : "Customer Reviews"}
             </h2>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">5.0</span>
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                ))}
+            {reviews.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold">
+                  {(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}
+                </span>
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+                    return (
+                      <Star
+                        key={star}
+                        className={`h-4 w-4 ${
+                          star <= avgRating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {isArabic
+                    ? `${reviews.length} مراجعة`
+                    : `${reviews.length} review${reviews.length !== 1 ? "s" : ""}`}
+                </span>
               </div>
-              <span className="text-sm text-muted-foreground">
-                {isArabic ? "٢ مراجعات" : "2 reviews"}
-              </span>
-            </div>
+            )}
           </div>
           <button 
             onClick={() => setIsReviewModalOpen(true)}
@@ -467,72 +493,74 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
           </button>
         </div>
 
-        {/* Sample Reviews */}
-        <div className="space-y-6">
-          <div className="border-b pb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium">
-                  M
-                </span>
-                <span className="font-medium text-sm">Marwa Samy</span>
-                <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">Verified</span>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground">I loved it!</p>
+        {/* Reviews List */}
+        {isLoadingReviews ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="h-6 w-6 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
           </div>
-
-          <div className="border-b pb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium">
-                  K
-                </span>
-                <span className="font-medium text-sm">Kassem</span>
-                <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">Verified</span>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Perfect product with such delicate material that is so soft on the skin.
+        ) : reviews.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">
+              {isArabic
+                ? "لا توجد مراجعات بعد. كن أول من يكتب مراجعة!"
+                : "No reviews yet. Be the first to write a review!"}
             </p>
           </div>
-        </div>
-
-        {/* Customers Feedback */}
-        <div className="mt-12">
-          <h3 className="text-xl font-semibold mb-6">
-            {isArabic ? "آراء العملاء" : "Customers Feedback"}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { name: "Omnia", title: "I TRUST YOUU", text: "THANK YOU for this order you delivered it on time and the clothes material are super comfy I'm so grateful for what you do" },
-              { name: "Nourhane Amr", title: "Perfect Quality and service", text: "The order was delivered yesterday and am so thankful it came that fast. Thank you for the quality and the rapid response." },
-              { name: "Omar Elsayed", title: "BEST LEATHER JACKET EVER", text: "Quality of leather jacket bgdd gamda awy" },
-            ].map((feedback, idx) => (
-              <div key={idx} className="space-y-2">
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  ))}
+        ) : (
+          <div className="space-y-6">
+            {reviews.map((review) => (
+              <div key={review.id} className="border-b pb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`h-4 w-4 ${
+                          star <= review.rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium">
+                      {review.customerName?.charAt(0)?.toUpperCase() || "U"}
+                    </span>
+                    <span className="font-medium text-sm">{review.customerName || "Anonymous"}</span>
+                    {review.userId && (
+                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
+                        {isArabic ? "مُتحقق" : "Verified"}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <h4 className="font-semibold">{feedback.title}</h4>
-                <p className="text-sm text-muted-foreground">{feedback.text}</p>
-                <p className="text-sm font-medium">{feedback.name}</p>
+                {review.title && (
+                  <h4 className="font-semibold text-sm mb-1">{review.title}</h4>
+                )}
+                <p className="text-sm text-muted-foreground">{review.content}</p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {new Date(review.createdAt).toLocaleDateString(isArabic ? "ar-EG" : "en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
               </div>
             ))}
           </div>
-        </div>
+        )}
       </div>
+
+      {/* Frequently Bought Together */}
+      {relatedProducts.length >= 2 && (
+        <FrequentlyBoughtTogether
+          currentProduct={product}
+          relatedProducts={relatedProducts.slice(0, 2)}
+          locale={locale}
+          selectedVariant={selectedVariant}
+        />
+      )}
 
       {/* Featured Products */}
       {relatedProducts.length > 0 && (
@@ -665,6 +693,214 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
         product={product}
         locale={locale}
       />
+
+      {/* Size Guide Modal */}
+      {product.sizeGuideUrl && (
+        <SizeGuideModal
+          isOpen={isSizeGuideOpen}
+          onClose={() => setIsSizeGuideOpen(false)}
+          imageUrl={product.sizeGuideUrl}
+          locale={locale}
+        />
+      )}
+    </div>
+  );
+}
+
+// Frequently Bought Together Component
+interface FrequentlyBoughtTogetherProps {
+  currentProduct: Product;
+  relatedProducts: Product[];
+  locale: string;
+  selectedVariant: ProductVariant | null;
+}
+
+function FrequentlyBoughtTogether({
+  currentProduct,
+  relatedProducts,
+  locale,
+  selectedVariant,
+}: FrequentlyBoughtTogetherProps) {
+  const { addItem } = useCart();
+  const isArabic = locale === "ar";
+  
+  // Track which products are selected (current product always selected)
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(
+    new Set([currentProduct.id, ...relatedProducts.map((p) => p.id)])
+  );
+
+  const toggleProduct = (productId: string) => {
+    // Don't allow deselecting the current product
+    if (productId === currentProduct.id) return;
+    
+    setSelectedProducts((prev) => {
+      const next = new Set(prev);
+      if (next.has(productId)) {
+        next.delete(productId);
+      } else {
+        next.add(productId);
+      }
+      return next;
+    });
+  };
+
+  // All products in the bundle
+  const allProducts = [currentProduct, ...relatedProducts];
+  
+  // Calculate total price
+  const totalPrice = allProducts
+    .filter((p) => selectedProducts.has(p.id))
+    .reduce((sum, p) => {
+      if (p.id === currentProduct.id && selectedVariant) {
+        return sum + (selectedVariant.compareAtPrice || selectedVariant.price || 0);
+      }
+      const variant = p.variants?.[0];
+      return sum + (variant?.compareAtPrice || variant?.price || 0);
+    }, 0);
+
+  const selectedCount = selectedProducts.size;
+
+  const handleAddAllToCart = () => {
+    allProducts.forEach((p) => {
+      if (!selectedProducts.has(p.id)) return;
+      
+      const variant = p.id === currentProduct.id ? selectedVariant : p.variants?.[0];
+      if (!variant) return;
+      
+      const cartItem = createCartItemFromVariant(variant, {
+        id: p.id,
+        slug: p.slug,
+        nameEn: p.nameEn,
+        nameAr: p.nameAr,
+      }, 1);
+      addItem(cartItem);
+    });
+  };
+
+  const getProductImage = (p: Product) => {
+    if (p.id === currentProduct.id && selectedVariant?.images?.[0]?.url) {
+      return selectedVariant.images[0].url;
+    }
+    return p.variants?.[0]?.images?.[0]?.url || "";
+  };
+
+  const getProductPrice = (p: Product) => {
+    if (p.id === currentProduct.id && selectedVariant) {
+      return selectedVariant.compareAtPrice || selectedVariant.price || 0;
+    }
+    const variant = p.variants?.[0];
+    return variant?.compareAtPrice || variant?.price || 0;
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-12 border-t">
+      <h2 className="text-xl font-semibold text-center mb-2">
+        {isArabic ? "يُشترى معاً بشكل متكرر" : "Frequently Bought Together"}
+      </h2>
+      <p className="text-center text-muted-foreground text-sm mb-8">
+        {isArabic ? "أضف هذه المنتجات معاً ووفر الوقت" : "Add these items together and save time"}
+      </p>
+
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-8">
+        {/* Products Row */}
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          {allProducts.map((p, index) => {
+            const isSelected = selectedProducts.has(p.id);
+            const isCurrentProduct = p.id === currentProduct.id;
+            const productName = isArabic ? p.nameAr : p.nameEn;
+            const productPrice = getProductPrice(p);
+            const productImage = getProductImage(p);
+
+            return (
+              <div key={p.id} className="flex items-center gap-4">
+                {/* Product Card */}
+                <div
+                  className={`relative flex flex-col items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    isSelected
+                      ? "border-black bg-white shadow-md"
+                      : "border-gray-200 bg-gray-50 opacity-60"
+                  } ${isCurrentProduct ? "ring-2 ring-black ring-offset-2" : ""}`}
+                  onClick={() => toggleProduct(p.id)}
+                >
+                  {/* Checkbox */}
+                  <div
+                    className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                      isSelected
+                        ? "bg-black border-black"
+                        : "bg-white border-gray-300"
+                    } ${isCurrentProduct ? "cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    {isSelected && <Check className="h-3 w-3 text-white" />}
+                  </div>
+
+                  {/* Current Product Badge */}
+                  {isCurrentProduct && (
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap">
+                      {isArabic ? "هذا المنتج" : "This item"}
+                    </span>
+                  )}
+
+                  {/* Image */}
+                  <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden bg-neutral-100 mb-3">
+                    {productImage && (
+                      <Image
+                        src={productImage}
+                        alt={productName}
+                        fill
+                        className="object-cover"
+                        sizes="128px"
+                      />
+                    )}
+                  </div>
+
+                  {/* Name */}
+                  <p className="text-xs md:text-sm font-medium text-center line-clamp-2 max-w-[120px]">
+                    {productName}
+                  </p>
+
+                  {/* Price */}
+                  <p className="text-sm font-semibold mt-1">
+                    LE {productPrice.toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Plus Sign (between products) */}
+                {index < allProducts.length - 1 && (
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold text-lg">
+                    +
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Total & Add to Cart */}
+        <div className="flex flex-col items-center gap-4 p-6 bg-gray-50 rounded-2xl border min-w-[240px]">
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground mb-1">
+              {isArabic ? `إجمالي ${selectedCount} منتجات` : `Total for ${selectedCount} items`}
+            </p>
+            <p className="text-2xl font-bold">
+              LE {totalPrice.toLocaleString()}
+            </p>
+          </div>
+          
+          <button
+            onClick={handleAddAllToCart}
+            disabled={selectedCount === 0}
+            className="w-full py-3 px-6 bg-black text-white font-medium rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isArabic ? `أضف ${selectedCount} للسلة` : `Add ${selectedCount} to Cart`}
+          </button>
+          
+          <p className="text-xs text-muted-foreground text-center">
+            {isArabic
+              ? "انقر على المنتج لإضافته أو إزالته"
+              : "Click on a product to add or remove it"}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

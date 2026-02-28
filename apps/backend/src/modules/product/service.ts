@@ -122,11 +122,10 @@ export abstract class ProductService {
       };
     }
 
+    const isPriceSorting = query.sortBy === "price";
     const orderBy: Record<string, string> = {};
-    if (query.sortBy === "price") {
-      // price sorting handled differently with variants
-      orderBy.createdAt = query.sortOrder || "desc";
-    } else {
+    
+    if (!isPriceSorting) {
       orderBy[query.sortBy || "createdAt"] = query.sortOrder || "desc";
     }
 
@@ -134,15 +133,28 @@ export abstract class ProductService {
       prisma.product.findMany({
         where,
         include: PRODUCT_INCLUDE,
-        skip,
-        take: limit,
-        orderBy,
+        skip: isPriceSorting ? 0 : skip,
+        take: isPriceSorting ? undefined : limit,
+        orderBy: isPriceSorting ? undefined : orderBy,
       }),
       prisma.product.count({ where }),
     ]);
 
+    let transformedProducts = products.map(transformProduct);
+
+    // Handle price sorting in JavaScript since Prisma can't sort by nested variant price
+    if (isPriceSorting) {
+      transformedProducts.sort((a, b) => {
+        const priceA = a.variants?.[0]?.price ?? 0;
+        const priceB = b.variants?.[0]?.price ?? 0;
+        return query.sortOrder === "asc" ? priceA - priceB : priceB - priceA;
+      });
+      // Apply pagination after sorting
+      transformedProducts = transformedProducts.slice(skip, skip + limit);
+    }
+
     return {
-      data: products.map(transformProduct),
+      data: transformedProducts,
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }

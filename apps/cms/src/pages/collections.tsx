@@ -258,7 +258,7 @@ export function CollectionsPage() {
                     </TableCell>
                     <TableCell>
                       {(collection as any).isFeaturedOnHome ? (
-                        <Badge variant="default" className="bg-purple-600">{(collection as any).homeFeaturedPosition === 0 ? "Left" : "Right"}</Badge>
+                        <Badge variant="default" className="bg-purple-600">#{(collection as any).homeFeaturedPosition || 1}</Badge>
                       ) : (
                         <Badge variant="outline">No</Badge>
                       )}
@@ -467,17 +467,20 @@ export function CollectionsPage() {
 
               <div className="grid gap-2">
                 <Label htmlFor="homeFeaturedPosition">Homepage Position</Label>
-                <Select name="homeFeaturedPosition" defaultValue={String((editingCollection as any)?.homeFeaturedPosition ?? 0)}>
+                <Select name="homeFeaturedPosition" defaultValue={String((editingCollection as any)?.homeFeaturedPosition ?? 1)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select position" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">Left (First)</SelectItem>
-                    <SelectItem value="1">Right (Second)</SelectItem>
+                    <SelectItem value="1">Position 1 (Top Left)</SelectItem>
+                    <SelectItem value="2">Position 2 (Top Right)</SelectItem>
+                    <SelectItem value="3">Position 3 (Bottom Left)</SelectItem>
+                    <SelectItem value="4">Position 4 (Bottom Center)</SelectItem>
+                    <SelectItem value="5">Position 5 (Bottom Right)</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Only 2 collections can be featured on homepage hero section
+                  Up to 5 collections: 2 on top row, 3 on bottom row
                 </p>
               </div>
 

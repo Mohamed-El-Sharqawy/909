@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { Eye, ShoppingBag } from "lucide-react";
+import { Eye, ShoppingBag, Heart, Bookmark } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Product, ProductVariant } from "@ecommerce/shared-types";
 import { useCart } from "@/contexts/cart-context";
+import { useFavourites } from "@/contexts/favourites-context";
+import { useWishlist } from "@/contexts/wishlist-context";
 import { createCartItemFromVariant } from "@/lib/cart";
 import { QuickViewModal } from "./quick-view-modal";
 
@@ -21,6 +23,11 @@ export function ProductCardWithVariants({
 }: ProductCardWithVariantsProps) {
   const t = useTranslations("common");
   const { addItem } = useCart();
+  const { favouriteIds, addFavourite, removeFavourite } = useFavourites();
+  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
+
+  const isFavourite = favouriteIds.includes(product.id);
+  const isInWishlist = wishlistItems.some((item) => item.productId === product.id);
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     product.variants?.[0] ?? null
@@ -134,7 +141,7 @@ export function ProductCardWithVariants({
                     src={primaryImage}
                     alt={name}
                     fill
-                    className={`object-cover select-none transition-all duration-700 ease-out  ${
+                    className={`object-cover select-none transition-all duration-700 ease-out rounded-xl ${
                       isImageHovered && hoverImage
                         ? "opacity-0 blur-sm scale-105"
                         : "opacity-100 blur-0 scale-100"
@@ -162,10 +169,40 @@ export function ProductCardWithVariants({
               )}
 
               {discountPercent && (
-                <span className="absolute top-3 right-3 rounded-full bg-red-500 px-2 py-1 text-xs font-semibold text-white">
+                <span className="absolute top-3 left-3 rounded-full bg-red-500 px-2 py-1 text-xs font-semibold text-white">
                   -{discountPercent}%
                 </span>
               )}
+
+              {/* Favourite & Wishlist Buttons */}
+              <div className="absolute top-3 right-3 flex flex-col gap-2">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    isFavourite ? removeFavourite(product.id) : addFavourite(product.id);
+                  }}
+                  className={`p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm transition hover:scale-110 ${
+                    isFavourite ? "text-red-500" : "text-gray-600 hover:text-red-500"
+                  }`}
+                  aria-label={isFavourite ? "Remove from favourites" : "Add to favourites"}
+                >
+                  <Heart className={`h-4 w-4 ${isFavourite ? "fill-current" : ""}`} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    isInWishlist ? removeFromWishlist(product.id) : addToWishlist(product.id);
+                  }}
+                  className={`p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm transition hover:scale-110 ${
+                    isInWishlist ? "text-blue-500" : "text-gray-600 hover:text-blue-500"
+                  }`}
+                  aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                  <Bookmark className={`h-4 w-4 ${isInWishlist ? "fill-current" : ""}`} />
+                </button>
+              </div>
             </div>
           </Link>
 

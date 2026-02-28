@@ -297,7 +297,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
             </Link>
             {isAuthenticated && (
               <Link
-                href="/account"
+                href="/account?tab=orders"
                 className="block w-full py-3 border border-black font-medium rounded hover:bg-gray-100 transition"
               >
                 {isArabic ? "عرض طلباتي" : "View My Orders"}

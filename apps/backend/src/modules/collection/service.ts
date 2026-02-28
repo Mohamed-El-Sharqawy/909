@@ -189,7 +189,7 @@ export abstract class CollectionService {
       where: { isFeaturedOnHome: true, isActive: true },
       include: { image: true },
       orderBy: { homeFeaturedPosition: "asc" },
-      take: 2, // Only 2 collections for hero section
+      take: 5, // Up to 5 collections: 2 on top row, 3 on bottom row
     });
   }
 }

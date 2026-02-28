@@ -38,7 +38,8 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
 
   // Review form state
   const [rating, setRating] = useState(5);
-  const [reviewText, setReviewText] = useState("");
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewContent, setReviewContent] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSuccess, setReviewSuccess] = useState(false);
 
@@ -64,17 +65,20 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
       setIsCheckingPurchase(true);
       try {
         const token = getAccessToken();
-        const res = await fetch(`${API_URL}/api/orders/my-orders`, {
+        const res = await fetch(`${API_URL}/api/orders`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
         if (res.ok) {
           const data = await res.json();
-          const orders = data.data || [];
+          const orders = data.data?.data || [];
           
-          // Check if any order contains this product
+          // Get all variant IDs for this product
+          const productVariantIds = product.variants?.map((v) => v.id) || [];
+          
+          // Check if any order contains a variant of this product
           const hasPurchased = orders.some((order: any) =>
-            order.items?.some((item: any) => item.productId === product.id)
+            order.items?.some((item: any) => productVariantIds.includes(item.variantId))
           );
 
           setModalState(hasPurchased ? "review" : "not-purchased");
@@ -141,7 +145,8 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
         body: JSON.stringify({
           productId: product.id,
           rating,
-          text: reviewText,
+          title: reviewTitle,
+          content: reviewContent,
         }),
       });
 
@@ -151,7 +156,8 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
           onClose();
           setReviewSuccess(false);
           setRating(5);
-          setReviewText("");
+          setReviewTitle("");
+          setReviewContent("");
         }, 2000);
       }
     } finally {
@@ -437,20 +443,40 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
                         </div>
                       </div>
 
-                      {/* Review Text */}
+                      {/* Review Title */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          {isArabic ? "عنوان المراجعة" : "Review Title"}
+                        </label>
+                        <input
+                          type="text"
+                          value={reviewTitle}
+                          onChange={(e) => setReviewTitle(e.target.value)}
+                          placeholder={
+                            isArabic
+                              ? "اكتب عنوان مختصر..."
+                              : "Write a brief title..."
+                          }
+                          required
+                          className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                        />
+                      </div>
+
+                      {/* Review Content */}
                       <div>
                         <label className="block text-sm font-medium mb-2">
                           {isArabic ? "مراجعتك" : "Your Review"}
                         </label>
                         <textarea
-                          value={reviewText}
-                          onChange={(e) => setReviewText(e.target.value)}
+                          value={reviewContent}
+                          onChange={(e) => setReviewContent(e.target.value)}
                           placeholder={
                             isArabic
                               ? "شاركنا تجربتك مع هذا المنتج..."
                               : "Share your experience with this product..."
                           }
                           rows={4}
+                          required
                           className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
                         />
                       </div>

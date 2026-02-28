@@ -207,13 +207,13 @@ export function CartDrawer({ locale }: { locale: string }) {
                       {item.sizeNameEn && ` / ${isArabic ? item.sizeNameAr : item.sizeNameEn}`}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      {item.compareAtPrice && item.compareAtPrice > item.price && (
+                      {item.compareAtPrice && item.compareAtPrice > (item.price || 0) && (
                         <span className="text-xs text-muted-foreground line-through">
                           LE {item.compareAtPrice.toLocaleString()}
                         </span>
                       )}
                       <span className="text-sm font-semibold text-red-600">
-                        LE {item.price.toLocaleString()}
+                        LE {(item.price || 0).toLocaleString()}
                       </span>
                     </div>
 

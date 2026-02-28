@@ -1,9 +1,9 @@
 import { Link } from "@/i18n/navigation";
-import { Search } from "lucide-react";
 import { HeaderNav } from "./header-nav";
 import { MobileMenu } from "./mobile-menu";
 import { CartIcon } from "./cart-icon";
 import { UserIcon } from "./user-icon";
+import { GlobalSearch } from "./global-search";
 
 export function Header() {
   return (
@@ -19,9 +19,7 @@ export function Header() {
         <HeaderNav />
 
         <div className="flex items-center gap-2 md:gap-4">
-          <button className="p-2 hover:opacity-70 transition-opacity">
-            <Search className="h-5 w-5" />
-          </button>
+          <GlobalSearch />
           <UserIcon />
           <CartIcon />
         </div>

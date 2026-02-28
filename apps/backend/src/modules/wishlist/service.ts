@@ -5,7 +5,20 @@ const WISHLIST_INCLUDE = {
   product: {
     include: {
       images: { orderBy: { createdAt: "asc" as const }, take: 1 },
-      variants: { where: { isActive: true }, orderBy: { price: "asc" as const }, take: 1 },
+      variants: {
+        where: { isActive: true },
+        orderBy: { price: "asc" as const },
+        take: 1,
+        include: {
+          images: {
+            orderBy: { position: "asc" as const },
+            take: 1,
+            include: { image: true },
+          },
+          color: true,
+          size: true,
+        },
+      },
     },
   },
 } as const;

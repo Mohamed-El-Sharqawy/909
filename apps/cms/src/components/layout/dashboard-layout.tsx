@@ -11,6 +11,7 @@ import {
   Ticket,
   Video,
   Image,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ const navItems = [
   { label: "Colors", href: "/colors", icon: Palette },
   { label: "Sizes", href: "/sizes", icon: Ruler },
   { label: "Orders", href: "/orders", icon: ShoppingCart },
+  { label: "Reviews", href: "/reviews", icon: MessageSquare },
   { label: "Coupons", href: "/coupons", icon: Ticket },
   { label: "Content", href: "/content", icon: Video },
   { label: "Banners", href: "/banners", icon: Image },

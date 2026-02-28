@@ -16,18 +16,12 @@ export const reviewController = new Elysia({ prefix: "/reviews" })
     return reviews;
   })
   // Admin: Get all reviews
-  .get("/", async ({ isAdmin }) => {
-    if (!isAdmin) {
-      return { error: "Unauthorized" };
-    }
+  .get("/", async () => {
     const reviews = await ReviewService.list();
     return reviews;
   }, { isAdmin: true })
   // Admin: Get single review
-  .get("/:id", async ({ params, isAdmin }) => {
-    if (!isAdmin) {
-      return { error: "Unauthorized" };
-    }
+  .get("/:id", async ({ params }) => {
     const review = await ReviewService.getById(params.id);
     if (!review) {
       return { error: "Review not found" };
@@ -35,8 +29,8 @@ export const reviewController = new Elysia({ prefix: "/reviews" })
     return review;
   }, { isAdmin: true })
   // Authenticated: Create review
-  .post("/", async ({ body, user, isSignIn }) => {
-    const customerName = isSignIn && user
+  .post("/", async ({ body, user }) => {
+    const customerName = user
       ? `${user.firstName} ${user.lastName}`
       : body.customerName || "Anonymous";
 
@@ -54,10 +48,7 @@ export const reviewController = new Elysia({ prefix: "/reviews" })
     optionalAuth: true,
   })
   // Admin: Update review
-  .patch("/:id", async ({ params, body, isAdmin }) => {
-    if (!isAdmin) {
-      return { error: "Unauthorized" };
-    }
+  .patch("/:id", async ({ params, body }) => {
     const review = await ReviewService.update(params.id, body);
     return review;
   }, {
@@ -65,18 +56,12 @@ export const reviewController = new Elysia({ prefix: "/reviews" })
     isAdmin: true,
   })
   // Admin: Approve review
-  .post("/:id/approve", async ({ params, isAdmin }) => {
-    if (!isAdmin) {
-      return { error: "Unauthorized" };
-    }
+  .post("/:id/approve", async ({ params }) => {
     const review = await ReviewService.approve(params.id);
     return review;
   }, { isAdmin: true })
   // Admin: Delete review
-  .delete("/:id", async ({ params, isAdmin }) => {
-    if (!isAdmin) {
-      return { error: "Unauthorized" };
-    }
+  .delete("/:id", async ({ params }) => {
     await ReviewService.delete(params.id);
     return { success: true };
   }, { isAdmin: true });

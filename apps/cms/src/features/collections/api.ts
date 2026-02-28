@@ -67,7 +67,7 @@ export function useDeleteCollection() {
   return useMutation({
     mutationFn: (id: string) => deleteCollection(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: collectionKeys.all });
     },
   });
 }

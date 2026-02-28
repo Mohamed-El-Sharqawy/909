@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -14,9 +14,19 @@ interface HeroBannerProps {
 export function HeroBanner({ banners, locale }: HeroBannerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isArabic = locale === "ar";
 
   const activeBanners = banners.filter((b) => b.isActive);
+
+  // Reset auto-play timer - clears existing timeout and sets a new one
+  const resetAutoPlayTimer = useCallback(() => {
+    if (resumeTimeoutRef.current) {
+      clearTimeout(resumeTimeoutRef.current);
+    }
+    setIsAutoPlaying(false);
+    resumeTimeoutRef.current = setTimeout(() => setIsAutoPlaying(true), 5000);
+  }, []);
 
   const goToNext = useCallback(() => {
     if (activeBanners.length === 0) return;
@@ -30,9 +40,7 @@ export function HeroBanner({ banners, locale }: HeroBannerProps) {
 
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
-    setIsAutoPlaying(false);
-    // Resume auto-play after 5 seconds of inactivity
-    setTimeout(() => setIsAutoPlaying(true), 5000);
+    resetAutoPlayTimer();
   };
 
   // Auto-play carousel
@@ -42,6 +50,15 @@ export function HeroBanner({ banners, locale }: HeroBannerProps) {
     const interval = setInterval(goToNext, 5000);
     return () => clearInterval(interval);
   }, [isAutoPlaying, goToNext, activeBanners.length]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (activeBanners.length === 0) {
     return null;
@@ -53,7 +70,7 @@ export function HeroBanner({ banners, locale }: HeroBannerProps) {
   const buttonText = isArabic ? currentBanner.buttonTextAr : currentBanner.buttonTextEn;
 
   return (
-    <section className="relative w-full h-[100svh] overflow-hidden bg-black">
+    <section className="relative w-full h-svh overflow-hidden bg-black">
       {/* Banner Images */}
       {activeBanners.map((banner, index) => (
         <div
@@ -101,8 +118,7 @@ export function HeroBanner({ banners, locale }: HeroBannerProps) {
           <button
             onClick={() => {
               goToPrev();
-              setIsAutoPlaying(false);
-              setTimeout(() => setIsAutoPlaying(true), 5000);
+              resetAutoPlayTimer();
             }}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition z-10"
             aria-label="Previous slide"
@@ -112,8 +128,7 @@ export function HeroBanner({ banners, locale }: HeroBannerProps) {
           <button
             onClick={() => {
               goToNext();
-              setIsAutoPlaying(false);
-              setTimeout(() => setIsAutoPlaying(true), 5000);
+              resetAutoPlayTimer();
             }}
             className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition z-10"
             aria-label="Next slide"

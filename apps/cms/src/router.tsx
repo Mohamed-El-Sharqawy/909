@@ -12,6 +12,7 @@ import { UsersPage } from "./pages/users";
 import { CouponsPage } from "./pages/coupons";
 import { ContentPage } from "./pages/content";
 import { BannersPage } from "./pages/banners";
+import { ReviewsPage } from "./pages/reviews";
 import { LoginPage } from "./pages/login";
 
 export const router = createBrowserRouter([
@@ -82,6 +83,10 @@ export const router = createBrowserRouter([
       {
         path: "banners",
         element: <BannersPage />,
+      },
+      {
+        path: "reviews",
+        element: <ReviewsPage />,
       },
     ],
   },

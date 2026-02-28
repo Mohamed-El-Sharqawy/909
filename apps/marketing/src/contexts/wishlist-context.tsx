@@ -9,13 +9,16 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "./auth-context";
+import type { Product } from "@ecommerce/shared-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 interface WishlistItem {
+  id: string;
   productId: string;
   variantId?: string;
   note?: string;
+  product?: Product;
 }
 
 interface WishlistContextType {
@@ -60,9 +63,11 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
           const data = await res.json();
           setWishlistItems(
             (data.data || []).map((item: any) => ({
+              id: item.id,
               productId: item.productId,
               variantId: item.variantId,
               note: item.note,
+              product: item.product,
             }))
           );
         }
@@ -85,12 +90,18 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     async (productId: string, variantId?: string, note?: string) => {
       if (!isAuthenticated) return;
 
-      // Optimistic update
-      setWishlistItems((prev) => [...prev, { productId, variantId, note }]);
+      // Optimistic update with temp id
+      const tempItem: WishlistItem = {
+        id: `temp-${productId}`,
+        productId,
+        variantId,
+        note,
+      };
+      setWishlistItems((prev) => [...prev, tempItem]);
 
       try {
         const token = getAccessToken();
-        await fetch(`${API_URL}/api/wishlist`, {
+        const res = await fetch(`${API_URL}/api/wishlist`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -98,6 +109,23 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
           },
           body: JSON.stringify({ productId, variantId, note }),
         });
+        if (res.ok) {
+          const data = await res.json();
+          // Replace temp item with real data
+          setWishlistItems((prev) =>
+            prev.map((item) =>
+              item.id === `temp-${productId}`
+                ? {
+                    id: data.data.id,
+                    productId: data.data.productId,
+                    variantId: data.data.variantId,
+                    note: data.data.note,
+                    product: data.data.product,
+                  }
+                : item
+            )
+          );
+        }
       } catch {
         // Revert on error
         setWishlistItems((prev) => prev.filter((item) => item.productId !== productId));

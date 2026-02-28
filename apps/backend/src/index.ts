@@ -18,6 +18,7 @@ import { shoppableVideoController } from "./modules/shoppable-video";
 import { instagramPostController } from "./modules/instagram-post";
 import { reviewController } from "./modules/review";
 import { banner } from "./modules/banner";
+import { searchController } from "./modules/search";
 
 const port = process.env.PORT || 3001;
 const corsOrigins = process.env.CORS_ORIGIN?.split(",") || [
@@ -70,6 +71,7 @@ const app = new Elysia()
       .use(instagramPostController)
       .use(reviewController)
       .use(banner)
+      .use(searchController)
   )
   .listen(port);
 

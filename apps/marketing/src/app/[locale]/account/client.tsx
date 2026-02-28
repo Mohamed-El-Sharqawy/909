@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link, useRouter, usePathname } from "@/i18n/navigation";
 import {
   User,
   Heart,
@@ -19,6 +20,7 @@ import {
   Mail,
   CreditCard,
   ChevronRight,
+  ChevronLeft,
   Edit,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
@@ -36,16 +38,31 @@ interface AccountPageClientProps {
 
 type TabType = "profile" | "orders" | "favourites" | "wishlist" | "cart" | "addresses";
 
+const ORDERS_PER_PAGE = 5;
+
 export function AccountPageClient({ locale }: AccountPageClientProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user, isAuthenticated, isLoading: authLoading, signOut, getAccessToken } = useAuth();
-  const { favouriteIds, removeFavourite } = useFavourites();
+  const { favouriteIds, favouriteItems, removeFavourite } = useFavourites();
   const { wishlistItems, removeFromWishlist } = useWishlist();
   const { orders, isLoading: ordersLoading } = useOrders();
   const { items: cartItems, total: cartTotal, removeItem, updateQuantity } = useCart();
   const isArabic = locale === "ar";
 
-  const [activeTab, setActiveTab] = useState<TabType>("profile");
+  // Get initial tab from URL or default to profile
+  const getInitialTab = useCallback((): TabType => {
+    const tabParam = searchParams.get("tab");
+    const validTabs: TabType[] = ["profile", "orders", "favourites", "wishlist", "cart", "addresses"];
+    if (tabParam && validTabs.includes(tabParam as TabType)) {
+      return tabParam as TabType;
+    }
+    return "profile";
+  }, [searchParams]);
+
+  const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
+  const [ordersPage, setOrdersPage] = useState(1);
   const [favouriteProducts, setFavouriteProducts] = useState<Product[]>([]);
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
   const [addresses, setAddresses] = useState<any[]>([]);
@@ -66,62 +83,31 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
     }
   }, [authLoading, isAuthenticated, router]);
 
-  // Fetch favourite products
+  // Update URL when tab changes
+  const handleTabChange = useCallback((tab: TabType) => {
+    setActiveTab(tab);
+    setOrdersPage(1); // Reset pagination when switching tabs
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  // Get favourite products from context (already includes product data)
   useEffect(() => {
-    if (favouriteIds.length === 0) {
-      setFavouriteProducts([]);
-      return;
-    }
+    const products = favouriteItems
+      .filter((item) => item.product && item.product.id)
+      .map((item) => item.product);
+    setFavouriteProducts(products);
+    setIsLoadingFavourites(false);
+  }, [favouriteItems]);
 
-    const fetchProducts = async () => {
-      setIsLoadingFavourites(true);
-      try {
-        const products: Product[] = [];
-        for (const id of favouriteIds) {
-          const res = await fetch(`${API_URL}/api/products/${id}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.data) products.push(data.data);
-          }
-        }
-        setFavouriteProducts(products);
-      } catch {
-        console.error("Failed to fetch favourite products");
-      } finally {
-        setIsLoadingFavourites(false);
-      }
-    };
-
-    fetchProducts();
-  }, [favouriteIds]);
-
-  // Fetch wishlist products
+  // Get wishlist products from context (already includes product data)
   useEffect(() => {
-    if (wishlistItems.length === 0) {
-      setWishlistProducts([]);
-      return;
-    }
-
-    const fetchProducts = async () => {
-      setIsLoadingWishlist(true);
-      try {
-        const products: Product[] = [];
-        for (const item of wishlistItems) {
-          const res = await fetch(`${API_URL}/api/products/${item.productId}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.data) products.push(data.data);
-          }
-        }
-        setWishlistProducts(products);
-      } catch {
-        console.error("Failed to fetch wishlist products");
-      } finally {
-        setIsLoadingWishlist(false);
-      }
-    };
-
-    fetchProducts();
+    const products = wishlistItems
+      .filter((item) => item.product && item.product.id)
+      .map((item) => item.product as Product);
+    setWishlistProducts(products);
+    setIsLoadingWishlist(false);
   }, [wishlistItems]);
 
   // Fetch addresses
@@ -249,7 +235,7 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition ${
                     activeTab === tab.id
                       ? "bg-black text-white"
@@ -412,7 +398,9 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {orders.map((order: any) => (
+                  {orders
+                    .slice((ordersPage - 1) * ORDERS_PER_PAGE, ordersPage * ORDERS_PER_PAGE)
+                    .map((order: any) => (
                     <div key={order.id} className="bg-white border rounded-lg p-4">
                       <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                         <div>
@@ -503,6 +491,31 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
                       )}
                     </div>
                   ))}
+
+                  {/* Pagination */}
+                  {orders.length > ORDERS_PER_PAGE && (
+                    <div className="flex items-center justify-center gap-2 pt-4">
+                      <button
+                        onClick={() => setOrdersPage((p) => Math.max(1, p - 1))}
+                        disabled={ordersPage === 1}
+                        className="p-2 border rounded hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <span className="text-sm px-4">
+                        {isArabic
+                          ? `صفحة ${ordersPage} من ${Math.ceil(orders.length / ORDERS_PER_PAGE)}`
+                          : `Page ${ordersPage} of ${Math.ceil(orders.length / ORDERS_PER_PAGE)}`}
+                      </span>
+                      <button
+                        onClick={() => setOrdersPage((p) => Math.min(Math.ceil(orders.length / ORDERS_PER_PAGE), p + 1))}
+                        disabled={ordersPage >= Math.ceil(orders.length / ORDERS_PER_PAGE)}
+                        className="p-2 border rounded hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -535,13 +548,14 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {favouriteProducts.map((product) => {
                     const variant = product.variants?.[0];
+                    const imageUrl = (variant?.images?.[0] as any)?.image?.url || variant?.images?.[0]?.url || product.images?.[0]?.url;
                     return (
                       <div key={product.id} className="bg-white border rounded-lg p-4 flex gap-4">
                         <Link href={`/products/${product.slug}`} className="shrink-0">
                           <div className="w-24 h-32 bg-gray-100 rounded overflow-hidden relative">
-                            {variant?.images?.[0]?.url && (
+                            {imageUrl && (
                               <Image
-                                src={variant.images[0].url}
+                                src={imageUrl}
                                 alt={isArabic ? product.nameAr : product.nameEn}
                                 fill
                                 className="object-cover"
@@ -623,13 +637,14 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
                   {wishlistProducts.map((product) => {
                     const wishlistItem = wishlistItems.find((w) => w.productId === product.id);
                     const variant = product.variants?.[0];
+                    const imageUrl = (variant?.images?.[0] as any)?.image?.url || variant?.images?.[0]?.url || product.images?.[0]?.url;
                     return (
                       <div key={product.id} className="bg-white border rounded-lg p-4 flex gap-4">
                         <Link href={`/products/${product.slug}`} className="shrink-0">
                           <div className="w-24 h-32 bg-gray-100 rounded overflow-hidden relative">
-                            {variant?.images?.[0]?.url && (
+                            {imageUrl && (
                               <Image
-                                src={variant.images[0].url}
+                                src={imageUrl}
                                 alt={isArabic ? product.nameAr : product.nameEn}
                                 fill
                                 className="object-cover"
