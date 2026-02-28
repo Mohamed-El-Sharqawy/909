@@ -797,11 +797,113 @@ function FrequentlyBoughtTogether({
       <h2 className="text-xl font-semibold text-center mb-2">
         {isArabic ? "يُشترى معاً بشكل متكرر" : "Frequently Bought Together"}
       </h2>
-      <p className="text-center text-muted-foreground text-sm mb-8">
+      <p className="text-center text-muted-foreground text-sm mb-6">
         {isArabic ? "أضف هذه المنتجات معاً ووفر الوقت" : "Add these items together and save time"}
       </p>
 
-      <div className="flex flex-col lg:flex-row items-center justify-center gap-8">
+      {/* Mobile Layout */}
+      <div className="md:hidden">
+        <div className="bg-gray-50 rounded-2xl p-4 border">
+          {/* Products List - Horizontal scroll on mobile */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-4 -mx-2 px-2 scrollbar-hide">
+            {allProducts.map((p, index) => {
+              const isSelected = selectedProducts.has(p.id);
+              const isCurrentProduct = p.id === currentProduct.id;
+              const productName = isArabic ? p.nameAr : p.nameEn;
+              const productPrice = getProductPrice(p);
+              const productImage = getProductImage(p);
+
+              return (
+                <div key={p.id} className="flex items-center gap-2 shrink-0">
+                  {/* Product Card */}
+                  <div
+                    className={`relative flex flex-col items-center p-3 rounded-xl border-2 transition-all cursor-pointer w-[100px] ${
+                      isSelected
+                        ? "border-black bg-white shadow-sm"
+                        : "border-gray-200 bg-white opacity-50"
+                    }`}
+                    onClick={() => toggleProduct(p.id)}
+                  >
+                    {/* Checkbox */}
+                    <div
+                      className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${
+                        isSelected
+                          ? "bg-black border-black"
+                          : "bg-white border-gray-300"
+                      }`}
+                    >
+                      {isSelected && <Check className="h-3 w-3 text-white" />}
+                    </div>
+
+                    {/* Current Product Badge */}
+                    {isCurrentProduct && (
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-black text-white text-[8px] px-1.5 py-0.5 rounded-full whitespace-nowrap z-10">
+                        {isArabic ? "هذا المنتج" : "This item"}
+                      </span>
+                    )}
+
+                    {/* Image */}
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-neutral-100 mb-2">
+                      {productImage && (
+                        <Image
+                          src={productImage}
+                          alt={productName}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      )}
+                    </div>
+
+                    {/* Name */}
+                    <p className="text-[10px] font-medium text-center line-clamp-1 w-full">
+                      {productName}
+                    </p>
+
+                    {/* Price */}
+                    <p className="text-xs font-semibold mt-0.5">
+                      LE {productPrice.toLocaleString()}
+                    </p>
+                  </div>
+
+                  {/* Plus Sign */}
+                  {index < allProducts.length - 1 && (
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white border text-gray-400 font-bold text-sm shrink-0">
+                      +
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Divider */}
+          <div className="border-t my-3" />
+
+          {/* Total & Add to Cart */}
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground">
+                {isArabic ? `${selectedCount} منتجات` : `${selectedCount} items`}
+              </p>
+              <p className="text-lg font-bold">
+                LE {totalPrice.toLocaleString()}
+              </p>
+            </div>
+            
+            <button
+              onClick={handleAddAllToCart}
+              disabled={selectedCount === 0}
+              className="flex-1 max-w-[180px] py-2.5 px-4 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isArabic ? "أضف الكل للسلة" : "Add All to Cart"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden md:flex flex-col lg:flex-row items-center justify-center gap-8">
         {/* Products Row */}
         <div className="flex flex-wrap items-center justify-center gap-4">
           {allProducts.map((p, index) => {
@@ -824,7 +926,7 @@ function FrequentlyBoughtTogether({
                 >
                   {/* Checkbox */}
                   <div
-                    className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${
                       isSelected
                         ? "bg-black border-black"
                         : "bg-white border-gray-300"
@@ -841,7 +943,7 @@ function FrequentlyBoughtTogether({
                   )}
 
                   {/* Image */}
-                  <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden bg-neutral-100 mb-3">
+                  <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-neutral-100 mb-3">
                     {productImage && (
                       <Image
                         src={productImage}
@@ -854,7 +956,7 @@ function FrequentlyBoughtTogether({
                   </div>
 
                   {/* Name */}
-                  <p className="text-xs md:text-sm font-medium text-center line-clamp-2 max-w-[120px]">
+                  <p className="text-sm font-medium text-center line-clamp-2 max-w-[120px]">
                     {productName}
                   </p>
 
