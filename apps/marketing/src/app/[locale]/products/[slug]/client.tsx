@@ -747,15 +747,15 @@ function FrequentlyBoughtTogether({
   // All products in the bundle
   const allProducts = [currentProduct, ...relatedProducts];
   
-  // Calculate total price
+  // Calculate total price (use actual price, not compareAtPrice)
   const totalPrice = allProducts
     .filter((p) => selectedProducts.has(p.id))
     .reduce((sum, p) => {
       if (p.id === currentProduct.id && selectedVariant) {
-        return sum + (selectedVariant.compareAtPrice || selectedVariant.price || 0);
+        return sum + (selectedVariant.price || 0);
       }
       const variant = p.variants?.[0];
-      return sum + (variant?.compareAtPrice || variant?.price || 0);
+      return sum + (variant?.price || 0);
     }, 0);
 
   const selectedCount = selectedProducts.size;
@@ -786,10 +786,10 @@ function FrequentlyBoughtTogether({
 
   const getProductPrice = (p: Product) => {
     if (p.id === currentProduct.id && selectedVariant) {
-      return selectedVariant.compareAtPrice || selectedVariant.price || 0;
+      return selectedVariant.price || 0;
     }
     const variant = p.variants?.[0];
-    return variant?.compareAtPrice || variant?.price || 0;
+    return variant?.price || 0;
   };
 
   return (
