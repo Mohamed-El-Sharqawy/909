@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://909.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nznstudio.com";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 type ChangeFrequency = "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";

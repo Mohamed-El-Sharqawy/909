@@ -52,8 +52,8 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
     {
       icon: Mail,
       title: isArabic ? "البريد الإلكتروني" : "Email",
-      value: "support@909.com",
-      href: "mailto:support@909.com",
+      value: "support@nznstudio.com",
+      href: "mailto:support@nznstudio.com",
     },
     {
       icon: MapPin,

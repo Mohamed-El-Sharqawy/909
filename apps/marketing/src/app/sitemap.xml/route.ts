@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://909.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nznstudio.com";
 
 const locales = ["en", "ar"];
 
