@@ -497,5 +497,48 @@
       "default": "افتراضي",
       "phone": "الهاتف"
     }
+  },
+  "auth": {
+    "signin": {
+      "title": "تسجيل الدخول",
+      "subtitle": "أدخل بياناتك للوصول إلى حسابك",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "submit": "تسجيل الدخول",
+      "submitting": "جاري تسجيل الدخول...",
+      "noAccount": "ليس لديك حساب؟",
+      "signUpLink": "إنشاء حساب",
+      "continueAsGuest": "متابعة كزائر",
+      "or": "أو",
+      "error": "فشل تسجيل الدخول"
+    },
+    "signup": {
+      "title": "إنشاء حساب",
+      "subtitle": "أنشئ حسابك للاستمتاع بتجربة تسوق أفضل",
+      "firstName": "الاسم الأول",
+      "firstNamePlaceholder": "الاسم الأول",
+      "lastName": "الاسم الأخير",
+      "lastNamePlaceholder": "الاسم الأخير",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "phone": "رقم الهاتف",
+      "phonePlaceholder": "+20 1XX XXX XXXX",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "passwordHint": "6 أحرف على الأقل",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور",
+      "submit": "إنشاء حساب",
+      "submitting": "جاري إنشاء الحساب...",
+      "hasAccount": "لديك حساب بالفعل؟",
+      "signInLink": "تسجيل الدخول",
+      "continueAsGuest": "متابعة كزائر",
+      "or": "أو",
+      "error": "فشل إنشاء الحساب",
+      "passwordMismatch": "كلمات المرور غير متطابقة",
+      "passwordTooShort": "كلمة المرور يجب أن تكون 6 أحرف على الأقل"
+    }
   }
 }

@@ -510,5 +510,48 @@
       "default": "Default",
       "phone": "Phone"
     }
+  },
+  "auth": {
+    "signin": {
+      "title": "Sign In",
+      "subtitle": "Enter your credentials to access your account",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Sign In",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "continueAsGuest": "Continue as guest",
+      "or": "or",
+      "error": "Sign in failed"
+    },
+    "signup": {
+      "title": "Create Account",
+      "subtitle": "Create your account for a better shopping experience",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "First name",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Last name",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "phone": "Phone Number",
+      "phonePlaceholder": "+20 1XX XXX XXXX",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "passwordHint": "At least 6 characters",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "submit": "Create Account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "continueAsGuest": "Continue as guest",
+      "or": "or",
+      "error": "Sign up failed",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters"
+    }
   }
 }
