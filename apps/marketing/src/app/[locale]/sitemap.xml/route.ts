@@ -69,10 +69,27 @@ async function getCollections(): Promise<Array<{ slug: string; updatedAt: string
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data?.data || []).map((c: any) => ({
-      slug: c.slug,
-      updatedAt: c.updatedAt || new Date().toISOString(),
-    }));
+    
+    // Flatten collections including children
+    const allCollections: Array<{ slug: string; updatedAt: string }> = [];
+    for (const c of data?.data || []) {
+      allCollections.push({
+        slug: c.slug,
+        updatedAt: c.updatedAt || new Date().toISOString(),
+      });
+      
+      // Add children collections
+      if (c.children && Array.isArray(c.children)) {
+        for (const child of c.children) {
+          allCollections.push({
+            slug: child.slug,
+            updatedAt: child.updatedAt || new Date().toISOString(),
+          });
+        }
+      }
+    }
+    
+    return allCollections;
   } catch {
     return [];
   }

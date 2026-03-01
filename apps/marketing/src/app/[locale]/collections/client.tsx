@@ -52,6 +52,9 @@ export function CollectionsPageClient({
 
   // Update URL when search changes
   useEffect(() => {
+    const currentSearch = searchParams.get("search") || "";
+    if (debouncedQuery === currentSearch) return;
+    
     const params = new URLSearchParams(searchParams.toString());
     if (debouncedQuery) {
       params.set("search", debouncedQuery);
