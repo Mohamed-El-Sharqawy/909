@@ -14,6 +14,10 @@ export const user = new Elysia({ prefix: "/users" })
     const updated = await UserService.updateProfile(user.id, body);
     return { success: true as const, data: updated };
   }, { isSignIn: true, body: UserModel.updateProfile })
+  .patch("/me", async ({ user, body }) => {
+    const updated = await UserService.updateProfile(user.id, body);
+    return { success: true as const, data: updated };
+  }, { isSignIn: true, body: UserModel.updateProfile })
   // Addresses
   .get("/me/addresses", async ({ user }) => {
     const addresses = await UserService.getAddresses(user.id);
