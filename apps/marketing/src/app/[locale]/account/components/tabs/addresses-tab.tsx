@@ -1,9 +1,11 @@
 "use client";
 
 import { MapPin, Loader2, Phone } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { AddressesTabProps } from "../../types";
 
 export function AddressesTab({ locale, addresses, isLoading }: AddressesTabProps) {
+  const t = useTranslations("account.addressesTab");
   const isArabic = locale === "ar";
 
   if (isLoading) {
@@ -18,12 +20,12 @@ export function AddressesTab({ locale, addresses, isLoading }: AddressesTabProps
     return (
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">
-          {isArabic ? "عناويني" : "My Addresses"} (0)
+          {t("title")} (0)
         </h2>
         <div className="bg-white border rounded-lg p-8 text-center">
           <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
           <p className="text-muted-foreground">
-            {isArabic ? "لا توجد عناوين محفوظة" : "No saved addresses"}
+            {t("noAddresses")}
           </p>
           <p className="text-sm text-muted-foreground mt-1">
             {isArabic
@@ -38,7 +40,7 @@ export function AddressesTab({ locale, addresses, isLoading }: AddressesTabProps
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">
-        {isArabic ? "عناويني" : "My Addresses"} ({addresses.length})
+        {t("title")} ({addresses.length})
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {addresses.map((addr) => (
@@ -63,7 +65,7 @@ export function AddressesTab({ locale, addresses, isLoading }: AddressesTabProps
               </div>
               {addr.isDefault && (
                 <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                  {isArabic ? "افتراضي" : "Default"}
+                  {t("default")}
                 </span>
               )}
             </div>

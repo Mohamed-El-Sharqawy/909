@@ -13,7 +13,7 @@ import type { Order } from "@ecommerce/shared-types";
 import { apiGet } from "@/lib/api-client";
 
 interface OrdersContextType {
-  orders: Order[];
+  orders: { data: Order[]; meta?: { total: number; page: number; limit: number; totalPages: number } };
   isLoading: boolean;
   fetchOrders: () => Promise<void>;
   getOrder: (orderId: string) => Promise<Order | null>;
@@ -31,20 +31,21 @@ export function useOrders() {
 
 export function OrdersProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessToken } = useAuth();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<{ data: Order[]; meta?: { total: number; page: number; limit: number; totalPages: number } }>({ data: [], meta: undefined });
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     if (!isAuthenticated) {
-      setOrders([]);
+      setOrders({ data: [], meta: undefined });
       return;
     }
 
     setIsLoading(true);
     try {
       const token = getAccessToken();
-      const response = await apiGet<{ data: Order[] }>("/api/orders", { token: token || undefined });
-      setOrders(response.data || []);
+      const response = await apiGet<{ data: { data: Order[]; meta?: { total: number; page: number; limit: number; totalPages: number } } }>("/api/orders", { token: token || undefined });
+      // API returns nested structure: { data: { data: [...], meta: {...} } }
+      setOrders(response.data);
     } catch {
       console.error("Failed to fetch orders");
     } finally {
@@ -73,7 +74,7 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     if (isAuthenticated) {
       fetchOrders();
     } else {
-      setOrders([]);
+      setOrders({ data: [], meta: undefined });
     }
   }, [isAuthenticated, fetchOrders]);
 

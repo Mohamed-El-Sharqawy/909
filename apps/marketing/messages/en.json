@@ -441,5 +441,74 @@
       "title": "Contact Us",
       "description": "If you have any questions about our return policy, please contact us through our contact page."
     }
+  },
+  "account": {
+    "greeting": "Hello",
+    "profile": "Profile",
+    "orders": "My Orders",
+    "favourites": "Favourites",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "addresses": "Addresses",
+    "signOut": "Sign Out",
+    "loading": "Loading...",
+    "profileTab": {
+      "title": "Profile",
+      "email": "Email",
+      "phone": "Phone",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "createdAt": "Member since"
+    },
+    "ordersTab": {
+      "title": "My Orders",
+      "noOrders": "No orders yet",
+      "startShopping": "Start Shopping",
+      "orderId": "Order ID",
+      "date": "Date",
+      "status": "Status",
+      "payment": "Payment",
+      "total": "Total",
+      "items": "Items",
+      "shippingAddress": "Shipping Address",
+      "page": "Page",
+      "of": "of"
+    },
+    "favouritesTab": {
+      "title": "Favourites",
+      "noFavourites": "No favourites yet",
+      "startShopping": "Start Shopping",
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock",
+      "remove": "Remove"
+    },
+    "wishlistTab": {
+      "title": "Wishlist",
+      "noWishlist": "No wishlist items yet",
+      "startShopping": "Start Shopping",
+      "note": "Note",
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock",
+      "remove": "Remove"
+    },
+    "cartTab": {
+      "title": "Cart",
+      "emptyCart": "Your cart is empty",
+      "startShopping": "Start Shopping",
+      "product": "Product",
+      "price": "Price",
+      "quantity": "Quantity",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "checkout": "Checkout",
+      "remove": "Remove"
+    },
+    "addressesTab": {
+      "title": "Addresses",
+      "noAddresses": "No saved addresses yet",
+      "default": "Default",
+      "phone": "Phone"
+    }
   }
 }

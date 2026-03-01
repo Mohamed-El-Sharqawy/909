@@ -4,6 +4,7 @@ import { MobileMenu } from "./mobile-menu";
 import { CartIcon } from "./cart-icon";
 import { UserIcon } from "./user-icon";
 import { GlobalSearch } from "./global-search";
+import { LanguageSwitcher } from "./language-switcher";
 
 export function Header() {
   return (
@@ -20,6 +21,7 @@ export function Header() {
 
         <div className="flex items-center gap-2 md:gap-4">
           <GlobalSearch />
+          <LanguageSwitcher />
           <UserIcon />
           <CartIcon />
         </div>

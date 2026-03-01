@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { Bookmark, Loader2, Eye, Trash2 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import type { WishlistTabProps } from "../../types";
 
 export function WishlistTab({ locale, products, isLoading, wishlistItems, onRemove }: WishlistTabProps) {
+  const t = useTranslations("account.wishlistTab");
   const isArabic = locale === "ar";
 
   if (isLoading) {
@@ -20,18 +22,18 @@ export function WishlistTab({ locale, products, isLoading, wishlistItems, onRemo
     return (
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">
-          {isArabic ? "قائمة الرغبات" : "My Wishlist"} (0)
+          {t("title")} (0)
         </h2>
         <div className="bg-white border rounded-lg p-8 text-center">
           <Bookmark className="h-12 w-12 text-gray-300 mx-auto mb-4" />
           <p className="text-muted-foreground">
-            {isArabic ? "قائمة الرغبات فارغة" : "Your wishlist is empty"}
+            {t("noWishlist")}
           </p>
           <Link
             href="/collections"
             className="inline-block mt-4 px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
           >
-            {isArabic ? "استكشف المنتجات" : "Explore Products"}
+            {t("startShopping")}
           </Link>
         </div>
       </div>
@@ -41,7 +43,7 @@ export function WishlistTab({ locale, products, isLoading, wishlistItems, onRemo
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">
-        {isArabic ? "قائمة الرغبات" : "My Wishlist"} ({products.length})
+        {t("title")} ({products.length})
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {products.map((product) => {
@@ -83,7 +85,7 @@ export function WishlistTab({ locale, products, isLoading, wishlistItems, onRemo
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {isArabic ? "المخزون:" : "Stock:"} {variant?.stock || 0}
+                  {variant?.stock && variant.stock > 0 ? t("inStock") : t("outOfStock")}
                 </p>
                 <div className="flex items-center gap-2 mt-3">
                   <Link
@@ -98,7 +100,7 @@ export function WishlistTab({ locale, products, isLoading, wishlistItems, onRemo
                     className="flex items-center gap-1 text-xs px-3 py-1.5 border border-red-200 text-red-600 rounded hover:bg-red-50 transition"
                   >
                     <Trash2 className="h-3 w-3" />
-                    {isArabic ? "إزالة" : "Remove"}
+                    {t("remove")}
                   </button>
                 </div>
               </div>

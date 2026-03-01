@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useFavourites } from "@/contexts/favourites-context";
@@ -23,6 +24,7 @@ import {
 } from "./components";
 
 export function AccountPageClient({ locale }: AccountPageClientProps) {
+  const t = useTranslations("account");
   const router = useRouter();
   const isArabic = locale === "ar";
 
@@ -73,7 +75,7 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
       <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400 mb-4" />
         <p className="text-muted-foreground">
-          {isArabic ? "جاري التحميل..." : "Loading..."}
+          {t("loading")}
         </p>
       </div>
     );
@@ -85,14 +87,14 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
 
   const tabs = [
     { id: "profile" as const, count: undefined },
-    { id: "orders" as const, count: orders.length },
+    { id: "orders" as const, count: orders.meta?.total || 0 },
     { id: "favourites" as const, count: favouriteIds.length },
     { id: "wishlist" as const, count: wishlistItems.length },
     { id: "cart" as const, count: cartItems.length },
     { id: "addresses" as const, count: addresses.length },
   ];
 
-  const greeting = isArabic ? `مرحباً، ${user?.firstName}` : `Hello, ${user?.firstName}`;
+  const greeting = `${t("greeting")}، ${user?.firstName}`;
 
   return (
     <AccountLayout
@@ -114,7 +116,7 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
       {tabsState.activeTab === "orders" && (
         <OrdersTab
           locale={locale}
-          orders={orders as unknown as Order[]}
+          orders={orders}
           isLoading={ordersLoading}
           page={tabsState.ordersPage}
           onPageChange={tabsHandlers.setOrdersPage}

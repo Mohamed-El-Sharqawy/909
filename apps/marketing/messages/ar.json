@@ -428,5 +428,74 @@
       "title": "تواصل معنا",
       "description": "إذا كان لديك أي أسئلة حول سياسة الإرجاع، يرجى التواصل معنا عبر صفحة اتصل بنا."
     }
+  },
+  "account": {
+    "greeting": "مرحباً",
+    "profile": "الملف الشخصي",
+    "orders": "طلباتي",
+    "favourites": "المفضلة",
+    "wishlist": "قائمة الأمنيات",
+    "cart": "السلة",
+    "addresses": "العناوين",
+    "signOut": "تسجيل الخروج",
+    "loading": "جاري التحميل...",
+    "profileTab": {
+      "title": "الملف الشخصي",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "edit": "تعديل",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "createdAt": "عضو منذ"
+    },
+    "ordersTab": {
+      "title": "طلباتي",
+      "noOrders": "لا توجد طلبات بعد",
+      "startShopping": "تسوق الآن",
+      "orderId": "رقم الطلب",
+      "date": "التاريخ",
+      "status": "الحالة",
+      "payment": "طريقة الدفع",
+      "total": "الإجمالي",
+      "items": "المنتجات",
+      "shippingAddress": "عنوان الشحن",
+      "page": "صفحة",
+      "of": "من"
+    },
+    "favouritesTab": {
+      "title": "المفضلة",
+      "noFavourites": "لا توجد مفضلات بعد",
+      "startShopping": "تسوق الآن",
+      "inStock": "متوفر",
+      "outOfStock": "غير متوفر",
+      "remove": "إزالة"
+    },
+    "wishlistTab": {
+      "title": "قائمة الأمنيات",
+      "noWishlist": "لا توجد عناصر في قائمة الأمنيات بعد",
+      "startShopping": "تسوق الآن",
+      "note": "ملاحظة",
+      "inStock": "متوفر",
+      "outOfStock": "غير متوفر",
+      "remove": "إزالة"
+    },
+    "cartTab": {
+      "title": "السلة",
+      "emptyCart": "سلتك فارغة",
+      "startShopping": "تسوق الآن",
+      "product": "المنتج",
+      "price": "السعر",
+      "quantity": "الكمية",
+      "subtotal": "المجموع الفرعي",
+      "total": "الإجمالي",
+      "checkout": "إتمام الطلب",
+      "remove": "إزالة"
+    },
+    "addressesTab": {
+      "title": "العناوين",
+      "noAddresses": "لا توجد عناوين محفوظة بعد",
+      "default": "افتراضي",
+      "phone": "الهاتف"
+    }
   }
 }

@@ -31,7 +31,7 @@ export interface OrderItem {
   productNameAr: string;
   variantNameEn?: string;
   variantNameAr?: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   price: number;
   quantity: number;
   variantId: string;
@@ -102,7 +102,12 @@ export interface WishlistTabProps {
 
 export interface OrdersTabProps {
   locale: string;
-  orders: Order[];
+  orders: { data: Order[]; meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  } };
   isLoading: boolean;
   page: number;
   onPageChange: (page: number) => void;

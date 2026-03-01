@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { Package, Loader2, CreditCard, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import type { OrdersTabProps } from "../../types";
 import { ORDERS_PER_PAGE, getOrderStatusColor } from "../../constants";
 
 export function OrdersTab({ locale, orders, isLoading, page, onPageChange }: OrdersTabProps) {
+  const t = useTranslations("account.ordersTab");
   const isArabic = locale === "ar";
-  const totalPages = Math.ceil(orders.length / ORDERS_PER_PAGE);
+  const totalPages = Math.ceil((orders.meta?.total || 0) / ORDERS_PER_PAGE);
 
   if (isLoading) {
     return (
@@ -18,48 +20,48 @@ export function OrdersTab({ locale, orders, isLoading, page, onPageChange }: Ord
     );
   }
 
-  if (orders.length === 0) {
+  if (orders.data?.length === 0) {
     return (
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">
-          {isArabic ? "طلباتي" : "My Orders"} (0)
+          {t("title")} (0)
         </h2>
         <div className="bg-white border rounded-lg p-8 text-center">
           <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
           <p className="text-muted-foreground">
-            {isArabic ? "لا توجد طلبات بعد" : "No orders yet"}
+            {t("noOrders")}
           </p>
           <Link
             href="/collections"
             className="inline-block mt-4 px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
           >
-            {isArabic ? "تسوق الآن" : "Start Shopping"}
+            {t("startShopping")}
           </Link>
         </div>
       </div>
     );
   }
 
-  const paginatedOrders = orders.slice((page - 1) * ORDERS_PER_PAGE, page * ORDERS_PER_PAGE);
+  const paginatedOrders = orders.data?.slice((page - 1) * ORDERS_PER_PAGE, page * ORDERS_PER_PAGE);
 
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">
-        {isArabic ? "طلباتي" : "My Orders"} ({orders.length})
+        {t("title")} ({orders.meta?.total || 0})
       </h2>
       <div className="space-y-4">
-        {paginatedOrders.map((order) => (
+        {paginatedOrders?.map((order) => (
           <div key={order.id} className="bg-white border rounded-lg p-4">
             <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {isArabic ? "رقم الطلب" : "Order ID"}
+                  {t("orderId")}
                 </p>
                 <p className="font-mono font-medium">{order.orderNumber || order.id}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {isArabic ? "التاريخ" : "Date"}
+                  {t("date")}
                 </p>
                 <p className="font-medium">
                   {new Date(order.createdAt).toLocaleDateString(isArabic ? "ar-EG" : "en-US")}
@@ -67,7 +69,7 @@ export function OrdersTab({ locale, orders, isLoading, page, onPageChange }: Ord
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {isArabic ? "الحالة" : "Status"}
+                  {t("status")}
                 </p>
                 <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getOrderStatusColor(order.status)}`}>
                   {order.status}
@@ -75,7 +77,7 @@ export function OrdersTab({ locale, orders, isLoading, page, onPageChange }: Ord
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {isArabic ? "طريقة الدفع" : "Payment"}
+                  {t("payment")}
                 </p>
                 <p className="font-medium flex items-center gap-1">
                   <CreditCard className="h-3 w-3" />
@@ -84,7 +86,7 @@ export function OrdersTab({ locale, orders, isLoading, page, onPageChange }: Ord
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {isArabic ? "الإجمالي" : "Total"}
+                  {t("total")}
                 </p>
                 <p className="font-bold text-lg">LE {order.total?.toLocaleString()}</p>
               </div>
@@ -92,7 +94,7 @@ export function OrdersTab({ locale, orders, isLoading, page, onPageChange }: Ord
 
             <div className="border-t pt-4">
               <p className="text-sm font-medium mb-2">
-                {isArabic ? "المنتجات" : "Items"} ({order.items?.length || 0})
+                {t("items")} ({order.items?.length || 0})
               </p>
               <div className="space-y-2">
                 {order.items?.map((item) => (
@@ -127,7 +129,7 @@ export function OrdersTab({ locale, orders, isLoading, page, onPageChange }: Ord
               <div className="border-t pt-4 mt-4">
                 <p className="text-sm font-medium mb-1 flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
-                  {isArabic ? "عنوان الشحن" : "Shipping Address"}
+                  {t("shippingAddress")}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {order.shippingAddress.address}, {order.shippingAddress.city}
@@ -138,7 +140,7 @@ export function OrdersTab({ locale, orders, isLoading, page, onPageChange }: Ord
           </div>
         ))}
 
-        {orders.length > ORDERS_PER_PAGE && (
+        {orders.data?.length > ORDERS_PER_PAGE && (
           <div className="flex items-center justify-center gap-2 pt-4">
             <button
               onClick={() => onPageChange(Math.max(1, page - 1))}
@@ -148,9 +150,7 @@ export function OrdersTab({ locale, orders, isLoading, page, onPageChange }: Ord
               <ChevronLeft className="h-4 w-4" />
             </button>
             <span className="text-sm px-4">
-              {isArabic
-                ? `صفحة ${page} من ${totalPages}`
-                : `Page ${page} of ${totalPages}`}
+              {t("page")} {page} {t("of")} {totalPages}
             </span>
             <button
               onClick={() => onPageChange(Math.min(totalPages, page + 1))}

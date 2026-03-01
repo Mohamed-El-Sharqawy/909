@@ -3,10 +3,12 @@
 import Image from "next/image";
 import { ShoppingBag, Trash2 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/contexts/cart-context";
 import type { CartTabProps } from "../../types";
 
 export function CartTab({ locale }: CartTabProps) {
+  const t = useTranslations("account.cartTab");
   const { items: cartItems, total: cartTotal, removeItem, updateQuantity } = useCart();
   const isArabic = locale === "ar";
 
@@ -14,18 +16,18 @@ export function CartTab({ locale }: CartTabProps) {
     return (
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">
-          {isArabic ? "سلة التسوق" : "My Cart"} (0)
+          {t("title")} (0)
         </h2>
         <div className="bg-white border rounded-lg p-8 text-center">
           <ShoppingBag className="h-12 w-12 text-gray-300 mx-auto mb-4" />
           <p className="text-muted-foreground">
-            {isArabic ? "السلة فارغة" : "Your cart is empty"}
+            {t("emptyCart")}
           </p>
           <Link
             href="/collections"
             className="inline-block mt-4 px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
           >
-            {isArabic ? "تسوق الآن" : "Start Shopping"}
+            {t("startShopping")}
           </Link>
         </div>
       </div>
@@ -35,18 +37,18 @@ export function CartTab({ locale }: CartTabProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">
-        {isArabic ? "سلة التسوق" : "My Cart"} ({cartItems.length})
+        {t("title")} ({cartItems.length})
       </h2>
       <div className="bg-white border rounded-lg overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50 text-sm">
             <tr>
-              <th className="text-left px-4 py-3">{isArabic ? "المنتج" : "Product"}</th>
+              <th className="text-left px-4 py-3">{t("product")}</th>
               <th className="text-center px-4 py-3">{isArabic ? "اللون" : "Color"}</th>
               <th className="text-center px-4 py-3">{isArabic ? "المقاس" : "Size"}</th>
-              <th className="text-center px-4 py-3">{isArabic ? "السعر" : "Price"}</th>
-              <th className="text-center px-4 py-3">{isArabic ? "الكمية" : "Qty"}</th>
-              <th className="text-right px-4 py-3">{isArabic ? "الإجمالي" : "Total"}</th>
+              <th className="text-center px-4 py-3">{t("price")}</th>
+              <th className="text-center px-4 py-3">{t("quantity")}</th>
+              <th className="text-right px-4 py-3">{t("total")}</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
@@ -137,14 +139,14 @@ export function CartTab({ locale }: CartTabProps) {
       </div>
       <div className="flex items-center justify-between bg-white border rounded-lg p-4">
         <div>
-          <p className="text-sm text-muted-foreground">{isArabic ? "المجموع الفرعي" : "Subtotal"}</p>
+          <p className="text-sm text-muted-foreground">{t("subtotal")}</p>
           <p className="text-xl font-bold">LE {cartTotal.toLocaleString()} EGP</p>
         </div>
         <Link
           href="/checkout"
           className="px-6 py-3 bg-black text-white font-medium rounded hover:bg-gray-800 transition"
         >
-          {isArabic ? "إتمام الشراء" : "Proceed to Checkout"}
+          {t("checkout")}
         </Link>
       </div>
     </div>

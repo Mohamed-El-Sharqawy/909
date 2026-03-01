@@ -1,10 +1,12 @@
 "use client";
 
 import { Mail, Phone, Calendar, Edit, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/auth-context";
 import type { ProfileTabProps } from "../../types";
 
 export function ProfileTab({ locale, phoneEdit }: ProfileTabProps) {
+  const t = useTranslations("account.profileTab");
   const { user } = useAuth();
   const isArabic = locale === "ar";
   const { state, handlers } = phoneEdit;
@@ -12,7 +14,7 @@ export function ProfileTab({ locale, phoneEdit }: ProfileTabProps) {
   return (
     <div className="bg-white border rounded-lg p-6">
       <h2 className="text-lg font-semibold mb-6">
-        {isArabic ? "معلومات الحساب" : "Account Information"}
+        {t("title")}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
@@ -31,14 +33,14 @@ export function ProfileTab({ locale, phoneEdit }: ProfileTabProps) {
           <div>
             <label className="text-sm text-muted-foreground flex items-center gap-1">
               <Mail className="h-3 w-3" />
-              {isArabic ? "البريد الإلكتروني" : "Email"}
+              {t("email")}
             </label>
             <p className="font-medium">{user?.email || "-"}</p>
           </div>
           <div>
             <label className="text-sm text-muted-foreground flex items-center gap-1">
               <Phone className="h-3 w-3" />
-              {isArabic ? "رقم الهاتف" : "Phone"}
+              {t("phone")}
             </label>
             {state.isEditing ? (
               <div className="space-y-2 mt-1">
@@ -61,13 +63,13 @@ export function ProfileTab({ locale, phoneEdit }: ProfileTabProps) {
                     {state.isSaving ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
                     ) : null}
-                    {isArabic ? "حفظ" : "Save"}
+                    {t("save")}
                   </button>
                   <button
                     onClick={handlers.handleCancel}
                     className="px-3 py-1.5 border text-xs rounded hover:bg-gray-100 transition"
                   >
-                    {isArabic ? "إلغاء" : "Cancel"}
+                    {t("cancel")}
                   </button>
                 </div>
               </div>
@@ -77,7 +79,7 @@ export function ProfileTab({ locale, phoneEdit }: ProfileTabProps) {
                 <button
                   onClick={handlers.handleEdit}
                   className="text-muted-foreground hover:text-foreground transition"
-                  title={isArabic ? "تعديل" : "Edit"}
+                  title={t("edit")}
                 >
                   <Edit className="h-3.5 w-3.5" />
                 </button>
@@ -95,7 +97,7 @@ export function ProfileTab({ locale, phoneEdit }: ProfileTabProps) {
           <div>
             <label className="text-sm text-muted-foreground flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              {isArabic ? "تاريخ الانضمام" : "Member Since"}
+              {t("createdAt")}
             </label>
             <p className="font-medium">
               {user?.createdAt
