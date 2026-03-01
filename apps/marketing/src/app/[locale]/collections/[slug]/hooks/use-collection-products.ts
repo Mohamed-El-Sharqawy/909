@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import type { Product } from "@ecommerce/shared-types";
 import { apiGet } from "@/lib/api-client";
 import { PRODUCTS_PER_PAGE, SORT_OPTIONS_DATA } from "../constants";
@@ -15,6 +16,13 @@ interface UseCollectionProductsOptions {
   debouncedMaxPrice: number;
 }
 
+interface ProductsResponse {
+  data: {
+    data: Product[];
+    meta: ProductMeta;
+  };
+}
+
 export function useCollectionProducts({
   slug,
   initialProducts,
@@ -23,139 +31,90 @@ export function useCollectionProducts({
   debouncedMinPrice,
   debouncedMaxPrice,
 }: UseCollectionProductsOptions) {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [meta, setMeta] = useState(initialMeta);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Track previous values to detect what changed
-  const prevSlugRef = useRef(slug);
-  const prevSortRef = useRef(sortOption);
-  const prevMinPriceRef = useRef(debouncedMinPrice);
-  const prevMaxPriceRef = useRef(debouncedMaxPrice);
-
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const isInitialMount = useRef(true);
-  const fetchAbortController = useRef<AbortController | null>(null);
 
-  // Sync products with initialProducts when slug changes (page navigation)
-  useEffect(() => {
-    if (prevSlugRef.current !== slug) {
-      setProducts(initialProducts);
-      setMeta(initialMeta);
-      setIsLoading(false);
-      prevSlugRef.current = slug;
-      prevSortRef.current = sortOption;
-      prevMinPriceRef.current = debouncedMinPrice;
-      prevMaxPriceRef.current = debouncedMaxPrice;
+  const buildQueryParams = (page: number) => {
+    const params = new URLSearchParams({
+      limit: String(PRODUCTS_PER_PAGE),
+      page: String(page),
+      isActive: "true",
+    });
+
+    if (slug !== "all-products") {
+      params.set("collectionSlug", slug);
     }
-  }, [slug, initialProducts, initialMeta, sortOption, debouncedMinPrice, debouncedMaxPrice]);
 
-  const buildQueryParams = useCallback(
-    (page: number) => {
-      const params = new URLSearchParams({
-        limit: String(PRODUCTS_PER_PAGE),
-        page: String(page),
-        isActive: "true",
-      });
+    if (debouncedMinPrice > 0) {
+      params.set("minPrice", String(debouncedMinPrice));
+    }
+    if (debouncedMaxPrice < 5000) {
+      params.set("maxPrice", String(debouncedMaxPrice));
+    }
 
-      if (slug !== "all-products") {
-        params.set("collectionSlug", slug);
-      }
+    const sort = SORT_OPTIONS_DATA[sortOption];
+    if (sort) {
+      params.set("sortBy", sort.sortBy);
+      params.set("sortOrder", sort.sortOrder);
+    }
 
-      if (debouncedMinPrice > 0) {
-        params.set("minPrice", String(debouncedMinPrice));
-      }
-      if (debouncedMaxPrice < 5000) {
-        params.set("maxPrice", String(debouncedMaxPrice));
-      }
+    return params;
+  };
 
-      const sort = SORT_OPTIONS_DATA[sortOption];
-      if (sort) {
-        params.set("sortBy", sort.sortBy);
-        params.set("sortOrder", sort.sortOrder);
-      }
-
-      return params;
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["collection-products", slug, sortOption, debouncedMinPrice, debouncedMaxPrice],
+    queryFn: async ({ pageParam = 1 }) => {
+      const params = buildQueryParams(pageParam);
+      const response = await apiGet<ProductsResponse>(`/api/products?${params}`);
+      return {
+        products: response?.data?.data ?? [],
+        meta: response?.data?.meta ?? initialMeta,
+      };
     },
-    [slug, debouncedMinPrice, debouncedMaxPrice, sortOption]
-  );
-
-  const fetchProducts = useCallback(
-    async (page: number, append = false) => {
-      if (fetchAbortController.current) {
-        fetchAbortController.current.abort();
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.meta.page < lastPage.meta.totalPages) {
+        return lastPage.meta.page + 1;
       }
-      fetchAbortController.current = new AbortController();
-
-      setIsLoading(true);
-      try {
-        const params = buildQueryParams(page);
-        const data = await apiGet<{ data: { data: Product[]; meta: ProductMeta } }>(
-          `/api/products?${params}`,
-          { signal: fetchAbortController.current.signal }
-        );
-
-        if (append) {
-          setProducts((prev) => [...prev, ...(data?.data?.data ?? [])]);
-        } else {
-          setProducts(data?.data?.data ?? []);
-        }
-        setMeta(data?.data?.meta ?? initialMeta);
-      } catch (error: any) {
-        if (error.name !== "AbortError") {
-          console.error("Error fetching products:", error);
-        }
-      } finally {
-        setIsLoading(false);
-      }
+      return undefined;
     },
-    [buildQueryParams, initialMeta]
-  );
+    initialData: {
+      pages: [{ products: initialProducts, meta: initialMeta }],
+      pageParams: [1],
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
 
-  // Fetch when filters change (sort, price) - but NOT on slug change
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
+  // Flatten all pages into single products array
+  const products = data?.pages.flatMap((page) => page.products) ?? initialProducts;
+  const meta = data?.pages[data.pages.length - 1]?.meta ?? initialMeta;
+  const isLoading = isFetching && !isFetchingNextPage;
 
-    const sortChanged = prevSortRef.current !== sortOption;
-    const minPriceChanged = prevMinPriceRef.current !== debouncedMinPrice;
-    const maxPriceChanged = prevMaxPriceRef.current !== debouncedMaxPrice;
-
-    prevSortRef.current = sortOption;
-    prevMinPriceRef.current = debouncedMinPrice;
-    prevMaxPriceRef.current = debouncedMaxPrice;
-
-    if (sortChanged || minPriceChanged || maxPriceChanged) {
-      fetchProducts(1, false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortOption, debouncedMinPrice, debouncedMaxPrice]);
-
-  // Infinite scroll
+  // Infinite scroll observer
   useEffect(() => {
     const currentRef = loadMoreRef.current;
+    if (!currentRef) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoading && meta.page < meta.totalPages) {
-          fetchProducts(meta.page + 1, true);
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
         }
       },
       { threshold: 0.1 }
     );
 
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
+    observer.observe(currentRef);
 
     return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
+      observer.unobserve(currentRef);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, meta.page, meta.totalPages]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return {
     products,

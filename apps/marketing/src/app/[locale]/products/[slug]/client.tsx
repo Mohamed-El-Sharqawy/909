@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { ReviewModal } from "@/components/ui/review-modal";
 import { SizeGuideModal } from "@/components/ui/size-guide-modal";
+import { trackProductView } from "@/lib/analytics";
 import {
   useProductVariant,
   useProductActions,
@@ -52,11 +53,22 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
     isInWishlist,
     toggleFavourite,
     toggleWishlist,
+    getCartItem,
+    updateCartQuantity,
   } = useProductActions(product, locale);
 
   const { reviews, isLoading: isLoadingReviews, averageRating, reviewCount } = useProductReviews(product.id);
 
   const { showFixedBar, productInfoRef } = useFixedBar();
+
+  // Track product view on mount (only once)
+  const hasTrackedView = useRef(false);
+  useEffect(() => {
+    if (!hasTrackedView.current) {
+      hasTrackedView.current = true;
+      trackProductView(product.id, product.slug);
+    }
+  }, [product.id, product.slug]);
 
   // Derived values
   const name = isArabic ? product.nameAr : product.nameEn;
@@ -67,6 +79,9 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
     compareAtPrice && compareAtPrice > price
       ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
       : null;
+
+  // Get cart item for selected variant
+  const cartItem = getCartItem(selectedVariant?.id ?? null);
 
   return (
     <div className="min-h-screen">
@@ -109,6 +124,8 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
             isInWishlist={isInWishlist}
             onToggleFavourite={toggleFavourite}
             onToggleWishlist={toggleWishlist}
+            cartItem={cartItem}
+            onUpdateCartQuantity={updateCartQuantity}
           />
         </div>
       </div>

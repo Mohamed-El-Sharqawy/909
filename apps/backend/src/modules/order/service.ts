@@ -98,14 +98,33 @@ export abstract class OrderService {
       };
     });
 
-    // Add shipping cost to total
+    // Add shipping cost and apply discount
     const shippingCost = body.shippingCost ?? 0;
-    const grandTotal = total + shippingCost;
+    const discountAmount = body.discountAmount ?? 0;
+    const grandTotal = total - discountAmount + shippingCost;
+
+    // If coupon code is provided, validate and get coupon ID
+    let couponId: string | undefined;
+    if (body.couponCode) {
+      const coupon = await prisma.coupon.findUnique({
+        where: { code: body.couponCode },
+      });
+      if (coupon) {
+        couponId = coupon.id;
+        // Increment coupon usage count
+        await prisma.coupon.update({
+          where: { id: coupon.id },
+          data: { usageCount: { increment: 1 } },
+        });
+      }
+    }
 
     const order = await prisma.order.create({
       data: {
         userId: userId ?? undefined,
         total: grandTotal,
+        discountAmount: discountAmount > 0 ? discountAmount : undefined,
+        couponId: couponId,
         guestEmail: body.guestEmail,
         guestFirstName: body.guestFirstName,
         guestLastName: body.guestLastName,

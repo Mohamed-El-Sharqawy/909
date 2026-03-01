@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Loader2, Plus, Trash2, Pencil, GripVertical, Image as ImageIcon } from "lucide-react";
+import { Loader2, Plus, Trash2, Pencil, ChevronUp, ChevronDown, Image as ImageIcon } from "lucide-react";
 import {
   useBanners,
   useCreateBanner,
   useUpdateBanner,
   useDeleteBanner,
+  useReorderBanners,
 } from "@/features/content";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +64,7 @@ export function BannersPage() {
   const createMutation = useCreateBanner();
   const updateMutation = useUpdateBanner();
   const deleteMutation = useDeleteBanner();
+  const reorderMutation = useReorderBanners();
 
   const [showDialog, setShowDialog] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
@@ -172,6 +174,30 @@ export function BannersPage() {
     }
   };
 
+  const handleMoveUp = async (index: number) => {
+    if (index === 0) return;
+    const newOrder = [...banners];
+    [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+    try {
+      await reorderMutation.mutateAsync(newOrder.map((b) => b.id));
+      toast.success("Banner moved up");
+    } catch {
+      toast.error("Failed to reorder banners");
+    }
+  };
+
+  const handleMoveDown = async (index: number) => {
+    if (index === banners.length - 1) return;
+    const newOrder = [...banners];
+    [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+    try {
+      await reorderMutation.mutateAsync(newOrder.map((b) => b.id));
+      toast.success("Banner moved down");
+    } catch {
+      toast.error("Failed to reorder banners");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -211,8 +237,26 @@ export function BannersPage() {
             <Card key={banner.id} className={!banner.isActive ? "opacity-50" : ""}>
               <CardContent className="p-4">
                 <div className="flex gap-4">
-                  <div className="flex items-center">
-                    <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
+                  <div className="flex flex-col items-center justify-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => handleMoveUp(index)}
+                      disabled={index === 0 || reorderMutation.isPending}
+                    >
+                      <ChevronUp className="h-4 w-4" />
+                    </Button>
+                    <span className="text-xs text-muted-foreground font-medium">{index + 1}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => handleMoveDown(index)}
+                      disabled={index === banners.length - 1 || reorderMutation.isPending}
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
                   </div>
                   <div className="relative w-48 h-28 bg-muted rounded overflow-hidden shrink-0">
                     <img
@@ -261,9 +305,6 @@ export function BannersPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs bg-muted px-2 py-1 rounded">
-                        Position: {index + 1}
-                      </span>
                       {banner.buttonTextEn && (
                         <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
                           Button: {banner.buttonTextEn}

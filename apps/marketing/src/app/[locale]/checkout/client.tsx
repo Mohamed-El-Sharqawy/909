@@ -1,15 +1,19 @@
 "use client";
 
+import { useEffect } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/contexts/cart-context";
 import { useAuth } from "@/contexts/auth-context";
+import { useOrders } from "@/contexts/orders-context";
 import { Link } from "@/i18n/navigation";
+import { trackCheckoutView, trackOrderComplete } from "@/lib/analytics";
 import {
   useCheckoutForm,
   useBuyNow,
   useSavedAddresses,
   useCheckoutSubmit,
+  useCoupon,
 } from "./hooks";
 import {
   CheckoutSuccess,
@@ -28,6 +32,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
   const t = useTranslations("checkout");
   const { items: cartItems, total: cartTotal, isLoading: cartLoading } = useCart();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { fetchOrders } = useOrders();
 
   // Buy now mode
   const { isBuyNow, buyNowItem, isBuyNowLoading } = useBuyNow();
@@ -49,6 +54,18 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
     setSaveAddress,
   } = useCheckoutForm(savedAddresses);
 
+  // Coupon state
+  const {
+    couponCode,
+    setCouponCode,
+    appliedCoupon,
+    discountAmount,
+    isValidating: isCouponValidating,
+    error: couponError,
+    applyCoupon,
+    removeCoupon,
+  } = useCoupon();
+
   // Submit handler
   const { isSubmitting, orderId, orderSuccess, handleSubmit } = useCheckoutSubmit({
     items,
@@ -66,7 +83,24 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
         state: formState.area || formState.city,
       });
     },
+    appliedCoupon,
+    discountAmount,
+    onOrderSuccess: fetchOrders,
   });
+
+  // Track checkout view on mount
+  useEffect(() => {
+    if (!cartLoading && !authLoading && items.length > 0) {
+      trackCheckoutView(items.length, total);
+    }
+  }, [cartLoading, authLoading, items.length, total]);
+
+  // Track order completion
+  useEffect(() => {
+    if (orderSuccess && orderId) {
+      trackOrderComplete(orderId, total, items.length);
+    }
+  }, [orderSuccess, orderId, total, items.length]);
 
   // Success state
   if (orderSuccess && orderId) {
@@ -126,6 +160,18 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
               total={total}
               locale={locale}
               isSubmitting={isSubmitting}
+              appliedCoupon={appliedCoupon}
+              discountAmount={discountAmount}
+              couponProps={{
+                couponCode,
+                onCouponCodeChange: setCouponCode,
+                appliedCoupon,
+                discountAmount,
+                isValidating: isCouponValidating,
+                error: couponError,
+                onApply: () => applyCoupon(total),
+                onRemove: removeCoupon,
+              }}
             />
           </div>
         </div>

@@ -5,7 +5,9 @@ import Image from "next/image";
 import { Search, X, Loader2, Package, FolderTree } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/lib/api-client";
+import { trackSearch } from "@/lib/analytics";
 
 interface SearchProduct {
   id: string;
@@ -35,32 +37,41 @@ export function GlobalSearch() {
   
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResults>({ products: [], collections: [] });
-  const [isLoading, setIsLoading] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackedQueries = useRef<Set<string>>(new Set());
 
-  // Debounced search
+  // Debounce the query
   useEffect(() => {
     if (!query.trim() || query.length < 2) {
-      setResults({ products: [], collections: [] });
+      setDebouncedQuery("");
       return;
     }
 
-    const timer = setTimeout(async () => {
-      setIsLoading(true);
-      try {
-        const data = await apiGet<SearchResults>(`/api/search?q=${encodeURIComponent(query)}`);
-        setResults(data);
-      } catch {
-        console.error("Search failed");
-      } finally {
-        setIsLoading(false);
-      }
-    }, 300); // 300ms debounce
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [query]);
+
+  // Fetch search results with React Query
+  const { data: results = { products: [], collections: [] }, isLoading } = useQuery({
+    queryKey: ["global-search", debouncedQuery],
+    queryFn: async () => {
+      const data = await apiGet<SearchResults>(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
+      // Track search (only once per unique query)
+      if (!trackedQueries.current.has(debouncedQuery)) {
+        trackedQueries.current.add(debouncedQuery);
+        const totalResults = (data.products?.length || 0) + (data.collections?.length || 0);
+        trackSearch(debouncedQuery, totalResults);
+      }
+      return data;
+    },
+    enabled: debouncedQuery.length >= 2,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
 
   // Close on click outside
   useEffect(() => {
@@ -104,7 +115,7 @@ export function GlobalSearch() {
   const handleClose = useCallback(() => {
     setIsOpen(false);
     setQuery("");
-    setResults({ products: [], collections: [] });
+    setDebouncedQuery("");
   }, []);
 
   const handleResultClick = useCallback(() => {

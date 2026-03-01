@@ -2,6 +2,7 @@ import { Elysia, status } from "elysia";
 import { authPlugin } from "../../plugins/auth";
 import { WishlistService } from "./service";
 import { WishlistModel } from "./model";
+import { trackWishlistAdd, trackWishlistRemove } from "../analytics/service";
 
 export const wishlist = new Elysia({ prefix: "/wishlist" })
   .use(authPlugin)
@@ -11,6 +12,7 @@ export const wishlist = new Elysia({ prefix: "/wishlist" })
   }, { isSignIn: true })
   .post("/", async ({ user, body }) => {
     const result = await WishlistService.add(user.id, body);
+    trackWishlistAdd(user.id, body.productId, body.note);
     return { success: true as const, data: result };
   }, { isSignIn: true, body: WishlistModel.addBody })
   .put("/:productId", async ({ user, params, body }) => {
@@ -21,5 +23,6 @@ export const wishlist = new Elysia({ prefix: "/wishlist" })
   .delete("/:productId", async ({ user, params }) => {
     const result = await WishlistService.remove(user.id, params.productId);
     if (!result) return status(404, { success: false as const, error: "Wishlist item not found" });
+    trackWishlistRemove(user.id, params.productId);
     return { success: true as const, message: "Removed from wishlist" };
   }, { isSignIn: true });

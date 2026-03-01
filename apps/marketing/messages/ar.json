@@ -64,7 +64,8 @@
     "addAllToCart": "أضف الكل للسلة",
     "totalForItems": "إجمالي {count} منتجات",
     "addToCartCount": "أضف {count} للسلة",
-    "clickToAddRemove": "انقر على المنتج لإضافته أو إزالته"
+    "clickToAddRemove": "انقر على المنتج لإضافته أو إزالته",
+    "checkout": "الدفع"
   },
   "collection": {
     "allProducts": "جميع المنتجات",
@@ -138,7 +139,17 @@
     "processing": "جاري المعالجة...",
     "secureCheckout": "دفع آمن",
     "orderFailed": "فشل في إتمام الطلب",
-    "tryAgain": "حاول مرة أخرى."
+    "tryAgain": "حاول مرة أخرى.",
+    "qty": "الكمية:",
+    "infoSecure": "معلوماتك آمنة",
+    "haveCoupon": "لديك كود خصم؟",
+    "show": "عرض",
+    "hide": "إخفاء",
+    "enterCouponCode": "أدخل كود الخصم",
+    "apply": "تطبيق",
+    "validating": "جاري التحقق...",
+    "couponApplied": "تم تطبيق الكوبون!",
+    "discount": "الخصم"
   },
   "cart": {
     "title": "سلة التسوق",

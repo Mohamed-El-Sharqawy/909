@@ -204,7 +204,7 @@ export function CollectionDetailsPage() {
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">
                         <Link
-                          to={`/products/${product.id}`}
+                          to={`/products/${product.slug}`}
                           className="hover:underline"
                         >
                           {product.nameEn}

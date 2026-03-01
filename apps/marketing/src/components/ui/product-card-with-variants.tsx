@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { Eye, ShoppingBag, Heart, Bookmark } from "lucide-react";
+import { Eye, ShoppingBag, Heart, Bookmark, Minus, Plus, Check, Loader2, ShoppingCart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Product, ProductVariant } from "@ecommerce/shared-types";
 import { useCart } from "@/contexts/cart-context";
 import { useFavourites } from "@/contexts/favourites-context";
 import { useWishlist } from "@/contexts/wishlist-context";
 import { createCartItemFromVariant } from "@/lib/cart";
+import { trackQuickAddToCart, trackFavouriteToggle, trackWishlistToggle } from "@/lib/analytics";
 import { QuickViewModal } from "./quick-view-modal";
 
 interface ProductCardWithVariantsProps {
@@ -22,7 +23,7 @@ export function ProductCardWithVariants({
   locale,
 }: ProductCardWithVariantsProps) {
   const t = useTranslations("common");
-  const { addItem } = useCart();
+  const { items: cartItems, addItem, updateQuantity } = useCart();
   const { favouriteIds, addFavourite, removeFavourite } = useFavourites();
   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
@@ -36,6 +37,14 @@ export function ProductCardWithVariants({
   const [isImageHovered, setIsImageHovered] = useState(false);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
+
+  // Check if current variant is in cart
+  const cartItem = useMemo(() => {
+    if (!selectedVariant) return null;
+    return cartItems.find((item) => item.variantId === selectedVariant.id);
+  }, [cartItems, selectedVariant]);
 
   const isArabic = locale === "ar";
   const name = isArabic ? product.nameAr : product.nameEn;
@@ -109,13 +118,34 @@ export function ProductCardWithVariants({
       }
     }
 
-    const cartItem = createCartItemFromVariant(variantToAdd, {
+    setIsAdding(true);
+    const newCartItem = createCartItemFromVariant(variantToAdd, {
       id: product.id,
       slug: product.slug,
       nameEn: product.nameEn,
       nameAr: product.nameAr,
     });
-    addItem(cartItem);
+    addItem(newCartItem);
+    trackQuickAddToCart(product.id, variantToAdd.id);
+    
+    // Show success state briefly
+    setTimeout(() => {
+      setIsAdding(false);
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 1500);
+    }, 300);
+  };
+
+  const handleIncrement = () => {
+    if (cartItem && selectedVariant) {
+      updateQuantity(selectedVariant.id, cartItem.quantity + 1);
+    }
+  };
+
+  const handleDecrement = () => {
+    if (cartItem && selectedVariant) {
+      updateQuantity(selectedVariant.id, cartItem.quantity - 1);
+    }
   };
 
   return (
@@ -180,7 +210,13 @@ export function ProductCardWithVariants({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    isFavourite ? removeFavourite(product.id) : addFavourite(product.id);
+                    if (isFavourite) {
+                      removeFavourite(product.id);
+                      trackFavouriteToggle(product.id, "remove");
+                    } else {
+                      addFavourite(product.id);
+                      trackFavouriteToggle(product.id, "add");
+                    }
                   }}
                   className={`p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm transition hover:scale-110 ${
                     isFavourite ? "text-red-500" : "text-gray-600 hover:text-red-500"
@@ -193,7 +229,13 @@ export function ProductCardWithVariants({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    isInWishlist ? removeFromWishlist(product.id) : addToWishlist(product.id);
+                    if (isInWishlist) {
+                      removeFromWishlist(product.id);
+                      trackWishlistToggle(product.id, "remove");
+                    } else {
+                      addToWishlist(product.id);
+                      trackWishlistToggle(product.id, "add");
+                    }
                   }}
                   className={`p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm transition hover:scale-110 ${
                     isInWishlist ? "text-blue-500" : "text-gray-600 hover:text-blue-500"
@@ -216,20 +258,58 @@ export function ProductCardWithVariants({
           >
             {/* Quick Action Buttons */}
             <div className="flex border-b">
-              <button
-                onClick={handleQuickAdd}
-                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium hover:bg-gray-100 transition border-r"
-              >
-                <ShoppingBag className="h-4 w-4" />
-                QUICK ADD
-              </button>
-              <button
-                onClick={() => setIsQuickViewOpen(true)}
-                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium hover:bg-gray-100 transition"
-              >
-                <Eye className="h-4 w-4" />
-                QUICK VIEW
-              </button>
+              {cartItem ? (
+                // Show quantity controls when item is in cart
+                <>
+                  <div className="flex-1 flex items-center justify-center gap-1 py-2 border-r">
+                    <button
+                      onClick={handleDecrement}
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition active:scale-95"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="w-8 text-center text-sm font-semibold">{cartItem.quantity}</span>
+                    <button
+                      onClick={handleIncrement}
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition active:scale-95"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Link
+                    href="/checkout"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition"
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                    CHECKOUT
+                  </Link>
+                </>
+              ) : (
+                // Show quick add button when not in cart
+                <>
+                  <button
+                    onClick={handleQuickAdd}
+                    disabled={isAdding}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium hover:bg-gray-100 transition border-r disabled:opacity-50"
+                  >
+                    {isAdding ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : justAdded ? (
+                      <Check className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <ShoppingBag className="h-4 w-4" />
+                    )}
+                    {isAdding ? "ADDING..." : justAdded ? "ADDED!" : "QUICK ADD"}
+                  </button>
+                  <button
+                    onClick={() => setIsQuickViewOpen(true)}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium hover:bg-gray-100 transition"
+                  >
+                    <Eye className="h-4 w-4" />
+                    QUICK VIEW
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Size Selector */}

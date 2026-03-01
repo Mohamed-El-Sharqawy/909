@@ -1,40 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { apiPost } from "@/lib/api-client";
 import type { SuggestedProduct } from "../types";
 import { SUGGESTED_PRODUCTS_LIMIT } from "../constants";
 
 export function useSuggestedProducts(items: any[], isOpen: boolean) {
-  const [suggestedProducts, setSuggestedProducts] = useState<SuggestedProduct[]>([]);
+  // Memoize the IDs to prevent unnecessary refetches
+  const { collectionIds, excludeProductIds } = useMemo(() => ({
+    collectionIds: [...new Set(items.map((item) => item.collectionId).filter(Boolean))] as string[],
+    excludeProductIds: items.map((item) => item.productId).filter(Boolean) as string[],
+  }), [items]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const fetchSuggested = async () => {
-      try {
-        // Get unique collection IDs and product IDs from cart items
-        const collectionIds = [...new Set(items.map((item) => item.collectionId).filter(Boolean))] as string[];
-        const excludeProductIds = items.map((item) => item.productId).filter(Boolean) as string[];
-
-        // Use the new related products endpoint
-        const response = await apiPost<{ data: SuggestedProduct[] }>("/api/products/related", {
-          collectionIds,
-          excludeProductIds,
-          limit: SUGGESTED_PRODUCTS_LIMIT,
-        });
-
-        if (response.data) {
-          setSuggestedProducts(response.data);
-        }
-      } catch {
-        // Silently fail - suggested products are not critical
-        setSuggestedProducts([]);
-      }
-    };
-
-    fetchSuggested();
-  }, [isOpen, items]);
+  const { data: suggestedProducts = [] } = useQuery({
+    queryKey: ["suggested-products", collectionIds, excludeProductIds],
+    queryFn: async () => {
+      const response = await apiPost<{ data: SuggestedProduct[] }>("/api/products/related", {
+        collectionIds,
+        excludeProductIds,
+        limit: SUGGESTED_PRODUCTS_LIMIT,
+      });
+      return response.data || [];
+    },
+    enabled: isOpen && items.length > 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   return suggestedProducts;
 }

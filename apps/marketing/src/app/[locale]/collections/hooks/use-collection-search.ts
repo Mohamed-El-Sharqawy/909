@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/lib/api-client";
+import { trackSearch } from "@/lib/analytics";
 import type { Collection } from "@ecommerce/shared-types";
-import type { SearchProduct, StaticCollection } from "../types";
+import type { SearchProduct } from "../types";
 import { SEARCH_DEBOUNCE_MS, MIN_SEARCH_LENGTH, STATIC_COLLECTIONS } from "../constants";
 
 export function useCollectionSearch(collections: Collection[]) {
@@ -15,8 +17,7 @@ export function useCollectionSearch(collections: Collection[]) {
   const initialSearch = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [debouncedQuery, setDebouncedQuery] = useState(initialSearch);
-  const [searchResults, setSearchResults] = useState<SearchProduct[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const trackedQueries = useRef<Set<string>>(new Set());
 
   // Debounce search query
   useEffect(() => {
@@ -41,29 +42,27 @@ export function useCollectionSearch(collections: Collection[]) {
     router.replace(newUrl, { scroll: false });
   }, [debouncedQuery, pathname, router, searchParams]);
 
-  // Fetch search results
-  useEffect(() => {
-    if (!debouncedQuery || debouncedQuery.length < MIN_SEARCH_LENGTH) {
-      setSearchResults([]);
-      return;
-    }
-
-    const fetchResults = async () => {
-      setIsSearching(true);
-      try {
-        const data = await apiGet<{ products: SearchProduct[] }>(
-          `/api/search?q=${encodeURIComponent(debouncedQuery)}`
-        );
-        setSearchResults(data.products || []);
-      } catch {
-        console.error("Search failed");
-      } finally {
-        setIsSearching(false);
+  // Fetch search results with React Query
+  const shouldSearch = debouncedQuery.length >= MIN_SEARCH_LENGTH;
+  const { data: searchData, isLoading: isSearching } = useQuery({
+    queryKey: ["search", debouncedQuery],
+    queryFn: async () => {
+      const data = await apiGet<{ products: SearchProduct[] }>(
+        `/api/search?q=${encodeURIComponent(debouncedQuery)}`
+      );
+      const products = data.products || [];
+      // Track search query (only once per unique query)
+      if (!trackedQueries.current.has(debouncedQuery)) {
+        trackedQueries.current.add(debouncedQuery);
+        trackSearch(debouncedQuery, products.length);
       }
-    };
+      return products;
+    },
+    enabled: shouldSearch,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
 
-    fetchResults();
-  }, [debouncedQuery]);
+  const searchResults = searchData || [];
 
   // Filter collections based on search
   const filteredCollections = useMemo(() => {

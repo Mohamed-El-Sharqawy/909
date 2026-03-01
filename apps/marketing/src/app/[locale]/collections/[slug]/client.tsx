@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useCollectionFilters, useCollectionProducts } from "./hooks";
 import { CollectionHeader, ProductGrid, LoadMore, FilterDrawer } from "./components";
+import { trackCollectionView } from "@/lib/analytics";
 import type { CollectionPageClientProps, SortOption } from "./types";
 
 export function CollectionPageClient({
@@ -43,6 +45,11 @@ export function CollectionPageClient({
     debouncedMinPrice,
     debouncedMaxPrice,
   });
+
+  // Track collection view on mount
+  useEffect(() => {
+    trackCollectionView(slug, slug);
+  }, [slug]);
 
   const sortOptions: SortOption[] = [
     { value: "featured", label: t("sort.featured"), sortBy: "isFeatured", sortOrder: "desc" },

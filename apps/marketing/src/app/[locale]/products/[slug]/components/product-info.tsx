@@ -1,9 +1,15 @@
 "use client";
 
-import { Star, Minus, Plus, Heart, Bookmark } from "lucide-react";
+import { Star, Minus, Plus, Heart, Bookmark, Check, ShoppingCart } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { ProductVariant } from "@ecommerce/shared-types";
 import type { UniqueColor, UniqueSize, SizeAvailability } from "../types";
+
+interface CartItemInfo {
+  variantId: string;
+  quantity: number;
+}
 
 interface ProductInfoProps {
   name: string;
@@ -32,6 +38,9 @@ interface ProductInfoProps {
   isInWishlist: boolean;
   onToggleFavourite: () => void;
   onToggleWishlist: () => void;
+  // Cart state
+  cartItem: CartItemInfo | null;
+  onUpdateCartQuantity: (variantId: string, quantity: number) => void;
 }
 
 export function ProductInfo({
@@ -58,9 +67,12 @@ export function ProductInfo({
   isInWishlist,
   onToggleFavourite,
   onToggleWishlist,
+  cartItem,
+  onUpdateCartQuantity,
 }: ProductInfoProps) {
   const t = useTranslations("product");
   const isArabic = locale === "ar";
+  const isInCart = !!cartItem;
 
   return (
     <div className="space-y-6">
@@ -217,12 +229,40 @@ export function ProductInfo({
 
       {/* Add to Cart & Buy Now */}
       <div className="space-y-3">
-        <button
-          onClick={onAddToCart}
-          className="w-full py-3 border-2 border-black text-black font-semibold rounded hover:bg-gray-100 transition"
-        >
-          {t("addToCart")} - LE {(price * quantity).toLocaleString()}
-        </button>
+        {isInCart ? (
+          // Show quantity controls when item is in cart
+          <div className="flex items-center gap-3">
+            <div className="flex items-center border-2 border-black rounded flex-1">
+              <button
+                onClick={() => onUpdateCartQuantity(cartItem.variantId, cartItem.quantity - 1)}
+                className="w-12 h-12 flex items-center justify-center hover:bg-gray-100 transition"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="flex-1 text-center font-semibold text-lg">{cartItem.quantity}</span>
+              <button
+                onClick={() => onUpdateCartQuantity(cartItem.variantId, cartItem.quantity + 1)}
+                className="w-12 h-12 flex items-center justify-center hover:bg-gray-100 transition"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+            <Link
+              href="/checkout"
+              className="flex items-center justify-center gap-2 px-6 h-12 bg-black text-white font-semibold rounded hover:bg-gray-800 transition"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {t("checkout")}
+            </Link>
+          </div>
+        ) : (
+          <button
+            onClick={onAddToCart}
+            className="w-full py-3 border-2 border-black text-black font-semibold rounded hover:bg-gray-100 transition"
+          >
+            {t("addToCart")} - LE {(price * quantity).toLocaleString()}
+          </button>
+        )}
         <button
           onClick={onBuyNow}
           className="w-full py-3 bg-black text-white font-semibold rounded hover:bg-gray-800 transition"

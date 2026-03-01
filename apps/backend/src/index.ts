@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
+import { requestLogger } from "./lib/logger";
 
 import { auth } from "./modules/auth";
 import { user } from "./modules/user";
@@ -19,6 +20,7 @@ import { instagramPostController } from "./modules/instagram-post";
 import { reviewController } from "./modules/review";
 import { banner } from "./modules/banner";
 import { searchController } from "./modules/search";
+import { analyticsController } from "./modules/analytics";
 
 const port = process.env.PORT || 3001;
 const corsOrigins = process.env.CORS_ORIGIN?.split(",") || [
@@ -27,6 +29,7 @@ const corsOrigins = process.env.CORS_ORIGIN?.split(",") || [
 ];
 
 const app = new Elysia()
+  .use(requestLogger)
   .use(
     cors({
       origin: corsOrigins,
@@ -72,6 +75,7 @@ const app = new Elysia()
       .use(reviewController)
       .use(banner)
       .use(searchController)
+      .use(analyticsController)
   )
   .listen(port);
 

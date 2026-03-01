@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Minus, Plus } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { trackCartRemove } from "@/lib/analytics";
 import type { CartItemRowProps } from "../types";
 
 export function CartItemRow({ item, locale, onClose, onUpdateQuantity, onRemove }: CartItemRowProps) {
@@ -70,7 +71,12 @@ export function CartItemRow({ item, locale, onClose, onUpdateQuantity, onRemove 
             </button>
           </div>
           <button
-            onClick={() => onRemove(item.variantId)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onRemove(item.variantId);
+              trackCartRemove(item.productId, item.variantId);
+            }}
             className="text-xs text-red-600 hover:underline"
           >
             Remove

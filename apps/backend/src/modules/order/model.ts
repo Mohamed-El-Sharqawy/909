@@ -25,6 +25,9 @@ export const OrderModel = {
     guestPhone: t.Optional(t.String()),
     // Address ID for logged-in users
     addressId: t.Optional(t.String()),
+    // Coupon data
+    couponCode: t.Optional(t.String()),
+    discountAmount: t.Optional(t.Number({ minimum: 0 })),
   }),
   updateStatusBody: t.Object({
     status: t.Union([

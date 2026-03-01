@@ -14,12 +14,13 @@ model User {
   role      UserRole @default(CUSTOMER)
   avatar    String?
 
-  orders     Order[]
-  cart       Cart?
-  favourites Favourite[]
-  wishlist   Wishlist[]
-  addresses  Address[]
-  reviews    Review[]
+  orders          Order[]
+  cart            Cart?
+  favourites      Favourite[]
+  wishlist        Wishlist[]
+  addresses       Address[]
+  reviews         Review[]
+  analyticsEvents AnalyticsEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

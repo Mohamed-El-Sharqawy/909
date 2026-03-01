@@ -10,6 +10,13 @@ import { apiPost } from "@/lib/api-client";
 import type { CheckoutFormState, CheckoutItem } from "../types";
 import { SHIPPING_COST, DEFAULT_COUNTRY, DEFAULT_ZIP_CODE } from "../constants";
 
+interface CouponData {
+  id: string;
+  code: string;
+  discountType: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountValue: number;
+}
+
 interface UseCheckoutSubmitOptions {
   items: CheckoutItem[];
   formState: CheckoutFormState;
@@ -17,6 +24,9 @@ interface UseCheckoutSubmitOptions {
   selectedAddressId: string | null;
   saveAddress: boolean;
   onSaveAddress: () => Promise<void>;
+  appliedCoupon?: CouponData | null;
+  discountAmount?: number;
+  onOrderSuccess?: () => void;
 }
 
 export function useCheckoutSubmit({
@@ -26,6 +36,9 @@ export function useCheckoutSubmit({
   selectedAddressId,
   saveAddress,
   onSaveAddress,
+  appliedCoupon,
+  discountAmount = 0,
+  onOrderSuccess,
 }: UseCheckoutSubmitOptions) {
   const t = useTranslations("checkout");
   const { isAuthenticated, getAccessToken } = useAuth();
@@ -40,6 +53,9 @@ export function useCheckoutSubmit({
     setIsSubmitting(true);
 
     try {
+      // Round up discount amount (29.1 -> 30, 29.9 -> 30)
+      const roundedDiscount = discountAmount > 0 ? Math.ceil(discountAmount) : 0;
+
       const orderData = {
         items: items.map((item) => ({
           variantId: item.variantId,
@@ -55,6 +71,11 @@ export function useCheckoutSubmit({
         shippingPhone: formState.phone,
         shippingCost: SHIPPING_COST,
         note: formState.notes,
+        // Coupon data
+        ...(appliedCoupon ? {
+          couponCode: appliedCoupon.code,
+          discountAmount: roundedDiscount,
+        } : {}),
         ...(isAuthenticated
           ? {}
           : {
@@ -81,6 +102,11 @@ export function useCheckoutSubmit({
       // Save address for future use if user is authenticated and checkbox is checked
       if (isAuthenticated && saveAddress && !selectedAddressId) {
         await onSaveAddress();
+      }
+
+      // Trigger order success callback (e.g., to refetch orders)
+      if (onOrderSuccess) {
+        onOrderSuccess();
       }
 
       // Set orderId last - this triggers the success state

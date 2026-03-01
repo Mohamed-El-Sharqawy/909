@@ -12,11 +12,13 @@ import {
   Video,
   Image,
   MessageSquare,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Analytics", href: "/analytics", icon: BarChart3 },
   { label: "Products", href: "/products", icon: Package },
   { label: "Collections", href: "/collections", icon: FolderTree },
   { label: "Colors", href: "/colors", icon: Palette },

@@ -64,7 +64,8 @@
     "addAllToCart": "Add All to Cart",
     "totalForItems": "Total for {count} items",
     "addToCartCount": "Add {count} to Cart",
-    "clickToAddRemove": "Click on a product to add or remove it"
+    "clickToAddRemove": "Click on a product to add or remove it",
+    "checkout": "Checkout"
   },
   "collection": {
     "allProducts": "All Products",
@@ -147,6 +148,14 @@
     "comingSoon": "Coming Soon",
     "qty": "Qty:",
     "infoSecure": "Your information is secure",
+    "haveCoupon": "Have a coupon code?",
+    "show": "Show",
+    "hide": "Hide",
+    "enterCouponCode": "Enter coupon code",
+    "apply": "Apply",
+    "validating": "Validating...",
+    "couponApplied": "Coupon Applied!",
+    "discount": "Discount",
     "signInBenefits": "Sign in for more benefits!",
     "trackOrders": "Track your orders easily",
     "exclusiveOffers": "Get exclusive coupons & offers",
