@@ -29,8 +29,7 @@ import { useWishlist } from "@/contexts/wishlist-context";
 import { useOrders } from "@/contexts/orders-context";
 import { useCart } from "@/contexts/cart-context";
 import type { Product } from "@ecommerce/shared-types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { API_URL } from "@/lib/api-client";
 
 interface AccountPageClientProps {
   locale: string;

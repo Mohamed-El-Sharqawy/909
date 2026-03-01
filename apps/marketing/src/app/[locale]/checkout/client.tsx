@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import {
   ChevronLeft,
   Truck,
@@ -22,8 +23,7 @@ import { useQueryState, parseAsString } from "nuqs";
 import { useCart } from "@/contexts/cart-context";
 import { useAuth } from "@/contexts/auth-context";
 import { Link } from "@/i18n/navigation";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { API_URL } from "@/lib/api-client";
 
 interface SavedAddress {
   id: string;
@@ -59,6 +59,7 @@ interface BuyNowItem {
 }
 
 export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
+  const t = useTranslations("checkout");
   const router = useRouter();
   const searchParams = useSearchParams();
   const { items: cartItems, total: cartTotal, clearCart, isLoading: cartLoading } = useCart();
@@ -258,10 +259,10 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
         setOrderId(data.data?.id || data.data?.orderNumber);
       } else {
         const error = await res.json();
-        toast.error(error.error || (isArabic ? "فشل في إتمام الطلب" : "Failed to place order"));
+        toast.error(error.error || t("orderFailed"));
       }
     } catch (err) {
-      toast.error(isArabic ? "فشل في إتمام الطلب. حاول مرة أخرى." : "Failed to place order. Please try again.");
+      toast.error(`${t("orderFailed")} ${t("tryAgain")}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -276,16 +277,14 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
             <CheckCircle2 className="h-10 w-10 text-green-600" />
           </div>
           <h1 className="text-2xl font-semibold mb-4">
-            {isArabic ? "تم تأكيد طلبك!" : "Order Confirmed!"}
+            {t("orderConfirmed")}
           </h1>
           <p className="text-muted-foreground mb-2">
-            {isArabic
-              ? "شكراً لك على طلبك. سنتواصل معك قريباً لتأكيد التفاصيل."
-              : "Thank you for your order. We'll contact you soon to confirm the details."}
+            {t("orderConfirmedDesc")}
           </p>
           {orderId && (
             <p className="text-sm text-muted-foreground mb-8">
-              {isArabic ? "رقم الطلب:" : "Order ID:"} <span className="font-mono font-medium">{orderId}</span>
+              {t("orderId")} <span className="font-mono font-medium">{orderId}</span>
             </p>
           )}
           <div className="space-y-3">
@@ -293,14 +292,14 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
               href="/collections"
               className="block w-full py-3 bg-black text-white font-medium rounded hover:bg-gray-800 transition"
             >
-              {isArabic ? "متابعة التسوق" : "Continue Shopping"}
+              {t("continueShopping")}
             </Link>
             {isAuthenticated && (
               <Link
                 href="/account?tab=orders"
                 className="block w-full py-3 border border-black font-medium rounded hover:bg-gray-100 transition"
               >
-                {isArabic ? "عرض طلباتي" : "View My Orders"}
+                {t("viewMyOrders")}
               </Link>
             )}
           </div>
@@ -315,7 +314,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
       <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400 mb-4" />
         <p className="text-muted-foreground">
-          {isArabic ? "جاري التحميل..." : "Loading..."}
+          {t("loading")}
         </p>
       </div>
     );
@@ -326,13 +325,13 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-semibold mb-4">
-          {isArabic ? "سلتك فارغة" : "Your cart is empty"}
+          {t("emptyCart")}
         </h1>
         <Link
           href="/collections"
           className="inline-block px-8 py-3 bg-black text-white font-medium rounded hover:bg-gray-800 transition"
         >
-          {isArabic ? "تسوق الآن" : "Start Shopping"}
+          {t("startShopping")}
         </Link>
       </div>
     );
@@ -346,11 +345,11 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
       >
         <ChevronLeft className="h-4 w-4" />
-        {isArabic ? "العودة للسلة" : "Back to cart"}
+        {t("backToCart")}
       </Link>
 
       <h1 className="text-2xl font-semibold mb-8">
-        {isArabic ? "إتمام الطلب" : "Checkout"}
+        {t("title")}
       </h1>
 
       <form onSubmit={handleSubmit}>
@@ -361,12 +360,12 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
             <div className="bg-white border rounded-lg p-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span className="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-sm">1</span>
-                {isArabic ? "معلومات الاتصال" : "Contact Information"}
+                {t("contactInfo")}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    {isArabic ? "الاسم الأول" : "First Name"} *
+                    {t("firstName")} *
                   </label>
                   <input
                     type="text"
@@ -378,7 +377,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    {isArabic ? "الاسم الأخير" : "Last Name"} *
+                    {t("lastName")} *
                   </label>
                   <input
                     type="text"
@@ -390,7 +389,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    {isArabic ? "البريد الإلكتروني" : "Email"} *
+                    {t("email")} *
                   </label>
                   <input
                     type="email"
@@ -402,7 +401,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    {isArabic ? "رقم الهاتف" : "Phone"} *
+                    {t("phone")} *
                   </label>
                   <input
                     type="tel"
@@ -420,19 +419,19 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
             <div className="bg-white border rounded-lg p-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span className="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-sm">2</span>
-                {isArabic ? "عنوان الشحن" : "Shipping Address"}
+                {t("shippingAddress")}
               </h2>
 
               {/* Saved Addresses */}
               {isAuthenticated && savedAddresses.length > 0 && (
                 <div className="mb-6">
                   <label className="block text-sm font-medium mb-2">
-                    {isArabic ? "العناوين المحفوظة" : "Saved Addresses"}
+                    {t("savedAddresses")}
                   </label>
                   {isLoadingAddresses ? (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      {isArabic ? "جاري التحميل..." : "Loading..."}
+                      {t("loading")}
                     </div>
                   ) : (
                     <div className="grid gap-3">
@@ -496,7 +495,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-lg">+</span>
-                          <span>{isArabic ? "استخدام عنوان جديد" : "Use a new address"}</span>
+                          <span>{t("newAddress")}</span>
                         </div>
                       </button>
                     </div>
@@ -507,7 +506,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    {isArabic ? "العنوان" : "Address"} *
+                    {t("address")} *
                   </label>
                   <input
                     type="text"
@@ -521,7 +520,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      {isArabic ? "المدينة" : "City"} *
+                      {t("city")} *
                     </label>
                     <input
                       type="text"
@@ -534,7 +533,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      {isArabic ? "المنطقة" : "Area"}
+                      {t("area")}
                     </label>
                     <input
                       type="text"
@@ -568,9 +567,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
                       className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black"
                     />
                     <span className="text-sm">
-                      {isArabic
-                        ? "احفظ هذا العنوان للطلبات القادمة"
-                        : "Save this address for future orders"}
+                      {t("saveAddress")}
                     </span>
                   </label>
                 )}
@@ -607,7 +604,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
             <div className="bg-white border rounded-lg p-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span className="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-sm">3</span>
-                {isArabic ? "طريقة الدفع" : "Payment Method"}
+                {t("paymentMethod")}
               </h2>
 
               {/* COD - Active */}
@@ -619,12 +616,10 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
                   <Banknote className="h-5 w-5" />
                   <div className="flex-1">
                     <p className="font-medium">
-                      {isArabic ? "الدفع عند الاستلام" : "Cash on Delivery (COD)"}
+                      {t("cod")}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {isArabic
-                        ? "ادفع نقداً عند استلام طلبك"
-                        : "Pay cash when you receive your order"}
+                      {t("codDesc")}
                     </p>
                   </div>
                   <Truck className="h-5 w-5 text-green-600" />
@@ -691,7 +686,7 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
           <div className="lg:col-span-1">
             <div className="bg-gray-50 rounded-lg p-6 sticky top-4">
               <h2 className="text-lg font-semibold mb-4">
-                {isArabic ? "ملخص الطلب" : "Order Summary"}
+                {t("orderSummary")}
               </h2>
 
               {/* Items */}
@@ -731,18 +726,18 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
-                    {isArabic ? "المجموع الفرعي" : "Subtotal"}
+                    {t("subtotal")}
                   </span>
                   <span>LE {total.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
-                    {isArabic ? "الشحن" : "Shipping"}
+                    {t("shipping")}
                   </span>
                   <span>LE {shippingCost.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg pt-2 border-t">
-                  <span>{isArabic ? "الإجمالي" : "Total"}</span>
+                  <span>{t("total")}</span>
                   <span>LE {grandTotal.toLocaleString()} EGP</span>
                 </div>
               </div>
@@ -755,11 +750,11 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    {isArabic ? "جاري التأكيد..." : "Processing..."}
+                    {t("processing")}
                   </>
                 ) : (
                   <>
-                    {isArabic ? "تأكيد الطلب" : "Place Order"}
+                    {t("placeOrder")}
                   </>
                 )}
               </button>

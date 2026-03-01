@@ -5,8 +5,7 @@ import Image from "next/image";
 import { X, Minus, Plus, Eye, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 import { Link } from "@/i18n/navigation";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { API_URL } from "@/lib/api-client";
 
 interface SuggestedProduct {
   id: string;

@@ -122,14 +122,14 @@ export function CollectionPageClient({
   const fetchAbortController = useRef<AbortController | null>(null);
 
   const sortOptions: SortOption[] = [
-    { value: "featured", label: isArabic ? "مميز" : "Featured", sortBy: "isFeatured", sortOrder: "desc" },
-    { value: "best-selling", label: isArabic ? "الأكثر مبيعاً" : "Best selling", sortBy: "createdAt", sortOrder: "desc" },
-    { value: "alpha-asc", label: isArabic ? "أبجدياً، أ-ي" : "Alphabetically, A-Z", sortBy: "nameEn", sortOrder: "asc" },
-    { value: "alpha-desc", label: isArabic ? "أبجدياً، ي-أ" : "Alphabetically, Z-A", sortBy: "nameEn", sortOrder: "desc" },
-    { value: "price-asc", label: isArabic ? "السعر، من الأقل للأعلى" : "Price, low to high", sortBy: "price", sortOrder: "asc" },
-    { value: "price-desc", label: isArabic ? "السعر، من الأعلى للأقل" : "Price, high to low", sortBy: "price", sortOrder: "desc" },
-    { value: "date-asc", label: isArabic ? "التاريخ، من الأقدم للأحدث" : "Date, old to new", sortBy: "createdAt", sortOrder: "asc" },
-    { value: "date-desc", label: isArabic ? "التاريخ، من الأحدث للأقدم" : "Date, new to old", sortBy: "createdAt", sortOrder: "desc" },
+    { value: "featured", label: t("sort.featured"), sortBy: "isFeatured", sortOrder: "desc" },
+    { value: "best-selling", label: t("sort.bestSelling"), sortBy: "createdAt", sortOrder: "desc" },
+    { value: "alpha-asc", label: t("sort.alphaAsc"), sortBy: "nameEn", sortOrder: "asc" },
+    { value: "alpha-desc", label: t("sort.alphaDesc"), sortBy: "nameEn", sortOrder: "desc" },
+    { value: "price-asc", label: t("sort.priceAsc"), sortBy: "price", sortOrder: "asc" },
+    { value: "price-desc", label: t("sort.priceDesc"), sortBy: "price", sortOrder: "desc" },
+    { value: "date-asc", label: t("sort.dateAsc"), sortBy: "createdAt", sortOrder: "asc" },
+    { value: "date-desc", label: t("sort.dateDesc"), sortBy: "createdAt", sortOrder: "desc" },
   ];
 
   const buildQueryParams = useCallback((page: number) => {
@@ -282,7 +282,7 @@ export function CollectionPageClient({
           className="flex items-center gap-2 text-sm font-medium hover:opacity-70 transition"
         >
           <SlidersHorizontal className="h-4 w-4" />
-          {isArabic ? "فلتر" : "FILTER"}
+          {t("filter")}
         </button>
 
         {/* Grid View Toggle */}
@@ -371,7 +371,7 @@ export function CollectionPageClient({
         )}
         {!isLoading && meta.page >= meta.totalPages && products.length > 0 && (
           <p className="text-sm text-muted-foreground">
-            {isArabic ? "تم عرض جميع المنتجات" : "All products loaded"}
+            {t("allLoaded")}
           </p>
         )}
       </div>
@@ -396,7 +396,7 @@ export function CollectionPageClient({
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4" />
             <span className="font-semibold text-sm">
-              {isArabic ? "فلتر" : "FILTER"}
+              {t("filter")}
             </span>
           </div>
           <button onClick={() => setIsFilterOpen(false)}>
@@ -407,14 +407,14 @@ export function CollectionPageClient({
         {/* Collections */}
         <div className="p-4 border-b">
           <h3 className="font-semibold text-sm mb-3">
-            {isArabic ? "المجموعات" : "Collections"}
+            {t("collections")}
           </h3>
           <div className="space-y-2">
             <button
               onClick={() => navigateToCollection(null)}
               className={`block text-sm ${slug === "all-products" ? "text-red-600 font-medium" : "text-gray-600 hover:text-black"}`}
             >
-              {isArabic ? "جميع المنتجات" : "All Products"}
+              {t("allProducts")}
             </button>
             {collections.map((collection: any) => (
               <div key={collection.id}>
@@ -452,7 +452,7 @@ export function CollectionPageClient({
         {/* Availability */}
         <div className="p-4 border-b">
           <h3 className="font-semibold text-sm mb-3">
-            {isArabic ? "التوفر" : "Availability"}
+            {t("availability")}
           </h3>
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm">
@@ -462,7 +462,7 @@ export function CollectionPageClient({
                 onChange={() => setAvailability(availability === "inStock" ? "all" : "inStock")}
                 className="rounded"
               />
-              {isArabic ? "متوفر" : "In stock"}
+              {t("inStock")}
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -471,7 +471,7 @@ export function CollectionPageClient({
                 onChange={() => setAvailability(availability === "outOfStock" ? "all" : "outOfStock")}
                 className="rounded"
               />
-              {isArabic ? "غير متوفر" : "Out of stock"}
+              {t("outOfStock")}
             </label>
           </div>
         </div>
@@ -479,7 +479,7 @@ export function CollectionPageClient({
         {/* Price Range */}
         <div className="p-4">
           <h3 className="font-semibold text-sm mb-3">
-            {isArabic ? "السعر" : "Price"}
+            {t("price")}
           </h3>
           <div className="space-y-4">
             <input
@@ -491,7 +491,7 @@ export function CollectionPageClient({
               className="w-full accent-red-600"
             />
             <div className="flex items-center gap-2 text-sm">
-              <span>{isArabic ? "السعر:" : "Price:"}</span>
+              <span>{t("price")}:</span>
               <input
                 type="number"
                 value={minPrice}

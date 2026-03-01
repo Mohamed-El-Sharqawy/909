@@ -2,19 +2,20 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Minus, Plus, Trash2, ShoppingBag, CreditCard, Shield } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 import { ProductCardWithVariants } from "@/components/ui/product-card-with-variants";
 import type { Product } from "@ecommerce/shared-types";
 import { Link } from "@/i18n/navigation";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { API_URL } from "@/lib/api-client";
 
 interface CartPageClientProps {
   locale: string;
 }
 
 export function CartPageClient({ locale }: CartPageClientProps) {
+  const t = useTranslations("cart");
   const { items, total, updateQuantity, removeItem } = useCart();
   const isArabic = locale === "ar";
   const [orderNote, setOrderNote] = useState("");
@@ -103,18 +104,16 @@ export function CartPageClient({ locale }: CartPageClientProps) {
         <div className="max-w-md mx-auto text-center">
           <ShoppingBag className="h-24 w-24 text-gray-300 mx-auto mb-6" />
           <h1 className="text-2xl font-semibold mb-4">
-            {isArabic ? "سلتك فارغة" : "Your cart is empty"}
+            {t("empty")}
           </h1>
           <p className="text-muted-foreground mb-8">
-            {isArabic
-              ? "يبدو أنك لم تضف أي منتجات إلى سلتك بعد"
-              : "Looks like you haven't added any products to your cart yet"}
+            {t("emptyDesc")}
           </p>
           <Link
             href="/collections"
             className="inline-block px-8 py-3 bg-black text-white font-medium rounded hover:bg-gray-800 transition"
           >
-            {isArabic ? "تسوق الآن" : "Start Shopping"}
+            {t("startShopping")}
           </Link>
         </div>
 
@@ -122,7 +121,7 @@ export function CartPageClient({ locale }: CartPageClientProps) {
         {suggestedProducts.length > 0 && (
           <div className="mt-16">
             <h2 className="text-xl font-semibold text-center mb-8">
-              {isArabic ? "قد يعجبك أيضاً" : "You may also like"}
+              {t("youMayLike")}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {suggestedProducts.map((product) => (
@@ -142,7 +141,7 @@ export function CartPageClient({ locale }: CartPageClientProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-semibold text-center mb-8">
-        {isArabic ? "سلة التسوق" : "Shopping Cart"}
+        {t("title")}
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -151,16 +150,16 @@ export function CartPageClient({ locale }: CartPageClientProps) {
           {/* Table Header */}
           <div className="hidden md:grid grid-cols-12 gap-4 pb-4 border-b text-sm font-medium text-muted-foreground">
             <div className="col-span-6">
-              {isArabic ? "المنتج" : "Product"}
+              {t("product")}
             </div>
             <div className="col-span-2 text-center">
-              {isArabic ? "السعر" : "Price"}
+              {t("price")}
             </div>
             <div className="col-span-2 text-center">
-              {isArabic ? "الكمية" : "Quantity"}
+              {t("quantity")}
             </div>
             <div className="col-span-2 text-right">
-              {isArabic ? "الإجمالي" : "Total"}
+              {t("total")}
             </div>
           </div>
 
@@ -182,7 +181,7 @@ export function CartPageClient({ locale }: CartPageClientProps) {
                         />
                       ) : (
                         <div className="flex items-center justify-center h-full text-gray-400 text-xs">
-                          No image
+                          {t("noImage")}
                         </div>
                       )}
                     </div>
@@ -203,7 +202,7 @@ export function CartPageClient({ locale }: CartPageClientProps) {
                       className="text-sm text-red-600 hover:underline mt-2 flex items-center gap-1"
                     >
                       <Trash2 className="h-3 w-3" />
-                      {isArabic ? "إزالة" : "Remove"}
+                      {t("remove")}
                     </button>
                   </div>
                 </div>
@@ -252,12 +251,12 @@ export function CartPageClient({ locale }: CartPageClientProps) {
           {/* Order Note */}
           <div className="mt-8">
             <h3 className="font-medium mb-2">
-              {isArabic ? "ملاحظة الطلب" : "Add Order Note"}
+              {t("orderNote")}
             </h3>
             <textarea
               value={orderNote}
               onChange={(e) => setOrderNote(e.target.value)}
-              placeholder={isArabic ? "كيف يمكننا مساعدتك؟" : "How can we help you?"}
+              placeholder={t("orderNotePlaceholder")}
               rows={3}
               className="w-full px-4 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
             />
@@ -269,7 +268,7 @@ export function CartPageClient({ locale }: CartPageClientProps) {
           <div className="bg-gray-50 rounded-lg p-6 sticky top-4">
             <div className="flex items-center justify-between mb-4">
               <span className="text-muted-foreground">
-                {isArabic ? "المجموع الفرعي" : "Subtotal"}
+                {t("subtotal")}
               </span>
               <span className="text-xl font-bold">
                 LE {total.toLocaleString()} EGP
@@ -281,12 +280,12 @@ export function CartPageClient({ locale }: CartPageClientProps) {
               className="w-full py-3 bg-black text-white text-center font-medium rounded flex items-center justify-center gap-2 hover:bg-gray-800 transition"
             >
               <CreditCard className="h-4 w-4" />
-              {isArabic ? "إتمام الشراء" : "Check out"}
+              {t("checkout")}
             </Link>
 
             <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4" />
-              {isArabic ? "ضمان الدفع الآمن" : "Guarantee Safe Checkout"}
+              {t("safeCheckout")}
             </div>
 
             {/* Payment Icons */}

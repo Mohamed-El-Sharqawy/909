@@ -11,8 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+import { api } from "@/lib/api";
 
 interface CollectionDetails {
   id: string;
@@ -49,14 +48,12 @@ interface CollectionDetails {
 }
 
 async function fetchCollectionDetails(id: string): Promise<CollectionDetails | null> {
-  const res = await fetch(`${API_BASE_URL}/api/collections/${id}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data?.data ?? null;
+  try {
+    const data = await api.get<{ data: CollectionDetails }>(`/api/collections/${id}`);
+    return data?.data ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export function CollectionDetailsPage() {

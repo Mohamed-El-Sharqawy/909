@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Search, X, Loader2, Package } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Collection } from "@ecommerce/shared-types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { API_URL } from "@/lib/api-client";
 
 interface SearchProduct {
   id: string;
@@ -21,16 +21,13 @@ interface SearchProduct {
 interface CollectionsPageClientProps {
   collections: Collection[];
   locale: string;
-  translations: {
-    shopByCollection: string;
-  };
 }
 
 export function CollectionsPageClient({
   collections,
   locale,
-  translations,
 }: CollectionsPageClientProps) {
+  const t = useTranslations("collection");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -138,7 +135,7 @@ export function CollectionsPageClient({
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-6 text-center">
-        {translations.shopByCollection}
+        {t("shopByCollection")}
       </h1>
 
       {/* Search Input */}
@@ -149,7 +146,7 @@ export function CollectionsPageClient({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isArabic ? "ابحث عن مجموعات أو منتجات..." : "Search collections or products..."}
+            placeholder={t("searchPlaceholder")}
             className="w-full pl-12 pr-12 py-3 border rounded-full focus:outline-none focus:ring-2 focus:ring-black text-sm"
             dir={isArabic ? "rtl" : "ltr"}
           />
@@ -166,7 +163,7 @@ export function CollectionsPageClient({
           <div className="flex items-center justify-center mt-2">
             <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
             <span className="ml-2 text-sm text-gray-500">
-              {isArabic ? "جاري البحث..." : "Searching..."}
+              {t("searching")}
             </span>
           </div>
         )}
@@ -176,15 +173,13 @@ export function CollectionsPageClient({
       {isSearchActive && !isSearching && !hasResults && (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">
-            {isArabic
-              ? `لا توجد نتائج لـ "${debouncedQuery}"`
-              : `No results found for "${debouncedQuery}"`}
+            {t("noResults")} "{debouncedQuery}"
           </p>
           <button
             onClick={() => setSearchQuery("")}
             className="mt-4 text-sm text-black underline hover:no-underline"
           >
-            {isArabic ? "مسح البحث" : "Clear search"}
+            {t("clearSearch")}
           </button>
         </div>
       )}
@@ -194,7 +189,7 @@ export function CollectionsPageClient({
         <div className="mb-12">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <Package className="h-5 w-5" />
-            {isArabic ? "المنتجات" : "Products"}
+            {t("products")}
             <span className="text-sm font-normal text-gray-500">
               ({searchResults.length})
             </span>
@@ -236,7 +231,7 @@ export function CollectionsPageClient({
         <>
           {isSearchActive && (
             <h2 className="text-xl font-semibold mb-4">
-              {isArabic ? "المجموعات" : "Collections"}
+              {t("collections")}
             </h2>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

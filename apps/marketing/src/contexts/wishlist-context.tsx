@@ -10,8 +10,7 @@ import {
 } from "react";
 import { useAuth } from "./auth-context";
 import type { Product } from "@ecommerce/shared-types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { API_URL } from "@/lib/api-client";
 
 interface WishlistItem {
   id: string;

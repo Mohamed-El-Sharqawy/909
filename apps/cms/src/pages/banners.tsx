@@ -30,8 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import type { Banner } from "@ecommerce/shared-types";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+import { api } from "@/lib/api";
 
 interface BannerFormData {
   titleEn: string;
@@ -106,15 +105,10 @@ export function BannersPage() {
       formDataUpload.append("file", file);
       formDataUpload.append("folder", "banners");
 
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${API_URL}/api/images/upload`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formDataUpload,
-      });
-
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
+      const data = await api.post<{ data: { url: string; publicId: string } }>(
+        "/api/images/upload",
+        formDataUpload
+      );
       
       setFormData((prev) => ({
         ...prev,

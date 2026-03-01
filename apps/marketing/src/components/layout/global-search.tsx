@@ -5,8 +5,7 @@ import Image from "next/image";
 import { Search, X, Loader2, Package, FolderTree } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { API_URL } from "@/lib/api-client";
 
 interface SearchProduct {
   id: string;

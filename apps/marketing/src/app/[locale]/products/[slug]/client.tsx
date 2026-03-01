@@ -13,6 +13,7 @@ import { ReviewModal } from "@/components/ui/review-modal";
 import { SizeGuideModal } from "@/components/ui/size-guide-modal";
 import type { Product, ProductVariant } from "@ecommerce/shared-types";
 import { Link } from "@/i18n/navigation";
+import { API_URL } from "@/lib/api-client";
 
 interface ProductPageClientProps {
   product: Product;
@@ -65,8 +66,6 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const productInfoRef = useRef<HTMLDivElement>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
   // Fetch reviews for this product
   useEffect(() => {
     const fetchReviews = async () => {
@@ -84,7 +83,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
       }
     };
     fetchReviews();
-  }, [product.id, API_URL]);
+  }, [product.id]);
 
   // Update URL when variant changes
   const updateURL = useCallback((variant: ProductVariant) => {
@@ -204,7 +203,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center gap-2 text-sm text-muted-foreground">
           <Link href="/" className="hover:text-foreground">
-            {isArabic ? "الرئيسية" : "Home"}
+            {t("home")}
           </Link>
           <ChevronRight className="h-4 w-4" />
           <span className="text-foreground">{name}</span>
@@ -289,7 +288,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
                   ))}
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  {isArabic ? "٧ مراجعات" : "7 reviews"}
+                  7 {t("reviews")}
                 </span>
               </div>
 
@@ -304,7 +303,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
                       LE {compareAtPrice.toLocaleString()}
                     </span>
                     <span className="bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                      {discountPercent}% OFF
+                      {discountPercent}% {t("off")}
                     </span>
                   </>
                 )}
@@ -315,7 +314,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
             {uniqueColors && uniqueColors.length > 0 && (
               <div>
                 <p className="text-sm mb-2">
-                  <span className="font-medium">{isArabic ? "اللون:" : "Color:"}</span>{" "}
+                  <span className="font-medium">{t("color")}:</span>{" "}
                   <span>{isArabic ? selectedVariant?.color?.nameAr : selectedVariant?.color?.nameEn}</span>
                 </p>
                 <div className="flex gap-2">
@@ -341,7 +340,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm">
-                    <span className="font-medium">{isArabic ? "المقاس:" : "Size:"}</span>{" "}
+                    <span className="font-medium">{t("size")}:</span>{" "}
                     <span>{isArabic ? selectedVariant?.size?.nameAr : selectedVariant?.size?.nameEn}</span>
                   </p>
                   <button
@@ -349,7 +348,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
                     className={`text-sm underline ${!product.sizeGuideUrl ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={!product.sizeGuideUrl}
                   >
-                    {isArabic ? "دليل المقاسات" : "Size Guide"}
+                    {t("sizeGuide")}
                   </button>
                 </div>
                 <div className="flex gap-2 flex-wrap">
@@ -387,7 +386,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
 
             {/* Quantity */}
             <div>
-              <p className="text-sm font-medium mb-2">{isArabic ? "الكمية" : "Quantity"}</p>
+              <p className="text-sm font-medium mb-2">{t("quantity")}</p>
               <div className="flex items-center border rounded w-fit">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -416,7 +415,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
                 }`}
               >
                 <Heart className={`h-5 w-5 ${favouriteIds.includes(product.id) ? "fill-current" : ""}`} />
-                {isArabic ? "المفضلة" : "Favourite"}
+                {t("favourite")}
               </button>
               <button
                 onClick={() => wishlistItems.some(item => item.productId === product.id) ? removeFromWishlist(product.id) : addToWishlist(product.id)}
@@ -427,7 +426,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
                 }`}
               >
                 <Bookmark className={`h-5 w-5 ${wishlistItems.some(item => item.productId === product.id) ? "fill-current" : ""}`} />
-                {isArabic ? "قائمة الرغبات" : "Wishlist"}
+                {t("wishlist")}
               </button>
             </div>
 
@@ -437,13 +436,13 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
                 onClick={handleAddToCart}
                 className="w-full py-3 border-2 border-black text-black font-semibold rounded hover:bg-gray-100 transition"
               >
-                {isArabic ? "أضف للسلة" : "Add to cart"} - LE {(price * quantity).toLocaleString()}
+                {t("addToCart")} - LE {(price * quantity).toLocaleString()}
               </button>
               <button
                 onClick={handleBuyNow}
                 className="w-full py-3 bg-black text-white font-semibold rounded hover:bg-gray-800 transition"
               >
-                {isArabic ? "اشتري الآن" : "BUY IT NOW"}
+                {t("buyNow")}
               </button>
             </div>
           </div>
@@ -455,7 +454,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
         <div className="flex items-start justify-between mb-8">
           <div>
             <h2 className="text-xl font-semibold mb-2">
-              {isArabic ? "آراء العملاء" : "Customer Reviews"}
+              {t("customerReviews")}
             </h2>
             {reviews.length > 0 && (
               <div className="flex items-center gap-2">
@@ -478,9 +477,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
                   })}
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  {isArabic
-                    ? `${reviews.length} مراجعة`
-                    : `${reviews.length} review${reviews.length !== 1 ? "s" : ""}`}
+                  {reviews.length} {reviews.length !== 1 ? t("reviews") : t("review")}
                 </span>
               </div>
             )}
@@ -489,7 +486,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
             onClick={() => setIsReviewModalOpen(true)}
             className="px-6 py-2 bg-black text-white text-sm rounded hover:bg-gray-800 transition"
           >
-            {isArabic ? "اكتب مراجعة" : "Write a review"}
+            {t("writeReview")}
           </button>
         </div>
 
@@ -501,9 +498,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
         ) : reviews.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground">
-              {isArabic
-                ? "لا توجد مراجعات بعد. كن أول من يكتب مراجعة!"
-                : "No reviews yet. Be the first to write a review!"}
+              {t("noReviews")}
             </p>
           </div>
         ) : (
@@ -530,7 +525,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
                     <span className="font-medium text-sm">{review.customerName || "Anonymous"}</span>
                     {review.userId && (
                       <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
-                        {isArabic ? "مُتحقق" : "Verified"}
+                        {t("verified")}
                       </span>
                     )}
                   </div>
@@ -566,7 +561,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
       {relatedProducts.length > 0 && (
         <div className="container mx-auto px-4 py-12 border-t">
           <h2 className="text-xl font-semibold text-center mb-8">
-            {isArabic ? "منتجات مميزة" : "Featured Products"}
+            {t("featuredProducts")}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {relatedProducts.map((p) => (
@@ -680,7 +675,7 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
               onClick={handleAddToCart}
               className="px-6 py-2 bg-black text-white text-sm font-medium rounded hover:bg-gray-800 transition"
             >
-              {isArabic ? "أضف للسلة" : "Add to cart"}
+              {t("addToCart")}
             </button>
           </div>
         </div>
@@ -721,6 +716,7 @@ function FrequentlyBoughtTogether({
   locale,
   selectedVariant,
 }: FrequentlyBoughtTogetherProps) {
+  const t = useTranslations("product");
   const { addItem } = useCart();
   const isArabic = locale === "ar";
   
@@ -795,10 +791,10 @@ function FrequentlyBoughtTogether({
   return (
     <div className="container mx-auto px-4 py-12 border-t">
       <h2 className="text-xl font-semibold text-center mb-2">
-        {isArabic ? "يُشترى معاً بشكل متكرر" : "Frequently Bought Together"}
+        {t("frequentlyBought")}
       </h2>
       <p className="text-center text-muted-foreground text-sm mb-6">
-        {isArabic ? "أضف هذه المنتجات معاً ووفر الوقت" : "Add these items together and save time"}
+        {t("frequentlyBoughtDesc")}
       </p>
 
       {/* Mobile Layout */}
@@ -838,7 +834,7 @@ function FrequentlyBoughtTogether({
                     {/* Current Product Badge */}
                     {isCurrentProduct && (
                       <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-black text-white text-[8px] px-1.5 py-0.5 rounded-full whitespace-nowrap z-10">
-                        {isArabic ? "هذا المنتج" : "This item"}
+                        {t("thisItem")}
                       </span>
                     )}
 
@@ -884,7 +880,7 @@ function FrequentlyBoughtTogether({
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs text-muted-foreground">
-                {isArabic ? `${selectedCount} منتجات` : `${selectedCount} items`}
+                {selectedCount} {t("items")}
               </p>
               <p className="text-lg font-bold">
                 LE {totalPrice.toLocaleString()}
@@ -896,7 +892,7 @@ function FrequentlyBoughtTogether({
               disabled={selectedCount === 0}
               className="flex-1 max-w-[180px] py-2.5 px-4 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isArabic ? "أضف الكل للسلة" : "Add All to Cart"}
+              {t("addAllToCart")}
             </button>
           </div>
         </div>
@@ -938,7 +934,7 @@ function FrequentlyBoughtTogether({
                   {/* Current Product Badge */}
                   {isCurrentProduct && (
                     <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap">
-                      {isArabic ? "هذا المنتج" : "This item"}
+                      {t("thisItem")}
                     </span>
                   )}
 
@@ -981,7 +977,7 @@ function FrequentlyBoughtTogether({
         <div className="flex flex-col items-center gap-4 p-6 bg-gray-50 rounded-2xl border min-w-[240px]">
           <div className="text-center">
             <p className="text-sm text-muted-foreground mb-1">
-              {isArabic ? `إجمالي ${selectedCount} منتجات` : `Total for ${selectedCount} items`}
+              {t("totalForItems", { count: selectedCount })}
             </p>
             <p className="text-2xl font-bold">
               LE {totalPrice.toLocaleString()}
@@ -993,13 +989,11 @@ function FrequentlyBoughtTogether({
             disabled={selectedCount === 0}
             className="w-full py-3 px-6 bg-black text-white font-medium rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isArabic ? `أضف ${selectedCount} للسلة` : `Add ${selectedCount} to Cart`}
+            {t("addToCartCount", { count: selectedCount })}
           </button>
           
           <p className="text-xs text-muted-foreground text-center">
-            {isArabic
-              ? "انقر على المنتج لإضافته أو إزالته"
-              : "Click on a product to add or remove it"}
+            {t("clickToAddRemove")}
           </p>
         </div>
       </div>

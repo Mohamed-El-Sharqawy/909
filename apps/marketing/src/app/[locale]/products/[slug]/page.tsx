@@ -2,8 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductPageClient } from "./client";
 import { generateProductMetadata } from "@/lib/metadata";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { API_URL } from "@/lib/api-client";
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;

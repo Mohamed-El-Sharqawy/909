@@ -43,18 +43,12 @@ export default async function CollectionsPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, collections] = await Promise.all([
-    getTranslations("header"),
-    getCollections(),
-  ]);
+  const collections = await getCollections();
 
   return (
     <CollectionsPageClient
       collections={collections}
       locale={locale}
-      translations={{
-        shopByCollection: t("shopByCollection"),
-      }}
     />
   );
 }
