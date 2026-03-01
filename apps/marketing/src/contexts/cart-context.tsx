@@ -32,6 +32,7 @@ interface CartContextType {
   updateQuantity: (variantId: string, quantity: number) => void;
   removeItem: (variantId: string) => void;
   clearCart: () => void;
+  shopNow: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -52,7 +53,12 @@ export function CartProvider({ children }: CartProviderProps) {
   }, []);
 
   const openCart = useCallback(() => setIsOpen(true), []);
+
   const closeCart = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  const shopNow = useCallback(() => {
     setIsOpen(false);
     router.push("/collections/all-products");
   }, [router]);
@@ -91,6 +97,7 @@ export function CartProvider({ children }: CartProviderProps) {
         isOpen,
         openCart,
         closeCart,
+        shopNow,
         addItem,
         updateQuantity,
         removeItem,

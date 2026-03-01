@@ -15,7 +15,7 @@ import type { CartDrawerProps } from "./types";
 
 export function CartDrawer({ locale }: CartDrawerProps) {
   const t = useTranslations("cartDrawer");
-  const { items, total, isOpen, closeCart, updateQuantity, removeItem } = useCart();
+  const { items, total, isOpen, closeCart, updateQuantity, removeItem, shopNow } = useCart();
   const suggestedProducts = useSuggestedProducts(items, isOpen);
   useDrawerState(isOpen);
 
@@ -40,7 +40,7 @@ export function CartDrawer({ locale }: CartDrawerProps) {
         {/* Cart Items */}
         <div className="flex-1 overflow-y-auto">
           {items.length === 0 ? (
-            <EmptyState onClose={closeCart} />
+            <EmptyState onClose={shopNow} />
           ) : (
             <div className="p-4 space-y-4">
               {items.map((item) => (
