@@ -1,5 +1,5 @@
 import type { Product, Collection, ShoppableVideo, InstagramPost, Review, Banner } from "@ecommerce/shared-types";
-import { apiGet, API_URL } from "./api-client";
+import { apiGet } from "./api-client";
 
 interface PaginatedResponse<T> {
   success: boolean;
