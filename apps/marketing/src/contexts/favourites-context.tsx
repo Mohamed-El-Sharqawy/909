@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "./auth-context";
+import { useAuthPrompt } from "./auth-prompt-context";
 import type { Product } from "@ecommerce/shared-types";
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
 
@@ -40,6 +41,7 @@ export function useFavourites() {
 
 export function FavouritesProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessToken } = useAuth();
+  const { showAuthPrompt } = useAuthPrompt();
   const [favouriteItems, setFavouriteItems] = useState<FavouriteItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -81,7 +83,12 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
 
   const addFavourite = useCallback(
     async (productId: string) => {
-      if (!isAuthenticated) return;
+      console.log("addFavourite called, isAuthenticated:", isAuthenticated);
+      if (!isAuthenticated) {
+        console.log("User not authenticated, showing auth prompt");
+        showAuthPrompt("favourites");
+        return;
+      }
 
       // Optimistic update - add placeholder item
       const tempItem: FavouriteItem = {
@@ -111,12 +118,15 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
         setFavouriteItems((prev) => prev.filter((item) => item.productId !== productId));
       }
     },
-    [isAuthenticated, getAccessToken]
+    [isAuthenticated, getAccessToken, showAuthPrompt]
   );
 
   const removeFavourite = useCallback(
     async (productId: string) => {
-      if (!isAuthenticated) return;
+      if (!isAuthenticated) {
+        showAuthPrompt("favourites");
+        return;
+      }
 
       // Store for revert
       const removedItem = favouriteItems.find((item) => item.productId === productId);
@@ -134,7 +144,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
         }
       }
     },
-    [isAuthenticated, getAccessToken, favouriteItems]
+    [isAuthenticated, getAccessToken, favouriteItems, showAuthPrompt]
   );
 
   const toggleFavourite = useCallback(

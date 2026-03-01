@@ -91,6 +91,10 @@ export function CollectionsPage() {
       nameAr: formData.get("nameAr") as string,
       descriptionEn: formData.get("descriptionEn") as string,
       descriptionAr: formData.get("descriptionAr") as string,
+      metaTitleEn: (formData.get("metaTitleEn") as string) || undefined,
+      metaTitleAr: (formData.get("metaTitleAr") as string) || undefined,
+      metaDescriptionEn: (formData.get("metaDescriptionEn") as string) || undefined,
+      metaDescriptionAr: (formData.get("metaDescriptionAr") as string) || undefined,
       inHeader: formData.get("inHeader") === "on",
       isFeaturedOnHome: formData.get("isFeaturedOnHome") === "on",
       homeFeaturedPosition: Number(formData.get("homeFeaturedPosition")) || 0,
@@ -372,7 +376,7 @@ export function CollectionsPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingCollection ? "Edit Collection" : "Add Collection"}
@@ -415,6 +419,57 @@ export function CollectionsPage() {
                   defaultValue={editingCollection?.descriptionAr ?? ""}
                   dir="rtl"
                 />
+              </div>
+
+              {/* SEO Meta Fields */}
+              <div className="border-t pt-4 mt-2">
+                <h4 className="text-sm font-medium mb-3">SEO Meta Information (Optional)</h4>
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="metaTitleEn">Meta Title (English)</Label>
+                      <Input
+                        id="metaTitleEn"
+                        name="metaTitleEn"
+                        defaultValue={(editingCollection as any)?.metaTitleEn ?? ""}
+                        placeholder="SEO title for search engines"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="metaTitleAr">Meta Title (Arabic)</Label>
+                      <Input
+                        id="metaTitleAr"
+                        name="metaTitleAr"
+                        defaultValue={(editingCollection as any)?.metaTitleAr ?? ""}
+                        placeholder="عنوان SEO لمحركات البحث"
+                        dir="rtl"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="metaDescriptionEn">Meta Description (English)</Label>
+                      <Textarea
+                        id="metaDescriptionEn"
+                        name="metaDescriptionEn"
+                        defaultValue={(editingCollection as any)?.metaDescriptionEn ?? ""}
+                        placeholder="Brief description for search results"
+                        rows={2}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="metaDescriptionAr">Meta Description (Arabic)</Label>
+                      <Textarea
+                        id="metaDescriptionAr"
+                        name="metaDescriptionAr"
+                        defaultValue={(editingCollection as any)?.metaDescriptionAr ?? ""}
+                        placeholder="وصف مختصر لنتائج البحث"
+                        dir="rtl"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

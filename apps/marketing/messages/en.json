@@ -532,6 +532,10 @@
     "noImage": "No image"
   },
   "auth": {
+    "signInRequired": "Sign In Required",
+    "signInToUse": "Please sign in to use {feature}. Create an account to save your favourites and wishlist items.",
+    "signIn": "Sign In",
+    "maybeLater": "Maybe Later",
     "signin": {
       "title": "Sign In",
       "subtitle": "Enter your credentials to access your account",

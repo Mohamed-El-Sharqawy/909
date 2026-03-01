@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "./auth-context";
+import { useAuthPrompt } from "./auth-prompt-context";
 import type { Product } from "@ecommerce/shared-types";
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
 
@@ -41,6 +42,7 @@ export function useWishlist() {
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessToken } = useAuth();
+  const { showAuthPrompt } = useAuthPrompt();
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -82,7 +84,10 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
   const addToWishlist = useCallback(
     async (productId: string, variantId?: string, note?: string) => {
-      if (!isAuthenticated) return;
+      if (!isAuthenticated) {
+        showAuthPrompt("wishlist");
+        return;
+      }
 
       // Optimistic update with temp id
       const tempItem: WishlistItem = {
@@ -119,12 +124,15 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
         setWishlistItems((prev) => prev.filter((item) => item.productId !== productId));
       }
     },
-    [isAuthenticated, getAccessToken]
+    [isAuthenticated, getAccessToken, showAuthPrompt]
   );
 
   const removeFromWishlist = useCallback(
     async (productId: string) => {
-      if (!isAuthenticated) return;
+      if (!isAuthenticated) {
+        showAuthPrompt("wishlist");
+        return;
+      }
 
       const removedItem = wishlistItems.find((item) => item.productId === productId);
 
@@ -141,7 +149,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
         }
       }
     },
-    [isAuthenticated, getAccessToken, wishlistItems]
+    [isAuthenticated, getAccessToken, wishlistItems, showAuthPrompt]
   );
 
   const toggleWishlist = useCallback(
