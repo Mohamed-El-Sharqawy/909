@@ -1,7 +1,7 @@
 [] enhance SEO more and performance in backend and frontend
-[] refactor terms-of-service
-[] refactor products
-[] refactor policies pages
+[X] refactor products
+[X] refactor terms-of-service
+[X] refactor policies pages
 [X] refactor contact
 [X] refactor collections
 [X] refactor checkout
