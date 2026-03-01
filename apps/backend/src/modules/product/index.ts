@@ -9,6 +9,10 @@ export const product = new Elysia({ prefix: "/products" })
     const result = await ProductService.list(query);
     return { success: true as const, data: result };
   }, { query: ProductModel.listQuery })
+  .post("/related", async ({ body }) => {
+    const result = await ProductService.getRelatedProducts(body);
+    return { success: true as const, data: result };
+  }, { body: ProductModel.relatedProductsBody })
   .get("/:slug", async ({ params }) => {
     const product = await ProductService.getBySlug(params.slug);
     if (!product) return status(404, { success: false as const, error: "Product not found" });

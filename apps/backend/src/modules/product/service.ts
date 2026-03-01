@@ -306,4 +306,84 @@ export abstract class ProductService {
 
     return true;
   }
+
+  /**
+   * Get related products based on collection IDs
+   * Fetches products from the same collections, excluding specified product IDs
+   * Falls back to featured products if not enough related products found
+   */
+  static async getRelatedProducts(options: {
+    collectionIds: string[];
+    excludeProductIds: string[];
+    limit?: number;
+  }) {
+    const { collectionIds, excludeProductIds, limit = 4 } = options;
+
+    let products: any[] = [];
+
+    if (collectionIds.length > 0) {
+      // Get all collection IDs including parent collections
+      const collections = await prisma.collection.findMany({
+        where: { id: { in: collectionIds } },
+        select: { id: true, parentId: true },
+      });
+
+      // Collect all relevant collection IDs (original + parents)
+      const allCollectionIds = new Set<string>(collectionIds);
+      for (const col of collections) {
+        if (col.parentId) {
+          allCollectionIds.add(col.parentId);
+        }
+      }
+
+      // Fetch products from these collections
+      const relatedProducts = await prisma.product.findMany({
+        where: {
+          collectionId: { in: Array.from(allCollectionIds) },
+          id: { notIn: excludeProductIds },
+          isActive: true,
+        },
+        include: PRODUCT_INCLUDE,
+        take: limit * 2, // Fetch more to have options after filtering
+        orderBy: { createdAt: "desc" },
+      });
+
+      products = relatedProducts.map(transformProduct);
+    }
+
+    // If not enough products, fill with featured products
+    if (products.length < limit) {
+      const existingIds = [...excludeProductIds, ...products.map((p) => p.id)];
+      const featuredProducts = await prisma.product.findMany({
+        where: {
+          id: { notIn: existingIds },
+          isActive: true,
+          isFeatured: true,
+        },
+        include: PRODUCT_INCLUDE,
+        take: limit - products.length,
+        orderBy: { createdAt: "desc" },
+      });
+
+      products = [...products, ...featuredProducts.map(transformProduct)];
+    }
+
+    // If still not enough, get any active products
+    if (products.length < limit) {
+      const existingIds = [...excludeProductIds, ...products.map((p) => p.id)];
+      const anyProducts = await prisma.product.findMany({
+        where: {
+          id: { notIn: existingIds },
+          isActive: true,
+        },
+        include: PRODUCT_INCLUDE,
+        take: limit - products.length,
+        orderBy: { createdAt: "desc" },
+      });
+
+      products = [...products, ...anyProducts.map(transformProduct)];
+    }
+
+    return products.slice(0, limit);
+  }
 }

@@ -94,6 +94,11 @@ export const ProductModel = {
     sortBy: t.Optional(t.String()),
     sortOrder: t.Optional(t.String()),
   }),
+  relatedProductsBody: t.Object({
+    collectionIds: t.Array(t.String()),
+    excludeProductIds: t.Array(t.String()),
+    limit: t.Optional(t.Number({ minimum: 1, maximum: 20 })),
+  }),
 } as const;
 
 export type ProductModel = {

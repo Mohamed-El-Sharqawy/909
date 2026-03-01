@@ -1,3 +1,10 @@
+[] enhance SEO more and performance in backend and frontend
+[] refactor terms-of-service
+[] refactor products
+[] refactor policies pages
+[] refactor contact
+[] refactor collections
+[] refactor checkout
 [] Cart Featured Products
 [X] Return Policy
 [X] Privacy Policy
@@ -8,4 +15,4 @@
 [X] contact us page
 [X] write a review when there's an order issue
 [X] search input in the header
-[X] frequently bought together issue
+[X] frequently bought together issues
