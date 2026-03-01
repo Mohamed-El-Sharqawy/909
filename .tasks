@@ -2,8 +2,8 @@
 [] refactor terms-of-service
 [] refactor products
 [] refactor policies pages
-[] refactor contact
-[] refactor collections
+[X] refactor contact
+[X] refactor collections
 [X] refactor checkout
 [X] Cart Featured Products
 [X] Return Policy
