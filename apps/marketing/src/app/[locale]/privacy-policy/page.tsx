@@ -1,4 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { generatePageMetadata, STATIC_PAGE_METADATA } from "@/lib/metadata";
 
@@ -22,151 +23,63 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function PrivacyPolicyPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const isArabic = locale === "ar";
+  const t = await getTranslations("privacyPolicy");
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-8">
-        {isArabic ? "سياسة الخصوصية" : "Privacy Policy"}
-      </h1>
+      <h1 className="text-3xl font-bold mb-8">{t("title")}</h1>
 
       <div className="prose prose-gray max-w-none space-y-6">
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "مقدمة" : "Introduction"}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {isArabic
-              ? "نحن نقدر خصوصيتك ونلتزم بحماية بياناتك الشخصية. توضح سياسة الخصوصية هذه كيفية جمع واستخدام وحماية معلوماتك."
-              : "We value your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information."}
-          </p>
+          <h2 className="text-xl font-semibold mb-4">{t("intro.title")}</h2>
+          <p className="text-gray-600 leading-relaxed">{t("intro.description")}</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "المعلومات التي نجمعها" : "Information We Collect"}
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">{t("collect.title")}</h2>
           <ul className="list-disc list-inside text-gray-600 space-y-2">
-            <li>
-              {isArabic
-                ? "معلومات الاتصال (الاسم، البريد الإلكتروني، رقم الهاتف)"
-                : "Contact information (name, email, phone number)"}
-            </li>
-            <li>
-              {isArabic
-                ? "عنوان الشحن والفواتير"
-                : "Shipping and billing addresses"}
-            </li>
-            <li>
-              {isArabic
-                ? "معلومات الدفع"
-                : "Payment information"}
-            </li>
-            <li>
-              {isArabic
-                ? "سجل الطلبات والمشتريات"
-                : "Order history and purchases"}
-            </li>
-            <li>
-              {isArabic
-                ? "تفضيلات التصفح والتسوق"
-                : "Browsing and shopping preferences"}
-            </li>
+            <li>{t("collect.contact")}</li>
+            <li>{t("collect.address")}</li>
+            <li>{t("collect.payment")}</li>
+            <li>{t("collect.history")}</li>
+            <li>{t("collect.preferences")}</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "كيف نستخدم معلوماتك" : "How We Use Your Information"}
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">{t("use.title")}</h2>
           <ul className="list-disc list-inside text-gray-600 space-y-2">
-            <li>
-              {isArabic
-                ? "معالجة وتنفيذ طلباتك"
-                : "Process and fulfill your orders"}
-            </li>
-            <li>
-              {isArabic
-                ? "التواصل معك بشأن طلباتك"
-                : "Communicate with you about your orders"}
-            </li>
-            <li>
-              {isArabic
-                ? "تحسين خدماتنا ومنتجاتنا"
-                : "Improve our services and products"}
-            </li>
-            <li>
-              {isArabic
-                ? "إرسال تحديثات تسويقية (بموافقتك)"
-                : "Send marketing updates (with your consent)"}
-            </li>
-            <li>
-              {isArabic
-                ? "منع الاحتيال وضمان الأمان"
-                : "Prevent fraud and ensure security"}
-            </li>
+            <li>{t("use.process")}</li>
+            <li>{t("use.communicate")}</li>
+            <li>{t("use.improve")}</li>
+            <li>{t("use.marketing")}</li>
+            <li>{t("use.security")}</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "حماية البيانات" : "Data Protection"}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {isArabic
-              ? "نستخدم تدابير أمنية متقدمة لحماية بياناتك الشخصية من الوصول غير المصرح به أو الكشف أو التعديل أو الإتلاف."
-              : "We use advanced security measures to protect your personal data from unauthorized access, disclosure, alteration, or destruction."}
-          </p>
+          <h2 className="text-xl font-semibold mb-4">{t("protection.title")}</h2>
+          <p className="text-gray-600 leading-relaxed">{t("protection.description")}</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "ملفات تعريف الارتباط" : "Cookies"}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {isArabic
-              ? "نستخدم ملفات تعريف الارتباط لتحسين تجربة التصفح الخاصة بك. يمكنك إدارة تفضيلات ملفات تعريف الارتباط من خلال إعدادات المتصفح."
-              : "We use cookies to enhance your browsing experience. You can manage your cookie preferences through your browser settings."}
-          </p>
+          <h2 className="text-xl font-semibold mb-4">{t("cookies.title")}</h2>
+          <p className="text-gray-600 leading-relaxed">{t("cookies.description")}</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "حقوقك" : "Your Rights"}
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">{t("rights.title")}</h2>
           <ul className="list-disc list-inside text-gray-600 space-y-2">
-            <li>
-              {isArabic
-                ? "الوصول إلى بياناتك الشخصية"
-                : "Access your personal data"}
-            </li>
-            <li>
-              {isArabic
-                ? "تصحيح البيانات غير الدقيقة"
-                : "Correct inaccurate data"}
-            </li>
-            <li>
-              {isArabic
-                ? "طلب حذف بياناتك"
-                : "Request deletion of your data"}
-            </li>
-            <li>
-              {isArabic
-                ? "إلغاء الاشتراك في الاتصالات التسويقية"
-                : "Opt-out of marketing communications"}
-            </li>
+            <li>{t("rights.access")}</li>
+            <li>{t("rights.correct")}</li>
+            <li>{t("rights.delete")}</li>
+            <li>{t("rights.optout")}</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "تواصل معنا" : "Contact Us"}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {isArabic
-              ? "إذا كان لديك أي أسئلة حول سياسة الخصوصية، يرجى التواصل معنا عبر صفحة اتصل بنا."
-              : "If you have any questions about our privacy policy, please contact us through our contact page."}
-          </p>
+          <h2 className="text-xl font-semibold mb-4">{t("contactUs.title")}</h2>
+          <p className="text-gray-600 leading-relaxed">{t("contactUs.description")}</p>
         </section>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { generatePageMetadata, STATIC_PAGE_METADATA } from "@/lib/metadata";
 
@@ -22,131 +23,59 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ShippingPolicyPage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const isArabic = locale === "ar";
+  const t = await getTranslations("shippingPolicy");
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-8">
-        {isArabic ? "سياسة الشحن" : "Shipping Policy"}
-      </h1>
+      <h1 className="text-3xl font-bold mb-8">{t("title")}</h1>
 
       <div className="prose prose-gray max-w-none space-y-6">
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "مناطق الشحن" : "Shipping Areas"}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {isArabic
-              ? "نقوم بالشحن إلى جميع أنحاء مصر. للطلبات الدولية، يرجى التواصل مع خدمة العملاء."
-              : "We ship to all areas within Egypt. For international orders, please contact customer service."}
-          </p>
+          <h2 className="text-xl font-semibold mb-4">{t("areas.title")}</h2>
+          <p className="text-gray-600 leading-relaxed">{t("areas.description")}</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "مدة التوصيل" : "Delivery Time"}
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">{t("delivery.title")}</h2>
           <ul className="list-disc list-inside text-gray-600 space-y-2">
-            <li>
-              {isArabic
-                ? "القاهرة والجيزة: 1-3 أيام عمل"
-                : "Cairo & Giza: 1-3 business days"}
-            </li>
-            <li>
-              {isArabic
-                ? "الإسكندرية: 2-4 أيام عمل"
-                : "Alexandria: 2-4 business days"}
-            </li>
-            <li>
-              {isArabic
-                ? "باقي المحافظات: 3-7 أيام عمل"
-                : "Other governorates: 3-7 business days"}
-            </li>
+            <li>{t("delivery.cairo")}</li>
+            <li>{t("delivery.alexandria")}</li>
+            <li>{t("delivery.other")}</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "تكاليف الشحن" : "Shipping Costs"}
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">{t("costs.title")}</h2>
           <ul className="list-disc list-inside text-gray-600 space-y-2">
-            <li>
-              {isArabic
-                ? "القاهرة والجيزة: 50 جنيه"
-                : "Cairo & Giza: 50 EGP"}
-            </li>
-            <li>
-              {isArabic
-                ? "الإسكندرية: 60 جنيه"
-                : "Alexandria: 60 EGP"}
-            </li>
-            <li>
-              {isArabic
-                ? "باقي المحافظات: 70-100 جنيه"
-                : "Other governorates: 70-100 EGP"}
-            </li>
-            <li>
-              {isArabic
-                ? "شحن مجاني للطلبات فوق 1500 جنيه"
-                : "Free shipping on orders over 1500 EGP"}
-            </li>
+            <li>{t("costs.cairo")}</li>
+            <li>{t("costs.alexandria")}</li>
+            <li>{t("costs.other")}</li>
+            <li>{t("costs.free")}</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "تتبع الطلب" : "Order Tracking"}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {isArabic
-              ? "بمجرد شحن طلبك، ستتلقى رسالة نصية أو بريد إلكتروني يحتوي على رقم التتبع. يمكنك استخدام هذا الرقم لتتبع طلبك."
-              : "Once your order is shipped, you will receive an SMS or email with a tracking number. You can use this number to track your order."}
-          </p>
+          <h2 className="text-xl font-semibold mb-4">{t("tracking.title")}</h2>
+          <p className="text-gray-600 leading-relaxed">{t("tracking.description")}</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "الدفع عند الاستلام" : "Cash on Delivery"}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {isArabic
-              ? "نقبل الدفع عند الاستلام لجميع الطلبات داخل مصر. يرجى تجهيز المبلغ المطلوب عند وصول المندوب."
-              : "We accept cash on delivery for all orders within Egypt. Please have the exact amount ready when the courier arrives."}
-          </p>
+          <h2 className="text-xl font-semibold mb-4">{t("cod.title")}</h2>
+          <p className="text-gray-600 leading-relaxed">{t("cod.description")}</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "ملاحظات مهمة" : "Important Notes"}
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">{t("notes.title")}</h2>
           <ul className="list-disc list-inside text-gray-600 space-y-2">
-            <li>
-              {isArabic
-                ? "يرجى التأكد من صحة عنوان الشحن ورقم الهاتف"
-                : "Please ensure your shipping address and phone number are correct"}
-            </li>
-            <li>
-              {isArabic
-                ? "قد تتأخر الشحنات خلال العطلات والمواسم"
-                : "Shipments may be delayed during holidays and peak seasons"}
-            </li>
-            <li>
-              {isArabic
-                ? "سيتم التواصل معك قبل التوصيل"
-                : "You will be contacted before delivery"}
-            </li>
+            <li>{t("notes.address")}</li>
+            <li>{t("notes.delays")}</li>
+            <li>{t("notes.contact")}</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">
-            {isArabic ? "تواصل معنا" : "Contact Us"}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {isArabic
-              ? "إذا كان لديك أي أسئلة حول الشحن، يرجى التواصل معنا عبر صفحة اتصل بنا."
-              : "If you have any questions about shipping, please contact us through our contact page."}
-          </p>
+          <h2 className="text-xl font-semibold mb-4">{t("contactUs.title")}</h2>
+          <p className="text-gray-600 leading-relaxed">{t("contactUs.description")}</p>
         </section>
       </div>
     </div>

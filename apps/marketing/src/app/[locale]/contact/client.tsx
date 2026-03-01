@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Mail, Phone, MapPin, Clock, Send, Loader2 } from "lucide-react";
 
 interface ContactPageClientProps {
@@ -8,7 +9,7 @@ interface ContactPageClientProps {
 }
 
 export function ContactPageClient({ locale }: ContactPageClientProps) {
-  const isArabic = locale === "ar";
+  const t = useTranslations("contact");
   
   const [formData, setFormData] = useState({
     name: "",
@@ -45,38 +46,44 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
   const contactInfo = [
     {
       icon: Phone,
-      title: isArabic ? "الهاتف" : "Phone",
-      value: "+20 123 456 7890",
+      title: t("info.phone"),
+      value: t("info.phoneValue"),
       href: "tel:+201234567890",
     },
     {
       icon: Mail,
-      title: isArabic ? "البريد الإلكتروني" : "Email",
-      value: "support@nznstudio.com",
-      href: "mailto:support@nznstudio.com",
+      title: t("info.email"),
+      value: t("info.emailValue"),
+      href: `mailto:${t("info.emailValue")}`,
     },
     {
       icon: MapPin,
-      title: isArabic ? "العنوان" : "Address",
-      value: isArabic ? "القاهرة، مصر" : "Cairo, Egypt",
+      title: t("info.address"),
+      value: t("info.addressValue"),
       href: null,
     },
     {
       icon: Clock,
-      title: isArabic ? "ساعات العمل" : "Working Hours",
-      value: isArabic ? "السبت - الخميس: 10 ص - 10 م" : "Sat - Thu: 10 AM - 10 PM",
+      title: t("info.hours"),
+      value: t("info.hoursValue"),
       href: null,
     },
   ];
 
   const subjects = [
-    { value: "", label: isArabic ? "اختر الموضوع" : "Select a subject" },
-    { value: "order", label: isArabic ? "استفسار عن طلب" : "Order Inquiry" },
-    { value: "product", label: isArabic ? "استفسار عن منتج" : "Product Inquiry" },
-    { value: "return", label: isArabic ? "إرجاع / استبدال" : "Return / Exchange" },
-    { value: "shipping", label: isArabic ? "الشحن والتوصيل" : "Shipping & Delivery" },
-    { value: "feedback", label: isArabic ? "ملاحظات واقتراحات" : "Feedback & Suggestions" },
-    { value: "other", label: isArabic ? "أخرى" : "Other" },
+    { value: "", label: t("form.subjectPlaceholder") },
+    { value: "general", label: t("form.subjects.general") },
+    { value: "order", label: t("form.subjects.order") },
+    { value: "return", label: t("form.subjects.return") },
+    { value: "product", label: t("form.subjects.product") },
+    { value: "other", label: t("form.subjects.other") },
+  ];
+
+  const faqs = [
+    { q: t("faq.delivery.q"), a: t("faq.delivery.a") },
+    { q: t("faq.returns.q"), a: t("faq.returns.a") },
+    { q: t("faq.payment.q"), a: t("faq.payment.a") },
+    { q: t("faq.tracking.q"), a: t("faq.tracking.a") },
   ];
 
   return (
@@ -86,9 +93,7 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
           {/* Contact Information */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-sm p-6 space-y-6">
-              <h2 className="text-xl font-semibold">
-                {isArabic ? "معلومات التواصل" : "Contact Information"}
-              </h2>
+              <h2 className="text-xl font-semibold">{t("contactInfo")}</h2>
               
               <div className="space-y-4">
                 {contactInfo.map((item, index) => (
@@ -115,9 +120,7 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
 
               {/* Social Links */}
               <div className="pt-6 border-t">
-                <p className="text-sm text-gray-500 mb-3">
-                  {isArabic ? "تابعنا على" : "Follow us on"}
-                </p>
+                <p className="text-sm text-gray-500 mb-3">{t("followUs")}</p>
                 <div className="flex gap-3">
                   <a
                     href="https://instagram.com"
@@ -155,9 +158,7 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
 
             {/* Map */}
             <div className="bg-white rounded-2xl shadow-sm p-6 mt-6">
-              <h2 className="text-xl font-semibold mb-4">
-                {isArabic ? "موقعنا" : "Our Location"}
-              </h2>
+              <h2 className="text-xl font-semibold mb-4">{t("ourLocation")}</h2>
               <div className="rounded-xl overflow-hidden">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3454.0!2d31.3547!3d30.0283!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14583e4e7c9a7c7d%3A0x0!2zMzDCsDAxJzQyLjAiTiAzMcKwMjEnMTcuMCJF!5e0!3m2!1sen!2seg!4v1709150000000"
@@ -167,7 +168,7 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title={isArabic ? "موقعنا على الخريطة" : "Our location on map"}
+                  title={t("mapTitle")}
                 />
               </div>
               <a
@@ -177,7 +178,7 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
                 className="inline-flex items-center gap-2 mt-4 text-sm text-orange-500 hover:text-orange-600 transition"
               >
                 <MapPin className="h-4 w-4" />
-                {isArabic ? "احصل على الاتجاهات" : "Get Directions"}
+                {t("getDirections")}
               </a>
             </div>
           </div>
@@ -185,28 +186,20 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
           {/* Contact Form */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
-              <h2 className="text-xl font-semibold mb-6">
-                {isArabic ? "أرسل لنا رسالة" : "Send us a Message"}
-              </h2>
+              <h2 className="text-xl font-semibold mb-6">{t("sendMessage")}</h2>
 
               {submitStatus === "success" ? (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Send className="h-8 w-8 text-green-600" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">
-                    {isArabic ? "تم إرسال رسالتك!" : "Message Sent!"}
-                  </h3>
-                  <p className="text-gray-500">
-                    {isArabic
-                      ? "شكراً لتواصلك معنا. سنرد عليك في أقرب وقت ممكن."
-                      : "Thank you for reaching out. We'll get back to you as soon as possible."}
-                  </p>
+                  <h3 className="text-xl font-semibold mb-2">{t("messageSent")}</h3>
+                  <p className="text-gray-500">{t("success")}</p>
                   <button
                     onClick={() => setSubmitStatus("idle")}
                     className="mt-6 px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition"
                   >
-                    {isArabic ? "إرسال رسالة أخرى" : "Send Another Message"}
+                    {t("sendAnother")}
                   </button>
                 </div>
               ) : (
@@ -215,7 +208,7 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
                     {/* Name */}
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium mb-2">
-                        {isArabic ? "الاسم" : "Name"} <span className="text-red-500">*</span>
+                        {t("form.name")} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -225,14 +218,14 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
-                        placeholder={isArabic ? "أدخل اسمك" : "Enter your name"}
+                        placeholder={t("form.namePlaceholder")}
                       />
                     </div>
 
                     {/* Email */}
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium mb-2">
-                        {isArabic ? "البريد الإلكتروني" : "Email"} <span className="text-red-500">*</span>
+                        {t("form.email")} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
@@ -242,14 +235,14 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
-                        placeholder={isArabic ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+                        placeholder={t("form.emailPlaceholder")}
                       />
                     </div>
 
                     {/* Phone */}
                     <div>
                       <label htmlFor="phone" className="block text-sm font-medium mb-2">
-                        {isArabic ? "رقم الهاتف" : "Phone"}
+                        {t("form.phone")}
                       </label>
                       <input
                         type="tel"
@@ -258,14 +251,14 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
                         value={formData.phone}
                         onChange={handleChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
-                        placeholder={isArabic ? "أدخل رقم هاتفك" : "Enter your phone number"}
+                        placeholder={t("form.phonePlaceholder")}
                       />
                     </div>
 
                     {/* Subject */}
                     <div>
                       <label htmlFor="subject" className="block text-sm font-medium mb-2">
-                        {isArabic ? "الموضوع" : "Subject"} <span className="text-red-500">*</span>
+                        {t("form.subject")} <span className="text-red-500">*</span>
                       </label>
                       <select
                         id="subject"
@@ -287,7 +280,7 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
                   {/* Message */}
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium mb-2">
-                      {isArabic ? "الرسالة" : "Message"} <span className="text-red-500">*</span>
+                      {t("form.message")} <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       id="message"
@@ -297,15 +290,13 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
                       required
                       rows={5}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition resize-none"
-                      placeholder={isArabic ? "اكتب رسالتك هنا..." : "Write your message here..."}
+                      placeholder={t("form.messagePlaceholder")}
                     />
                   </div>
 
                   {submitStatus === "error" && (
                     <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                      {isArabic
-                        ? "حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى."
-                        : "An error occurred while sending your message. Please try again."}
+                      {t("error")}
                     </div>
                   )}
 
@@ -317,12 +308,12 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        {isArabic ? "جاري الإرسال..." : "Sending..."}
+                        {t("form.sending")}
                       </>
                     ) : (
                       <>
                         <Send className="h-5 w-5" />
-                        {isArabic ? "إرسال الرسالة" : "Send Message"}
+                        {t("form.submit")}
                       </>
                     )}
                   </button>
@@ -334,36 +325,9 @@ export function ContactPageClient({ locale }: ContactPageClientProps) {
 
         {/* FAQ Section */}
         <div className="mt-12">
-          <h2 className="text-2xl font-semibold text-center mb-8">
-            {isArabic ? "الأسئلة الشائعة" : "Frequently Asked Questions"}
-          </h2>
+          <h2 className="text-2xl font-semibold text-center mb-8">{t("faq.title")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {[
-              {
-                q: isArabic ? "ما هي مدة التوصيل؟" : "What is the delivery time?",
-                a: isArabic
-                  ? "التوصيل داخل القاهرة والجيزة من 1-3 أيام عمل، والمحافظات الأخرى من 3-5 أيام عمل."
-                  : "Delivery within Cairo and Giza takes 1-3 business days, other governorates take 3-5 business days.",
-              },
-              {
-                q: isArabic ? "هل يمكنني إرجاع المنتج؟" : "Can I return a product?",
-                a: isArabic
-                  ? "نعم، يمكنك إرجاع المنتج خلال 14 يوم من تاريخ الاستلام بشرط أن يكون بحالته الأصلية."
-                  : "Yes, you can return the product within 14 days of receipt, provided it's in its original condition.",
-              },
-              {
-                q: isArabic ? "ما هي طرق الدفع المتاحة؟" : "What payment methods are available?",
-                a: isArabic
-                  ? "نقبل الدفع عند الاستلام، البطاقات الائتمانية، فودافون كاش، وفوري."
-                  : "We accept cash on delivery, credit cards, Vodafone Cash, and Fawry.",
-              },
-              {
-                q: isArabic ? "كيف يمكنني تتبع طلبي؟" : "How can I track my order?",
-                a: isArabic
-                  ? "بعد شحن طلبك، ستتلقى رسالة نصية تحتوي على رابط التتبع."
-                  : "After your order is shipped, you'll receive an SMS with a tracking link.",
-              },
-            ].map((faq, index) => (
+            {faqs.map((faq, index) => (
               <div key={index} className="bg-white rounded-xl p-6 shadow-sm">
                 <h3 className="font-semibold mb-2">{faq.q}</h3>
                 <p className="text-gray-600 text-sm">{faq.a}</p>
