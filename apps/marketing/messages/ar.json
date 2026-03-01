@@ -499,6 +499,16 @@
       "phone": "الهاتف"
     }
   },
+  "cartDrawer": {
+    "title": "سلة التسوق",
+    "empty": "سلتك فارغة",
+    "emptyDesc": "أضف بعض المنتجات للبدء",
+    "shopNow": "تسوق الآن",
+    "viewCart": "عرض السلة",
+    "checkout": "إتمام الشراء",
+    "youMayLike": "قد يعجبك أيضاً",
+    "noImage": "لا توجد صورة"
+  },
   "auth": {
     "signin": {
       "title": "تسجيل الدخول",

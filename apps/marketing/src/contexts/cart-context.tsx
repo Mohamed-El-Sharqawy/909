@@ -18,6 +18,7 @@ import {
   getCartItemCount,
   getCartTotal,
 } from "@/lib/cart";
+import { useRouter } from "next/navigation";
 
 interface CartContextType {
   items: CartItem[];
@@ -43,6 +44,7 @@ export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setItems(getGuestCart());
@@ -50,7 +52,10 @@ export function CartProvider({ children }: CartProviderProps) {
   }, []);
 
   const openCart = useCallback(() => setIsOpen(true), []);
-  const closeCart = useCallback(() => setIsOpen(false), []);
+  const closeCart = useCallback(() => {
+    setIsOpen(false);
+    router.push("/collections/all-products");
+  }, [router]);
 
   const addItem = useCallback((item: CartItem) => {
     const updatedCart = addToGuestCart(item);

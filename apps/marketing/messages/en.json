@@ -512,6 +512,16 @@
       "phone": "Phone"
     }
   },
+  "cartDrawer": {
+    "title": "Shopping cart",
+    "empty": "Your cart is empty",
+    "emptyDesc": "Add some products to get started",
+    "shopNow": "Shop Now",
+    "viewCart": "View Cart",
+    "checkout": "Checkout",
+    "youMayLike": "You may also like",
+    "noImage": "No image"
+  },
   "auth": {
     "signin": {
       "title": "Sign In",
