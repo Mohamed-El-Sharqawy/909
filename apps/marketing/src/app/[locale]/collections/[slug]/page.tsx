@@ -3,20 +3,15 @@ import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { CollectionPageClient } from "./client";
 import { generateCollectionMetadata, generatePageMetadata, STATIC_PAGE_METADATA } from "@/lib/metadata";
+import { apiGet } from "@/lib/api-client";
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
 async function getCollection(slug: string) {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/collections/${slug}`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
+    const data = await apiGet<{ data: any }>(`/api/collections/${slug}`, { next: { revalidate: 3600 } });
     return data?.data ?? null;
   } catch {
     return null;
@@ -25,11 +20,7 @@ async function getCollection(slug: string) {
 
 async function getCollections() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/collections`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await apiGet<{ data: any[] }>("/api/collections", { next: { revalidate: 3600 } });
     return data?.data ?? [];
   } catch {
     return [];
@@ -50,12 +41,8 @@ async function getInitialProducts(slug: string) {
       params.set("collectionSlug", slug);
     }
 
-    const res = await fetch(`${API_BASE_URL}/api/products?${params}`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return { data: [], meta: { total: 0, page: 1, limit: 32, totalPages: 0 } };
-    const data = await res.json();
-    return data?.data ?? { data: [], meta: { total: 0, page: 1, limit: 32, totalPages: 0 } };
+    const response = await apiGet<{ data: any }>(`/api/products?${params}`, { next: { revalidate: 3600 } });
+    return response?.data ?? { data: [], meta: { total: 0, page: 1, limit: 32, totalPages: 0 } };
   } catch {
     return { data: [], meta: { total: 0, page: 1, limit: 32, totalPages: 0 } };
   }
@@ -64,11 +51,7 @@ async function getInitialProducts(slug: string) {
 // Generate static params for all collections
 export async function generateStaticParams() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/collections`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await apiGet<{ data: any[] }>("/api/collections", { next: { revalidate: 3600 } });
     const collections = data?.data || [];
     
     // Generate params for both locales, including children

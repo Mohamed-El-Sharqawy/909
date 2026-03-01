@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useAuth } from "./auth-context";
 import type { Product } from "@ecommerce/shared-types";
-import { API_URL } from "@/lib/api-client";
+import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
 
 interface FavouriteItem {
   id: string;
@@ -57,18 +57,13 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       try {
         const token = getAccessToken();
-        const res = await fetch(`${API_URL}/api/favourites`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const items = (data.data || []).map((f: any) => ({
-            id: f.id,
-            productId: f.productId,
-            product: f.product,
-          }));
-          setFavouriteItems(items);
-        }
+        const data = await apiGet<{ data: any[] }>("/api/favourites", { token: token || undefined });
+        const items = (data.data || []).map((f: any) => ({
+          id: f.id,
+          productId: f.productId,
+          product: f.product,
+        }));
+        setFavouriteItems(items);
       } catch {
         console.error("Failed to fetch favourites");
       } finally {
@@ -98,25 +93,19 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
 
       try {
         const token = getAccessToken();
-        const res = await fetch(`${API_URL}/api/favourites`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ productId }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          // Replace temp item with real data
-          setFavouriteItems((prev) =>
-            prev.map((item) =>
-              item.id === `temp-${productId}`
-                ? { id: data.data.id, productId: data.data.productId, product: data.data.product }
-                : item
-            )
-          );
-        }
+        const data = await apiPost<{ data: { id: string; productId: string; product: Product } }>(
+          "/api/favourites",
+          { productId },
+          { token: token || undefined }
+        );
+        // Replace temp item with real data
+        setFavouriteItems((prev) =>
+          prev.map((item) =>
+            item.id === `temp-${productId}`
+              ? { id: data.data.id, productId: data.data.productId, product: data.data.product }
+              : item
+          )
+        );
       } catch {
         // Revert on error
         setFavouriteItems((prev) => prev.filter((item) => item.productId !== productId));
@@ -137,10 +126,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
 
       try {
         const token = getAccessToken();
-        await fetch(`${API_URL}/api/favourites/${productId}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await apiDelete(`/api/favourites/${productId}`, { token: token || undefined });
       } catch {
         // Revert on error
         if (removedItem) {

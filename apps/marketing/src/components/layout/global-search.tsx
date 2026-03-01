@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Search, X, Loader2, Package, FolderTree } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
-import { API_URL } from "@/lib/api-client";
+import { apiGet } from "@/lib/api-client";
 
 interface SearchProduct {
   id: string;
@@ -50,11 +50,8 @@ export function GlobalSearch() {
     const timer = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(query)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setResults(data);
-        }
+        const data = await apiGet<SearchResults>(`/api/search?q=${encodeURIComponent(query)}`);
+        setResults(data);
       } catch {
         console.error("Search failed");
       } finally {

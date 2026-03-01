@@ -8,7 +8,7 @@ import { useCart } from "@/contexts/cart-context";
 import { ProductCardWithVariants } from "@/components/ui/product-card-with-variants";
 import type { Product } from "@ecommerce/shared-types";
 import { Link } from "@/i18n/navigation";
-import { API_URL } from "@/lib/api-client";
+import { apiGet } from "@/lib/api-client";
 
 interface CartPageClientProps {
   locale: string;
@@ -34,34 +34,29 @@ export function CartPageClient({ locale }: CartPageClientProps) {
         if (collectionIds.length > 0) {
           // Fetch products from the same collections as cart items
           for (const collectionId of collectionIds.slice(0, 2)) {
-            // First try to get the collection to check if it has a parent
-            const collectionRes = await fetch(`${API_URL}/api/collections/${collectionId}`);
-            
-            if (collectionRes.ok) {
-              const collectionData = await collectionRes.json();
-              // If this collection has a parent, we might need to fall back to it
+            try {
+              // First try to get the collection to check if it has a parent
+              const collectionData = await apiGet<{ data: { parentId?: string } }>(`/api/collections/${collectionId}`);
               const parentId = collectionData.data?.parentId;
               
               // Fetch products from this collection
-              const res = await fetch(`${API_URL}/api/products?limit=6&collectionId=${collectionId}&isActive=true`);
-              if (res.ok) {
-                const data = await res.json();
-                const collectionProducts = (data.data?.data || []).filter((p: Product) => !productIdsInCart.includes(p.id));
-                
-                // If not enough products and has parent, fetch from parent
-                if (collectionProducts.length < 4 && parentId) {
-                  const parentRes = await fetch(`${API_URL}/api/products?limit=8&collectionId=${parentId}&isActive=true`);
-                  if (parentRes.ok) {
-                    const parentData = await parentRes.json();
-                    const parentProducts = (parentData.data?.data || []).filter((p: Product) => !productIdsInCart.includes(p.id));
-                    products.push(...collectionProducts, ...parentProducts);
-                  } else {
-                    products.push(...collectionProducts);
-                  }
-                } else {
+              const data = await apiGet<{ data: { data: Product[] } }>(`/api/products?limit=6&collectionId=${collectionId}&isActive=true`);
+              const collectionProducts = (data.data?.data || []).filter((p: Product) => !productIdsInCart.includes(p.id));
+              
+              // If not enough products and has parent, fetch from parent
+              if (collectionProducts.length < 4 && parentId) {
+                try {
+                  const parentData = await apiGet<{ data: { data: Product[] } }>(`/api/products?limit=8&collectionId=${parentId}&isActive=true`);
+                  const parentProducts = (parentData.data?.data || []).filter((p: Product) => !productIdsInCart.includes(p.id));
+                  products.push(...collectionProducts, ...parentProducts);
+                } catch {
                   products.push(...collectionProducts);
                 }
+              } else {
+                products.push(...collectionProducts);
               }
+            } catch {
+              // Skip this collection on error
             }
           }
           // Filter duplicates and limit to 4
@@ -71,27 +66,28 @@ export function CartPageClient({ locale }: CartPageClientProps) {
         
         // Fallback to featured products if no collection-based suggestions
         if (products.length < 4) {
-          const res = await fetch(`${API_URL}/api/products?limit=6&isFeatured=true&isActive=true`);
-          if (res.ok) {
-            const data = await res.json();
+          try {
+            const data = await apiGet<{ data: { data: Product[] } }>("/api/products?limit=6&isFeatured=true&isActive=true");
             if (data.data?.data) {
               const featured = data.data.data.filter((p: Product) => !productIdsInCart.includes(p.id) && !products.find((x) => x.id === p.id));
               products = [...products, ...featured].slice(0, 4);
             }
+          } catch {
+            // Ignore error
           }
         }
         
         setSuggestedProducts(products);
       } catch {
         // Fallback to featured on error
-        fetch(`${API_URL}/api/products?limit=4&isFeatured=true`)
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.data?.data) {
-              setSuggestedProducts(data.data.data);
-            }
-          })
-          .catch(() => {});
+        try {
+          const data = await apiGet<{ data: { data: Product[] } }>("/api/products?limit=4&isFeatured=true");
+          if (data.data?.data) {
+            setSuggestedProducts(data.data.data);
+          }
+        } catch {
+          // Ignore
+        }
       }
     };
     

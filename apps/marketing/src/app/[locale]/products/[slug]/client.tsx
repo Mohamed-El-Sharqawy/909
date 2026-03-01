@@ -13,7 +13,7 @@ import { ReviewModal } from "@/components/ui/review-modal";
 import { SizeGuideModal } from "@/components/ui/size-guide-modal";
 import type { Product, ProductVariant } from "@ecommerce/shared-types";
 import { Link } from "@/i18n/navigation";
-import { API_URL } from "@/lib/api-client";
+import { apiGet } from "@/lib/api-client";
 
 interface ProductPageClientProps {
   product: Product;
@@ -71,11 +71,8 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
     const fetchReviews = async () => {
       setIsLoadingReviews(true);
       try {
-        const res = await fetch(`${API_URL}/api/reviews/product/${product.id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setReviews(data || []);
-        }
+        const data = await apiGet<any[]>(`/api/reviews/product/${product.id}`);
+        setReviews(data || []);
       } catch {
         console.error("Failed to fetch reviews");
       } finally {

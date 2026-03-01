@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useAuth } from "./auth-context";
 import type { Order } from "@ecommerce/shared-types";
-import { API_URL } from "@/lib/api-client";
+import { apiGet } from "@/lib/api-client";
 
 interface OrdersContextType {
   orders: Order[];
@@ -43,13 +43,8 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       const token = getAccessToken();
-      const res = await fetch(`${API_URL}/api/orders`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setOrders(data.data?.data || data.data || []);
-      }
+      const response = await apiGet<{ data: Order[] }>("/api/orders", { token: token || undefined });
+      setOrders(response.data || []);
     } catch {
       console.error("Failed to fetch orders");
     } finally {
@@ -63,13 +58,8 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
 
       try {
         const token = getAccessToken();
-        const res = await fetch(`${API_URL}/api/orders/${orderId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          return data.data;
-        }
+        const response = await apiGet<{ data: Order }>(`/api/orders/${orderId}`, { token: token || undefined });
+        return response.data;
       } catch {
         console.error("Failed to fetch order");
       }

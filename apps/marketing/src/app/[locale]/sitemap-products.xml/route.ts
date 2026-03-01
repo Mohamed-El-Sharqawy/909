@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { API_URL } from "@/lib/api-client";
+import { apiGet } from "@/lib/api-client";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nznstudio.com";
 
@@ -13,11 +13,7 @@ interface Product {
 
 async function getProducts(): Promise<Product[]> {
   try {
-    const res = await fetch(`${API_URL}/api/products?limit=1000&isActive=true`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await apiGet<{ data: { data: Product[] } }>("/api/products?limit=1000&isActive=true", { next: { revalidate: 3600 } });
     return (data?.data?.data || []).map((p: any) => ({
       slug: p.slug,
       updatedAt: p.updatedAt || new Date().toISOString(),
@@ -32,11 +28,7 @@ async function getProducts(): Promise<Product[]> {
 
 async function getFeaturedProducts(): Promise<Set<string>> {
   try {
-    const res = await fetch(`${API_URL}/api/products/featured`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return new Set();
-    const data = await res.json();
+    const data = await apiGet<{ data: Product[] }>("/api/products/featured", { next: { revalidate: 3600 } });
     return new Set((data?.data || []).map((p: any) => p.slug));
   } catch {
     return new Set();

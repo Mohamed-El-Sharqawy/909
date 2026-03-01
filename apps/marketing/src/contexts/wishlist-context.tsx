@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useAuth } from "./auth-context";
 import type { Product } from "@ecommerce/shared-types";
-import { API_URL } from "@/lib/api-client";
+import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
 
 interface WishlistItem {
   id: string;
@@ -55,21 +55,16 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       try {
         const token = getAccessToken();
-        const res = await fetch(`${API_URL}/api/wishlist`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setWishlistItems(
-            (data.data || []).map((item: any) => ({
-              id: item.id,
-              productId: item.productId,
-              variantId: item.variantId,
-              note: item.note,
-              product: item.product,
-            }))
-          );
-        }
+        const response = await apiGet<{ data: any[] }>("/api/wishlist", { token: token || undefined });
+        setWishlistItems(
+          (response.data || []).map((item: any) => ({
+            id: item.id,
+            productId: item.productId,
+            variantId: item.variantId,
+            note: item.note,
+            product: item.product,
+          }))
+        );
       } catch {
         console.error("Failed to fetch wishlist");
       } finally {
@@ -100,31 +95,25 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
       try {
         const token = getAccessToken();
-        const res = await fetch(`${API_URL}/api/wishlist`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ productId, variantId, note }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          // Replace temp item with real data
-          setWishlistItems((prev) =>
-            prev.map((item) =>
-              item.id === `temp-${productId}`
-                ? {
-                    id: data.data.id,
-                    productId: data.data.productId,
-                    variantId: data.data.variantId,
-                    note: data.data.note,
-                    product: data.data.product,
-                  }
-                : item
-            )
-          );
-        }
+        const response = await apiPost<{ data: WishlistItem }>(
+          "/api/wishlist",
+          { productId, variantId, note },
+          { token: token || undefined }
+        );
+        // Replace temp item with real data
+        setWishlistItems((prev) =>
+          prev.map((item) =>
+            item.id === `temp-${productId}`
+              ? {
+                  id: response.data.id,
+                  productId: response.data.productId,
+                  variantId: response.data.variantId,
+                  note: response.data.note,
+                  product: response.data.product,
+                }
+              : item
+          )
+        );
       } catch {
         // Revert on error
         setWishlistItems((prev) => prev.filter((item) => item.productId !== productId));
@@ -144,10 +133,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
       try {
         const token = getAccessToken();
-        await fetch(`${API_URL}/api/wishlist/${productId}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await apiDelete(`/api/wishlist/${productId}`, { token: token || undefined });
       } catch {
         // Revert on error
         if (removedItem) {

@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
 import { createCartItemFromVariant } from "@/lib/cart";
 import type { Product, ProductVariant } from "@ecommerce/shared-types";
-import { API_URL } from "@/lib/api-client";
+import { apiGet, apiPost } from "@/lib/api-client";
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -64,26 +64,18 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
       setIsCheckingPurchase(true);
       try {
         const token = getAccessToken();
-        const res = await fetch(`${API_URL}/api/orders`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiGet<{ data: { data: any[] } }>("/api/orders", { token: token || undefined });
+        const orders = response.data?.data || [];
         
-        if (res.ok) {
-          const data = await res.json();
-          const orders = data.data?.data || [];
-          
-          // Get all variant IDs for this product
-          const productVariantIds = product.variants?.map((v) => v.id) || [];
-          
-          // Check if any order contains a variant of this product
-          const hasPurchased = orders.some((order: any) =>
-            order.items?.some((item: any) => productVariantIds.includes(item.variantId))
-          );
+        // Get all variant IDs for this product
+        const productVariantIds = product.variants?.map((v) => v.id) || [];
+        
+        // Check if any order contains a variant of this product
+        const hasPurchased = orders.some((order: any) =>
+          order.items?.some((item: any) => productVariantIds.includes(item.variantId))
+        );
 
-          setModalState(hasPurchased ? "review" : "not-purchased");
-        } else {
-          setModalState("not-purchased");
-        }
+        setModalState(hasPurchased ? "review" : "not-purchased");
       } catch {
         setModalState("not-purchased");
       } finally {
@@ -135,30 +127,25 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
 
     try {
       const token = getAccessToken();
-      const res = await fetch(`${API_URL}/api/reviews`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+      await apiPost(
+        "/api/reviews",
+        {
           productId: product.id,
           rating,
           title: reviewTitle,
           content: reviewContent,
-        }),
-      });
+        },
+        { token: token || undefined }
+      );
 
-      if (res.ok) {
-        setReviewSuccess(true);
-        setTimeout(() => {
-          onClose();
-          setReviewSuccess(false);
-          setRating(5);
-          setReviewTitle("");
-          setReviewContent("");
-        }, 2000);
-      }
+      setReviewSuccess(true);
+      setTimeout(() => {
+        onClose();
+        setReviewSuccess(false);
+        setRating(5);
+        setReviewTitle("");
+        setReviewContent("");
+      }, 2000);
     } finally {
       setIsSubmittingReview(false);
     }

@@ -23,7 +23,7 @@ import { useQueryState, parseAsString } from "nuqs";
 import { useCart } from "@/contexts/cart-context";
 import { useAuth } from "@/contexts/auth-context";
 import { Link } from "@/i18n/navigation";
-import { API_URL } from "@/lib/api-client";
+import { apiGet, apiPost } from "@/lib/api-client";
 
 interface SavedAddress {
   id: string;
@@ -94,10 +94,8 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
     queryKey: ["buyNowProduct", buyNowVariantId, buyNowProductSlug],
     queryFn: async (): Promise<BuyNowItem> => {
       if (!buyNowProductSlug) throw new Error("No product slug");
-      const res = await fetch(`${API_URL}/api/products/${buyNowProductSlug}`);
-      if (!res.ok) throw new Error("Failed to fetch product");
-      const data = await res.json();
-      const product = data.data;
+      const response = await apiGet<{ data: any }>(`/api/products/${buyNowProductSlug}`);
+      const product = response.data;
       const variant = product?.variants?.find((v: any) => v.id === buyNowVariantId);
       if (!variant) throw new Error("Variant not found");
       
@@ -145,12 +143,8 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
     queryKey: ["addresses", isAuthenticated],
     queryFn: async () => {
       const token = getAccessToken();
-      const res = await fetch(`${API_URL}/api/users/me/addresses`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch addresses");
-      const data = await res.json();
-      return (data.data || []) as SavedAddress[];
+      const response = await apiGet<{ data: SavedAddress[] }>("/api/users/me/addresses", { token: token || undefined });
+      return response.data || [];
     },
     enabled: isAuthenticated,
   });
@@ -178,13 +172,9 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
 
     try {
       const token = getAccessToken();
-      await fetch(`${API_URL}/api/users/me/addresses`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+      await apiPost(
+        "/api/users/me/addresses",
+        {
           firstName,
           lastName,
           phone,
@@ -194,8 +184,9 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
           zipCode: "00000",
           country: "Egypt",
           isDefault: savedAddresses.length === 0,
-        }),
-      });
+        },
+        { token: token || undefined }
+      );
     } catch {
       console.error("Failed to save address");
     }
@@ -229,38 +220,25 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
       };
 
       const endpoint = isAuthenticated ? "/api/orders" : "/api/orders/guest";
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const token = isAuthenticated ? getAccessToken() : undefined;
+      const data = await apiPost<{ data: { id?: string; orderNumber?: string } }>(
+        endpoint,
+        orderData,
+        { token: token || undefined }
+      );
+
+      // Only clear cart when purchasing from cart (not buy-now)
+      if (!isBuyNow) {
+        clearCart();
+      }
       
-      if (isAuthenticated) {
-        const token = getAccessToken();
-        headers.Authorization = `Bearer ${token}`;
+      // Save address for future use if user is authenticated and checkbox is checked
+      if (isAuthenticated && saveAddress && !selectedAddressId) {
+        await saveAddressToAccount();
       }
-
-      const res = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(orderData),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        
-        // Only clear cart when purchasing from cart (not buy-now)
-        if (!isBuyNow) {
-          clearCart();
-        }
-        
-        // Save address for future use if user is authenticated and checkbox is checked
-        if (isAuthenticated && saveAddress && !selectedAddressId) {
-          await saveAddressToAccount();
-        }
-        
-        // Set orderId last - this triggers the success state
-        setOrderId(data.data?.id || data.data?.orderNumber);
-      } else {
-        const error = await res.json();
-        toast.error(error.error || t("orderFailed"));
-      }
+      
+      // Set orderId last - this triggers the success state
+      setOrderId(data.data?.id || data.data?.orderNumber || null);
     } catch (err) {
       toast.error(`${t("orderFailed")} ${t("tryAgain")}`);
     } finally {

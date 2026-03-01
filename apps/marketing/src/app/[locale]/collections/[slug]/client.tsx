@@ -9,6 +9,7 @@ import type { Product, Collection } from "@ecommerce/shared-types";
 import { ProductCardWithVariants } from "@/components/ui/product-card-with-variants";
 import { ProductCardHorizontal } from "@/components/ui/product-card-horizontal";
 import { ProductCardSkeleton, ProductCardHorizontalSkeleton } from "@/components/ui/product-card-skeleton";
+import { apiGet } from "@/lib/api-client";
 
 interface CollectionPageClientProps {
   locale: string;
@@ -32,8 +33,6 @@ type SortOption = {
 };
 
 type GridColumns = 1 | 2 | 3 | 4;
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 const SORT_OPTIONS_DATA: Record<string, { sortBy: string; sortOrder: string }> = {
   "featured": { sortBy: "isFeatured", sortOrder: "desc" },
@@ -172,11 +171,10 @@ export function CollectionPageClient({
     setIsLoading(true);
     try {
       const params = buildQueryParams(page);
-      const res = await fetch(`${API_BASE_URL}/api/products?${params}`, {
-        signal: fetchAbortController.current.signal,
-      });
-      if (!res.ok) throw new Error("Failed to fetch");
-      const data = await res.json();
+      const data = await apiGet<{ data: { data: Product[]; meta: typeof initialMeta } }>(
+        `/api/products?${params}`,
+        { signal: fetchAbortController.current.signal }
+      );
       
       if (append) {
         setProducts((prev) => [...prev, ...(data?.data?.data ?? [])]);

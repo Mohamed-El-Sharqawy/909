@@ -1,6 +1,5 @@
 import type { Product, Collection, ShoppableVideo, InstagramPost, Review, Banner } from "@ecommerce/shared-types";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+import { apiGet, API_URL } from "./api-client";
 
 interface PaginatedResponse<T> {
   success: boolean;
@@ -28,23 +27,8 @@ export async function apiFetch<T>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<T> {
-  const { token, headers, ...rest } = options;
-
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
-    ...rest,
-  });
-
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: "Request failed" }));
-    throw new Error(error.error || `HTTP ${res.status}`);
-  }
-
-  return res.json();
+  const { token, next } = options;
+  return apiGet<T>(endpoint, { token, next: next as any });
 }
 
 export const api = {
@@ -68,12 +52,10 @@ export const api = {
 
 export async function getFeaturedProducts(): Promise<Product[]> {
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/products?isFeatured=true&limit=8`,
+    const data = await apiGet<{ data: { data: Product[] } }>(
+      "/api/products?isFeatured=true&limit=8",
       { next: { revalidate: 60 } }
     );
-    if (!res.ok) return [];
-    const data = await res.json();
     return data?.data?.data ?? [];
   } catch {
     return [];
@@ -82,12 +64,10 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 
 export async function getShoppableVideos(): Promise<ShoppableVideo[]> {
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/shoppable-videos`,
+    const data = await apiGet<{ data: ShoppableVideo[] }>(
+      "/api/shoppable-videos",
       { next: { revalidate: 60 } }
     );
-    if (!res.ok) return [];
-    const data = await res.json();
     return data?.data ?? [];
   } catch {
     return [];
@@ -96,12 +76,10 @@ export async function getShoppableVideos(): Promise<ShoppableVideo[]> {
 
 export async function getInstagramPosts(): Promise<InstagramPost[]> {
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/instagram-posts`,
+    const data = await apiGet<{ data: InstagramPost[] }>(
+      "/api/instagram-posts",
       { next: { revalidate: 60 } }
     );
-    if (!res.ok) return [];
-    const data = await res.json();
     return data?.data ?? [];
   } catch {
     return [];
@@ -110,12 +88,10 @@ export async function getInstagramPosts(): Promise<InstagramPost[]> {
 
 export async function getReviews(): Promise<Review[]> {
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/reviews/homepage`,
+    const data = await apiGet<Review[]>(
+      "/api/reviews/homepage",
       { next: { revalidate: 60 } }
     );
-    if (!res.ok) return [];
-    const data = await res.json();
     return data ?? [];
   } catch {
     return [];
@@ -124,12 +100,10 @@ export async function getReviews(): Promise<Review[]> {
 
 export async function getBanners(): Promise<Banner[]> {
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/banners?isActive=true`,
+    const data = await apiGet<{ data: Banner[] }>(
+      "/api/banners?isActive=true",
       { next: { revalidate: 60 } }
     );
-    if (!res.ok) return [];
-    const data = await res.json();
     return data?.data ?? [];
   } catch {
     return [];
@@ -138,12 +112,10 @@ export async function getBanners(): Promise<Banner[]> {
 
 export async function getFeaturedHomeCollections(): Promise<Collection[]> {
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/collections/featured-home`,
+    const data = await apiGet<{ data: Collection[] }>(
+      "/api/collections/featured-home",
       { next: { revalidate: 60 } }
     );
-    if (!res.ok) return [];
-    const data = await res.json();
     return data?.data ?? [];
   } catch {
     return [];

@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Search, X, Loader2, Package } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Collection } from "@ecommerce/shared-types";
-import { API_URL } from "@/lib/api-client";
+import { apiGet } from "@/lib/api-client";
 
 interface SearchProduct {
   id: string;
@@ -72,11 +72,8 @@ export function CollectionsPageClient({
     const fetchResults = async () => {
       setIsSearching(true);
       try {
-        const res = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(debouncedQuery)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setSearchResults(data.products || []);
-        }
+        const data = await apiGet<{ products: SearchProduct[] }>(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
+        setSearchResults(data.products || []);
       } catch {
         console.error("Search failed");
       } finally {

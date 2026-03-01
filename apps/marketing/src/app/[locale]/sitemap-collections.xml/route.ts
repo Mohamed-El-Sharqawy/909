@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { API_URL } from "@/lib/api-client";
+import { apiGet } from "@/lib/api-client";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nznstudio.com";
 
@@ -12,11 +12,7 @@ interface Collection {
 
 async function getCollections(): Promise<Collection[]> {
   try {
-    const res = await fetch(`${API_URL}/api/collections`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await apiGet<{ data: Collection[] }>("/api/collections", { next: { revalidate: 3600 } });
     
     // Flatten collections including children
     const allCollections: Collection[] = [];
@@ -47,11 +43,7 @@ async function getCollections(): Promise<Collection[]> {
 
 async function getFeaturedHomeCollections(): Promise<Set<string>> {
   try {
-    const res = await fetch(`${API_URL}/api/collections/featured-home`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return new Set();
-    const data = await res.json();
+    const data = await apiGet<{ data: Collection[] }>("/api/collections/featured-home", { next: { revalidate: 3600 } });
     return new Set((data?.data || []).map((c: any) => c.slug));
   } catch {
     return new Set();

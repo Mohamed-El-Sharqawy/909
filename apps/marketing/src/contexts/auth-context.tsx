@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { User } from "@ecommerce/shared-types";
-import { API_URL } from "@/lib/api-client";
+import { apiGet, apiPost } from "@/lib/api-client";
 const AUTH_STORAGE_KEY = "auth_tokens";
 
 interface AuthTokens {
@@ -75,13 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUser = useCallback(async (accessToken: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/users/me`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        return data.data as User;
-      }
+      const data = await apiGet<{ data: User }>("/api/users/me", { token: accessToken });
+      return data.data;
     } catch {
       console.error("Failed to fetch user");
     }
@@ -90,15 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshTokens = useCallback(async (refreshToken: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        return data.data as AuthTokens;
-      }
+      const data = await apiPost<{ data: AuthTokens }>("/api/auth/refresh", { refreshToken });
+      return data.data;
     } catch {
       console.error("Failed to refresh tokens");
     }
@@ -132,14 +120,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/sign-in`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
+      const data = await apiPost<{ success: boolean; data: { accessToken: string; refreshToken: string; user: User }; error?: string }>(
+        "/api/auth/sign-in",
+        { email, password }
+      );
       
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         return { success: false, error: data.error || "Sign in failed" };
       }
 
@@ -149,21 +135,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       setUser(data.data.user);
       return { success: true };
-    } catch {
-      return { success: false, error: "Network error" };
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : "Network error" };
     }
   }, []);
 
   const signUp = useCallback(async (signUpData: SignUpData) => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/sign-up`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(signUpData),
-      });
-      const data = await res.json();
+      const data = await apiPost<{ success: boolean; data: { accessToken: string; refreshToken: string; user: User }; error?: string }>(
+        "/api/auth/sign-up",
+        signUpData
+      );
       
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         return { success: false, error: data.error || "Sign up failed" };
       }
 
@@ -173,8 +157,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       setUser(data.data.user);
       return { success: true };
-    } catch {
-      return { success: false, error: "Network error" };
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : "Network error" };
     }
   }, []);
 

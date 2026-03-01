@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
+import { apiGet } from "@/lib/api-client";
 
 interface HeaderCollection {
   id: string;
@@ -14,13 +15,13 @@ interface HeaderCollection {
   children?: { id: string; slug: string; nameEn: string; nameAr: string }[];
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
 async function fetchHeaderCollections(): Promise<HeaderCollection[]> {
-  const res = await fetch(`${API_BASE_URL}/api/collections/header`);
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data?.data ?? [];
+  try {
+    const data = await apiGet<{ data: HeaderCollection[] }>("/api/collections/header");
+    return data?.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export function HeaderNav() {

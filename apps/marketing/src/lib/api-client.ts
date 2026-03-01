@@ -11,6 +11,7 @@ type RequestOptions = {
   token?: string;
   cache?: RequestCache;
   next?: NextFetchRequestConfig;
+  signal?: AbortSignal;
 };
 
 type NextFetchRequestConfig = {
@@ -28,7 +29,7 @@ export async function apiClient<T = unknown>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { method = "GET", body, headers = {}, token, cache, next } = options;
+  const { method = "GET", body, headers = {}, token, cache, next, signal } = options;
 
   const requestHeaders: Record<string, string> = {
     "Content-Type": "application/json",
@@ -54,6 +55,10 @@ export async function apiClient<T = unknown>(
 
   if (next) {
     fetchOptions.next = next;
+  }
+
+  if (signal) {
+    fetchOptions.signal = signal;
   }
 
   const response = await fetch(`${API_URL}${endpoint}`, fetchOptions);

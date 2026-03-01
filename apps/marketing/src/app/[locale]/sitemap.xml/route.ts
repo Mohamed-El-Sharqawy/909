@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { API_URL } from "@/lib/api-client";
+import { apiGet } from "@/lib/api-client";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nznstudio.com";
 
@@ -32,11 +32,7 @@ const staticPages: SitemapEntry[] = [
 // Fetch featured home collections (the 5 hero collections)
 async function getFeaturedHomeCollections(): Promise<Array<{ slug: string; updatedAt: string }>> {
   try {
-    const res = await fetch(`${API_URL}/api/collections/featured-home`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await apiGet<{ data: any[] }>("/api/collections/featured-home", { next: { revalidate: 3600 } });
     return (data?.data || []).map((c: any) => ({
       slug: c.slug,
       updatedAt: c.updatedAt || new Date().toISOString(),
@@ -48,11 +44,7 @@ async function getFeaturedHomeCollections(): Promise<Array<{ slug: string; updat
 
 async function getProducts(): Promise<Array<{ slug: string; updatedAt: string }>> {
   try {
-    const res = await fetch(`${API_URL}/api/products?limit=1000&isActive=true`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await apiGet<{ data: { data: any[] } }>("/api/products?limit=1000&isActive=true", { next: { revalidate: 3600 } });
     return (data?.data?.data || []).map((p: any) => ({
       slug: p.slug,
       updatedAt: p.updatedAt || new Date().toISOString(),
@@ -64,11 +56,7 @@ async function getProducts(): Promise<Array<{ slug: string; updatedAt: string }>
 
 async function getCollections(): Promise<Array<{ slug: string; updatedAt: string }>> {
   try {
-    const res = await fetch(`${API_URL}/api/collections`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await apiGet<{ data: any[] }>("/api/collections", { next: { revalidate: 3600 } });
     
     // Flatten collections including children
     const allCollections: Array<{ slug: string; updatedAt: string }> = [];

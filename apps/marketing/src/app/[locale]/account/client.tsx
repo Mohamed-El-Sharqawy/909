@@ -29,7 +29,7 @@ import { useWishlist } from "@/contexts/wishlist-context";
 import { useOrders } from "@/contexts/orders-context";
 import { useCart } from "@/contexts/cart-context";
 import type { Product } from "@ecommerce/shared-types";
-import { API_URL } from "@/lib/api-client";
+import { apiGet, apiPatch } from "@/lib/api-client";
 
 interface AccountPageClientProps {
   locale: string;
@@ -117,13 +117,8 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
       setIsLoadingAddresses(true);
       try {
         const token = getAccessToken();
-        const res = await fetch(`${API_URL}/api/users/me/addresses`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setAddresses(data.data || []);
-        }
+        const response = await apiGet<{ data: any[] }>("/api/users/me/addresses", { token: token || undefined });
+        setAddresses(response.data || []);
       } catch {
         console.error("Failed to fetch addresses");
       } finally {
@@ -156,24 +151,11 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
 
     try {
       const token = getAccessToken();
-      const res = await fetch(`${API_URL}/api/users/me`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ phone: editPhone }),
-      });
-
-      if (res.ok) {
-        // Refresh user data by reloading the page
-        window.location.reload();
-      } else {
-        const error = await res.json();
-        setPhoneError(error.error || (isArabic ? "فشل تحديث رقم الهاتف" : "Failed to update phone"));
-      }
-    } catch {
-      setPhoneError(isArabic ? "حدث خطأ" : "An error occurred");
+      await apiPatch("/api/users/me", { phone: editPhone }, { token: token || undefined });
+      // Refresh user data by reloading the page
+      window.location.reload();
+    } catch (err) {
+      setPhoneError(err instanceof Error ? err.message : (isArabic ? "فشل تحديث رقم الهاتف" : "Failed to update phone"));
     } finally {
       setIsSavingPhone(false);
     }
