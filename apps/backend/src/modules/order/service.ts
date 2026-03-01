@@ -5,7 +5,7 @@ import type { OrderModel } from "./model";
 const ORDER_INCLUDE = {
   items: true,
   user: {
-    select: { id: true, email: true, firstName: true, lastName: true },
+    select: { id: true, email: true, firstName: true, lastName: true, role: true },
   },
   address: true,
 } as const;

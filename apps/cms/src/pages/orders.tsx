@@ -307,47 +307,43 @@ export function OrdersPage() {
                   <User className="h-4 w-4" /> Customer Information
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  {orderDetail.data.user ? (
-                    <>
-                      <div>
-                        <div className="text-xs text-muted-foreground">Name</div>
-                        <div>{orderDetail.data.user.firstName} {orderDetail.data.user.lastName}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Mail className="h-3 w-3" /> Email
+                  {(() => {
+                    const isGuest = orderDetail.data.user?.role === "GUEST" || orderDetail.data.guestEmail;
+                    const userName = orderDetail.data.user 
+                      ? `${orderDetail.data.user.firstName} ${orderDetail.data.user.lastName}`
+                      : `${orderDetail.data.guestFirstName || orderDetail.data.shippingFirstName} ${orderDetail.data.guestLastName || orderDetail.data.shippingLastName}`;
+                    const userEmail = orderDetail.data.user?.email || orderDetail.data.guestEmail;
+                    const userPhone = orderDetail.data.guestPhone || orderDetail.data.shippingPhone;
+
+                    return (
+                      <>
+                        <div>
+                          <div className="text-xs text-muted-foreground">Name</div>
+                          <div>{userName}</div>
                         </div>
-                        <div>{orderDetail.data.user.email}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted-foreground">Account Type</div>
-                        <Badge variant="outline">Registered User</Badge>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div>
-                        <div className="text-xs text-muted-foreground">Name</div>
-                        <div>{orderDetail.data.guestFirstName} {orderDetail.data.guestLastName}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Mail className="h-3 w-3" /> Email
+                        <div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Mail className="h-3 w-3" /> Email
+                          </div>
+                          <div>{userEmail || "-"}</div>
                         </div>
-                        <div>{orderDetail.data.guestEmail || "-"}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Phone className="h-3 w-3" /> Phone
+                        <div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Phone className="h-3 w-3" /> Phone
+                          </div>
+                          <div>{userPhone || "-"}</div>
                         </div>
-                        <div>{orderDetail.data.guestPhone || "-"}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted-foreground">Account Type</div>
-                        <Badge variant="secondary">Guest</Badge>
-                      </div>
-                    </>
-                  )}
+                        <div>
+                          <div className="text-xs text-muted-foreground">Account Type</div>
+                          {isGuest ? (
+                            <Badge variant="secondary" className="bg-orange-100 text-orange-700">Guest</Badge>
+                          ) : (
+                            <Badge variant="outline" className="bg-green-100 text-green-700">Registered User</Badge>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
 

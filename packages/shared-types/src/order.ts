@@ -33,6 +33,7 @@ export interface Order {
     email: string;
     firstName: string;
     lastName: string;
+    role?: string;
   } | null;
   guestEmail?: string | null;
   guestFirstName?: string | null;
