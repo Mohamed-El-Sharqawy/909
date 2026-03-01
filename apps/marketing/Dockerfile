@@ -29,9 +29,15 @@ COPY apps/marketing ./apps/marketing
 COPY packages ./packages
 COPY pnpm-workspace.yaml ./
 
+# Build arguments for Next.js public env vars
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_URL
+
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 
 # Build Next.js
 WORKDIR /app/apps/marketing
