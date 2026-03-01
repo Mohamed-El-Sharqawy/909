@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
@@ -15,9 +16,23 @@ import { HeroBanner } from "@/components/sections/hero-banner";
 import { HeroCollections } from "@/components/sections/hero-collections";
 import { CustomersFeedback, Features } from "@/components/sections";
 import { getFeaturedProducts, getShoppableVideos, getInstagramPosts, getReviews, getBanners, getFeaturedHomeCollections } from "@/lib/api";
+import { generatePageMetadata, STATIC_PAGE_METADATA } from "@/lib/metadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const isArabic = locale === "ar";
+  const content = isArabic ? STATIC_PAGE_METADATA.home.ar : STATIC_PAGE_METADATA.home.en;
+
+  return generatePageMetadata({
+    title: content.title,
+    description: content.description,
+    locale,
+    path: "",
+  });
 }
 
 export default async function HomePage({ params }: PageProps) {

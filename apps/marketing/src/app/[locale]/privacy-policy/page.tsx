@@ -1,14 +1,23 @@
 import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
+import { generatePageMetadata, STATIC_PAGE_METADATA } from "@/lib/metadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "Our privacy policy and data protection practices",
-};
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const isArabic = locale === "ar";
+  const content = isArabic ? STATIC_PAGE_METADATA.privacyPolicy.ar : STATIC_PAGE_METADATA.privacyPolicy.en;
+
+  return generatePageMetadata({
+    title: content.title,
+    description: content.description,
+    locale,
+    path: "/privacy-policy",
+  });
+}
 
 export default async function PrivacyPolicyPage({ params }: PageProps) {
   const { locale } = await params;

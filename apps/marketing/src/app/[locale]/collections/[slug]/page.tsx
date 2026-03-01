@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { CollectionPageClient } from "./client";
+import { generateCollectionMetadata, generatePageMetadata, STATIC_PAGE_METADATA } from "@/lib/metadata";
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -8,10 +10,23 @@ interface PageProps {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
+async function getCollection(slug: string) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/collections/${slug}`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function getCollections() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/collections`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 3600 },
     });
     if (!res.ok) return [];
     const data = await res.json();
@@ -36,7 +51,7 @@ async function getInitialProducts(slug: string) {
     }
 
     const res = await fetch(`${API_BASE_URL}/api/products?${params}`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 3600 },
     });
     if (!res.ok) return { data: [], meta: { total: 0, page: 1, limit: 32, totalPages: 0 } };
     const data = await res.json();
@@ -44,6 +59,66 @@ async function getInitialProducts(slug: string) {
   } catch {
     return { data: [], meta: { total: 0, page: 1, limit: 32, totalPages: 0 } };
   }
+}
+
+// Generate static params for all collections
+export async function generateStaticParams() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/collections`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const collections = data?.data || [];
+    
+    // Generate params for both locales, including children
+    const params: { locale: string; slug: string }[] = [];
+    
+    // Add static slugs
+    params.push({ locale: "en", slug: "all-products" });
+    params.push({ locale: "ar", slug: "all-products" });
+    
+    for (const collection of collections) {
+      params.push({ locale: "en", slug: collection.slug });
+      params.push({ locale: "ar", slug: collection.slug });
+      
+      // Add children collections
+      if (collection.children && Array.isArray(collection.children)) {
+        for (const child of collection.children) {
+          params.push({ locale: "en", slug: child.slug });
+          params.push({ locale: "ar", slug: child.slug });
+        }
+      }
+    }
+    return params;
+  } catch {
+    return [];
+  }
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const isArabic = locale === "ar";
+
+  // Handle special slugs
+  if (slug === "all-products") {
+    return generatePageMetadata({
+      title: isArabic ? "جميع المنتجات - إن زد إن ستوديو" : "All Products - NZN Studio",
+      description: isArabic
+        ? "تصفح جميع منتجاتنا من الأزياء والملابس. اكتشف أحدث الصيحات في إن زد إن ستوديو."
+        : "Browse all our fashion and clothing products. Discover the latest trends at NZN Studio.",
+      locale,
+      path: `/collections/${slug}`,
+    });
+  }
+
+  const collection = await getCollection(slug);
+  
+  if (!collection) {
+    return { title: isArabic ? "المجموعة غير موجودة" : "Collection Not Found" };
+  }
+
+  return generateCollectionMetadata({ collection, locale });
 }
 
 export default async function CollectionPage({ params }: PageProps) {

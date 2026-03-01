@@ -5,6 +5,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Toaster } from "sonner";
 import { routing } from "@/i18n/routing";
+import { SITE_CONFIG, DEFAULT_METADATA } from "@/lib/metadata";
 import "../globals.css";
 import { Header, Footer } from "@/components/layout";
 import { InfiniteMarquee } from "@/components/ui";
@@ -14,8 +15,41 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "E-Commerce",
-  description: "E-Commerce Platform",
+  title: {
+    default: DEFAULT_METADATA.en.title,
+    template: `%s | ${SITE_CONFIG.name}`,
+  },
+  description: DEFAULT_METADATA.en.description,
+  keywords: [...DEFAULT_METADATA.en.keywords],
+  authors: [{ name: SITE_CONFIG.name }],
+  creator: SITE_CONFIG.name,
+  publisher: SITE_CONFIG.name,
+  metadataBase: new URL(SITE_CONFIG.url),
+  openGraph: {
+    type: "website",
+    siteName: SITE_CONFIG.name,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: SITE_CONFIG.twitterHandle,
+    creator: SITE_CONFIG.twitterHandle,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    // Add your verification codes here
+    // google: "your-google-verification-code",
+  },
 };
 
 export function generateStaticParams() {

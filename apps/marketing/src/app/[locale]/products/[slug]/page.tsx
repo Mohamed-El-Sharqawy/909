@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductPageClient } from "./client";
+import { generateProductMetadata } from "@/lib/metadata";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -10,7 +11,7 @@ interface Props {
 
 async function getProduct(slug: string) {
   const res = await fetch(`${API_URL}/api/products/${slug}`, {
-    next: { revalidate: 60 },
+    next: { revalidate: 3600 },
   });
   if (!res.ok) return null;
   const data = await res.json();
@@ -65,6 +66,28 @@ async function getRelatedProducts(product: any) {
   return (fallbackData.data.data || []).filter((p: any) => p.id !== excludeId).slice(0, 4);
 }
 
+// Generate static params for all active products
+export async function generateStaticParams() {
+  try {
+    const res = await fetch(`${API_URL}/api/products?limit=1000&isActive=true`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const products = data?.data?.data || [];
+    
+    // Generate params for both locales
+    const params: { locale: string; slug: string }[] = [];
+    for (const product of products) {
+      params.push({ locale: "en", slug: product.slug });
+      params.push({ locale: "ar", slug: product.slug });
+    }
+    return params;
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const product = await getProduct(slug);
@@ -73,21 +96,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Product Not Found" };
   }
 
-  const isArabic = locale === "ar";
-  const title = isArabic ? product.nameAr : product.nameEn;
-  const description = isArabic 
-    ? product.metaDescriptionAr || product.shortDescriptionAr 
-    : product.metaDescriptionEn || product.shortDescriptionEn;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      images: product.variants?.[0]?.images?.[0]?.url ? [product.variants[0].images[0].url] : [],
-    },
-  };
+  return generateProductMetadata({ product, locale });
 }
 
 export default async function ProductPage({ params }: Props) {

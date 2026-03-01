@@ -1,14 +1,23 @@
 import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
+import { generatePageMetadata, STATIC_PAGE_METADATA } from "@/lib/metadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export const metadata: Metadata = {
-  title: "Terms of Service",
-  description: "Our terms of service and conditions of use",
-};
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const isArabic = locale === "ar";
+  const content = isArabic ? STATIC_PAGE_METADATA.termsOfService.ar : STATIC_PAGE_METADATA.termsOfService.en;
+
+  return generatePageMetadata({
+    title: content.title,
+    description: content.description,
+    locale,
+    path: "/terms-of-service",
+  });
+}
 
 export default async function TermsOfServicePage({ params }: PageProps) {
   const { locale } = await params;
