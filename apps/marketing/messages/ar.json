@@ -156,7 +156,8 @@
     "subtotal": "المجموع الفرعي",
     "checkout": "إتمام الشراء",
     "safeCheckout": "ضمان الدفع الآمن",
-    "noImage": "لا توجد صورة"
+    "noImage": "لا توجد صورة",
+    "suggestedTitle": "قد يعجبك أيضاً"
   },
   "footer": {
     "newsletter": {

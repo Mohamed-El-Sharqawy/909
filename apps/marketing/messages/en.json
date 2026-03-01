@@ -156,7 +156,7 @@
   "cart": {
     "title": "Shopping Cart",
     "empty": "Your cart is empty",
-    "emptyDesc": "Looks like you haven't added any products to your cart yet",
+    "emptyDesc": "Looks like you haven't added anything to your cart yet",
     "startShopping": "Start Shopping",
     "youMayLike": "You may also like",
     "product": "Product",
@@ -164,12 +164,13 @@
     "quantity": "Quantity",
     "total": "Total",
     "remove": "Remove",
-    "orderNote": "Add Order Note",
+    "orderNote": "Order Note",
     "orderNotePlaceholder": "How can we help you?",
     "subtotal": "Subtotal",
-    "checkout": "Check out",
-    "safeCheckout": "Guarantee Safe Checkout",
-    "noImage": "No image"
+    "checkout": "Checkout",
+    "safeCheckout": "Safe & Secure Checkout",
+    "noImage": "No image",
+    "suggestedTitle": "You may also like"
   },
   "footer": {
     "newsletter": {
