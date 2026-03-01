@@ -14,7 +14,7 @@ export const ORDER_STATUSES = [
   "REFUNDED",
 ] as const;
 
-export const USER_ROLES = ["ADMIN", "CUSTOMER", "EDITOR"] as const;
+export const USER_ROLES = ["ADMIN", "EDITOR", "CUSTOMER", "GUEST"] as const;
 
 export const GENDERS = ["MEN", "WOMEN", "UNISEX"] as const;
 

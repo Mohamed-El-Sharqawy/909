@@ -103,6 +103,29 @@ export abstract class OrderService {
     const discountAmount = body.discountAmount ?? 0;
     const grandTotal = total - discountAmount + shippingCost;
 
+    // If guest order, create or find guest user
+    let finalUserId = userId;
+    if (!userId && body.guestEmail) {
+      // Check if guest user already exists
+      let guestUser = await prisma.user.findUnique({
+        where: { email: body.guestEmail },
+      });
+
+      if (!guestUser) {
+        // Create new guest user
+        guestUser = await prisma.user.create({
+          data: {
+            email: body.guestEmail,
+            firstName: body.guestFirstName || body.shippingFirstName,
+            lastName: body.guestLastName || body.shippingLastName,
+            phone: body.guestPhone || body.shippingPhone,
+            role: "GUEST" as any,
+          } as any,
+        });
+      }
+      finalUserId = guestUser.id;
+    }
+
     // If coupon code is provided, validate and get coupon ID
     let couponId: string | undefined;
     if (body.couponCode) {
@@ -121,7 +144,7 @@ export abstract class OrderService {
 
     const order = await prisma.order.create({
       data: {
-        userId: userId ?? undefined,
+        userId: finalUserId ?? undefined,
         total: grandTotal,
         discountAmount: discountAmount > 0 ? discountAmount : undefined,
         couponId: couponId,

@@ -109,4 +109,64 @@ export abstract class UserService {
     await prisma.address.delete({ where: { id: addressId } });
     return true;
   }
+
+  // Admin: Get user details with orders and analytics events
+  static async getUserDetails(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        role: true,
+        avatar: true,
+        createdAt: true,
+        addresses: {
+          select: {
+            id: true,
+            label: true,
+            street: true,
+            city: true,
+            state: true,
+            country: true,
+          },
+          orderBy: { isDefault: "desc" },
+        },
+        orders: {
+          select: {
+            id: true,
+            status: true,
+            total: true,
+            createdAt: true,
+            items: {
+              select: {
+                id: true,
+                productNameEn: true,
+                variantNameEn: true,
+                quantity: true,
+                price: true,
+                imageUrl: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 20,
+        },
+        analyticsEvents: {
+          select: {
+            id: true,
+            type: true,
+            createdAt: true,
+            data: true,
+          },
+          orderBy: { createdAt: "desc" },
+          take: 50,
+        },
+      },
+    });
+
+    return user;
+  }
 }

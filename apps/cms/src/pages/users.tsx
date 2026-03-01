@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Loader2, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, Loader2, User, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { USER_ROLES } from "@ecommerce/shared-utils";
 import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +47,8 @@ interface UsersResponse {
 const ROLE_COLORS: Record<string, string> = {
   ADMIN: "bg-red-100 text-red-700",
   EDITOR: "bg-blue-100 text-blue-700",
-  CUSTOMER: "bg-gray-100 text-gray-700",
+  CUSTOMER: "bg-green-100 text-green-700",
+  GUEST: "bg-orange-100 text-orange-700",
 };
 
 export function UsersPage() {
@@ -133,26 +135,27 @@ export function UsersPage() {
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Joined</TableHead>
+              <TableHead className="w-[60px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-12">
+                <TableCell colSpan={5} className="text-center py-12">
                   <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
             ) : users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
                   No users found.
                 </TableCell>
               </TableRow>
             ) : (
               users.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50">
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <Link to={`/users/${user.id}`} className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                         {user.avatar ? (
                           <img src={user.avatar} alt="" className="w-full h-full object-cover" />
@@ -166,7 +169,7 @@ export function UsersPage() {
                         </p>
                         <p className="text-xs text-muted-foreground">{user.id.substring(0, 8)}...</p>
                       </div>
-                    </div>
+                    </Link>
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
@@ -176,6 +179,13 @@ export function UsersPage() {
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {formatDate(user.createdAt)}
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link to={`/users/${user.id}`}>
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))

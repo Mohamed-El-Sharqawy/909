@@ -39,4 +39,10 @@ export const user = new Elysia({ prefix: "/users" })
     const limit = Number(query.limit) || 20;
     const result = await UserService.listUsers(page, limit);
     return { success: true as const, data: result };
-  }, { isAdmin: true, query: UserModel.paginationQuery });
+  }, { isAdmin: true, query: UserModel.paginationQuery })
+  // Admin: get user details with orders and events
+  .get("/:id", async ({ params }) => {
+    const user = await UserService.getUserDetails(params.id);
+    if (!user) return status(404, { success: false as const, error: "User not found" });
+    return { success: true as const, data: user };
+  }, { isAdmin: true });

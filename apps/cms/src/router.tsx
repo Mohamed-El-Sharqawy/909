@@ -9,6 +9,7 @@ import { ColorsPage } from "./pages/colors";
 import { SizesPage } from "./pages/sizes";
 import { OrdersPage } from "./pages/orders";
 import { UsersPage } from "./pages/users";
+import { UserDetailsPage } from "./pages/user-details";
 import { CouponsPage } from "./pages/coupons";
 import { ContentPage } from "./pages/content";
 import { BannersPage } from "./pages/banners";
@@ -72,6 +73,10 @@ export const router = createBrowserRouter([
       {
         path: "users",
         element: <UsersPage />,
+      },
+      {
+        path: "users/:id",
+        element: <UserDetailsPage />,
       },
       {
         path: "coupons",
