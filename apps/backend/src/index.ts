@@ -32,7 +32,7 @@ const app = new Elysia()
   .use(requestLogger)
   .use(
     cors({
-      origin: corsOrigins,
+      origin: corsOrigins || "*",
       credentials: true,
     })
   )

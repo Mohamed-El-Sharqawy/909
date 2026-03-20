@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/pg": "^8.18.0",
     "bun-types": "latest",
     "prisma": "^7.4.1",
     "typescript": "^5.7.0"
