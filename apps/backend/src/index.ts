@@ -34,8 +34,10 @@ const app = new Elysia()
   .use(requestLogger)
   .use(
     cors({
-      origin: corsOrigin,
-      credentials: true,
+      origin: true, // Allow all origins
+      credentials: false, // Disable credentials to avoid CORS preflight issues
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
     })
   )
   .use(
