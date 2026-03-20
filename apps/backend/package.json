@@ -12,7 +12,8 @@
     "db:migrate": "bunx prisma migrate dev",
     "db:studio": "bunx prisma studio",
     "db:push": "bunx prisma db push",
-    "db:seed": "bun run prisma/seed.ts"
+    "db:seed": "bun run prisma/seed.ts",
+    "db:seed-admin": "bun run prisma/seed-admin.ts"
   },
   "dependencies": {
     "@ecommerce/shared-types": "workspace:*",
