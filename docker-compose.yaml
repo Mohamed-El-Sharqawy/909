@@ -19,6 +19,7 @@ services:
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     networks:
       - app-network
+      - coolify-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
@@ -64,3 +65,6 @@ services:
 networks:
   app-network:
     driver: bridge
+  coolify-network:
+    external: true
+    name: ${COOLIFY_DB_NETWORK:-coolify}
