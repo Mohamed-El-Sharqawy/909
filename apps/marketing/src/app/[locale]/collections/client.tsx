@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { useCollectionSearch } from "./hooks";
 import {
@@ -10,7 +11,7 @@ import {
 } from "./components";
 import type { CollectionsPageClientProps } from "./types";
 
-export function CollectionsPageClient({ collections, locale }: CollectionsPageClientProps) {
+function CollectionsPageContent({ collections, locale }: CollectionsPageClientProps) {
   const t = useTranslations("collection");
 
   const {
@@ -53,5 +54,13 @@ export function CollectionsPageClient({ collections, locale }: CollectionsPageCl
         debouncedQuery={debouncedQuery}
       />
     </div>
+  );
+}
+
+export function CollectionsPageClient(props: CollectionsPageClientProps) {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-12" />}>
+      <CollectionsPageContent {...props} />
+    </Suspense>
   );
 }

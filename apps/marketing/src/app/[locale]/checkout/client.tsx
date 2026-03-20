@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/contexts/cart-context";
@@ -28,7 +28,7 @@ import {
 import { CHECKOUT_ROUTES } from "./constants";
 import type { CheckoutPageClientProps } from "./types";
 
-export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
+function CheckoutPageContent({ locale }: CheckoutPageClientProps) {
   const t = useTranslations("checkout");
   const { items: cartItems, total: cartTotal, isLoading: cartLoading } = useCart();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -179,5 +179,13 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
         </div>
       </form>
     </div>
+  );
+}
+
+export function CheckoutPageClient(props: CheckoutPageClientProps) {
+  return (
+    <Suspense fallback={<CheckoutLoading />}>
+      <CheckoutPageContent {...props} />
+    </Suspense>
   );
 }

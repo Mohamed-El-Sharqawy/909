@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
@@ -23,7 +23,7 @@ import {
   AddressesTab,
 } from "./components";
 
-export function AccountPageClient({ locale }: AccountPageClientProps) {
+function AccountPageContent({ locale }: AccountPageClientProps) {
   const t = useTranslations("account");
   const router = useRouter();
   const isArabic = locale === "ar";
@@ -154,5 +154,17 @@ export function AccountPageClient({ locale }: AccountPageClientProps) {
         />
       )}
     </AccountLayout>
+  );
+}
+
+export function AccountPageClient(props: AccountPageClientProps) {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400 mb-4" />
+      </div>
+    }>
+      <AccountPageContent {...props} />
+    </Suspense>
   );
 }

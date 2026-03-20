@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { ReviewModal } from "@/components/ui/review-modal";
 import { SizeGuideModal } from "@/components/ui/size-guide-modal";
@@ -23,7 +23,7 @@ import {
 import { FREQUENTLY_BOUGHT_LIMIT } from "./constants";
 import type { ProductPageClientProps } from "./types";
 
-export function ProductPageClient({ product, relatedProducts, locale }: ProductPageClientProps) {
+function ProductPageContent({ product, relatedProducts, locale }: ProductPageClientProps) {
   const t = useTranslations("product");
   const isArabic = locale === "ar";
 
@@ -186,5 +186,13 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
         />
       )}
     </div>
+  );
+}
+
+export function ProductPageClient(props: ProductPageClientProps) {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <ProductPageContent {...props} />
+    </Suspense>
   );
 }
