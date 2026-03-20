@@ -7,8 +7,8 @@ services:
       dockerfile: apps/backend/Dockerfile
     container_name: 909-backend
     restart: unless-stopped
-    ports:
-      - "3001:3001"
+    expose:
+      - "3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -21,8 +21,11 @@ services:
     networks:
       - app-network
       - coolify-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.909-backend.loadbalancer.server.port=3001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      test: ["CMD-SHELL", "bun --eval \"fetch('http://localhost:3001/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))\""]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -37,8 +40,8 @@ services:
         - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
     container_name: 909-marketing
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
@@ -47,6 +50,9 @@ services:
       - backend
     networks:
       - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.909-marketing.loadbalancer.server.port=3000"
 
   cms:
     build:
@@ -54,14 +60,17 @@ services:
       dockerfile: apps/cms/Dockerfile
     container_name: 909-cms
     restart: unless-stopped
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     environment:
       - VITE_API_URL=${VITE_API_URL}
     depends_on:
       - backend
     networks:
       - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.909-cms.loadbalancer.server.port=80"
 
 networks:
   app-network:
