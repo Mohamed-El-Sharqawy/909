@@ -32,9 +32,10 @@ export function useProductActions(product: Product, locale: string) {
       if (!selectedVariant) return;
       const cartItem = createCartItemFromVariant(selectedVariant, product, quantity);
       addItem(cartItem);
-      trackQuickAddToCart(product.id, selectedVariant.id);
+      const productName = locale === "ar" ? product.nameAr : product.nameEn;
+      trackQuickAddToCart(product.id, selectedVariant.id, productName, selectedVariant.price, quantity);
     },
-    [addItem, product, quantity]
+    [addItem, product, quantity, locale]
   );
 
   // Get cart item for selected variant

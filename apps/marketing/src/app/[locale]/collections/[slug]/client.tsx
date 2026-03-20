@@ -48,8 +48,8 @@ export function CollectionPageClient({
 
   // Track collection view on mount
   useEffect(() => {
-    trackCollectionView(slug, slug);
-  }, [slug]);
+    trackCollectionView(slug, slug, title);
+  }, [slug, title]);
 
   const sortOptions: SortOption[] = [
     { value: "featured", label: t("sort.featured"), sortBy: "isFeatured", sortOrder: "desc" },

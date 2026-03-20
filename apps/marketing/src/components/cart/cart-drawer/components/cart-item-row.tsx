@@ -75,7 +75,8 @@ export function CartItemRow({ item, locale, onClose, onUpdateQuantity, onRemove 
               e.preventDefault();
               e.stopPropagation();
               onRemove(item.variantId);
-              trackCartRemove(item.productId, item.variantId);
+              const productName = isArabic ? item.productNameAr : item.productNameEn;
+              trackCartRemove(item.productId, item.variantId, productName, item.price);
             }}
             className="text-xs text-red-600 hover:underline"
           >

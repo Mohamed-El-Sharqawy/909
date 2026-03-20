@@ -91,14 +91,16 @@ export function CheckoutPageClient({ locale }: CheckoutPageClientProps) {
   // Track checkout view on mount
   useEffect(() => {
     if (!cartLoading && !authLoading && items.length > 0) {
-      trackCheckoutView(items.length, total);
+      const variantIds = items.map((item) => item.variantId);
+      trackCheckoutView(items.length, total, variantIds);
     }
   }, [cartLoading, authLoading, items.length, total]);
 
   // Track order completion
   useEffect(() => {
     if (orderSuccess && orderId) {
-      trackOrderComplete(orderId, total, items.length);
+      const variantIds = items.map((item) => item.variantId);
+      trackOrderComplete(orderId, total, items.length, variantIds);
     }
   }, [orderSuccess, orderId, total, items.length]);
 

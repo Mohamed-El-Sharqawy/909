@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ProductPageClient } from "./client";
 import { generateProductMetadata } from "@/lib/metadata";
@@ -103,10 +104,12 @@ export default async function ProductPage({ params }: Props) {
   const relatedProducts = await getRelatedProducts(product);
 
   return (
-    <ProductPageClient 
-      product={product} 
-      relatedProducts={relatedProducts}
-      locale={locale} 
-    />
+    <Suspense>
+      <ProductPageClient 
+        product={product} 
+        relatedProducts={relatedProducts}
+        locale={locale} 
+      />
+    </Suspense>
   );
 }

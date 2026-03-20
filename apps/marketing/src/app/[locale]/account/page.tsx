@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { AccountPageClient } from "./client";
 
 export const metadata: Metadata = {
@@ -12,5 +13,9 @@ interface Props {
 
 export default async function AccountPage({ params }: Props) {
   const { locale } = await params;
-  return <AccountPageClient locale={locale} />;
+  return (
+    <Suspense>
+      <AccountPageClient locale={locale} />
+    </Suspense>
+  );
 }

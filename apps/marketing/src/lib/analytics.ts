@@ -1,7 +1,19 @@
 /**
  * Analytics tracking utilities for the marketing app
  * Sends events to the backend for storage and analysis
+ * Also triggers Facebook Pixel events
  */
+
+import {
+  fbViewContent,
+  fbViewCategory,
+  fbAddToCart,
+  fbRemoveFromCart,
+  fbSearch,
+  fbAddToWishlist,
+  fbInitiateCheckout,
+  fbPurchase,
+} from "./facebook-pixel";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -41,36 +53,91 @@ async function trackEvent(endpoint: string, data: Record<string, unknown>): Prom
 /**
  * Track product page view
  */
-export function trackProductView(productId: string, productSlug?: string): void {
+export function trackProductView(
+  productId: string, 
+  productSlug?: string,
+  productName?: string,
+  price?: number
+): void {
   trackEvent("product-view", { productId, productSlug });
+  
+  // Facebook Pixel
+  fbViewContent({
+    contentId: productId,
+    contentName: productName || productSlug || productId,
+    contentType: "product",
+    value: price,
+  });
 }
 
 /**
  * Track collection page view
  */
-export function trackCollectionView(collectionId: string, collectionSlug?: string): void {
+export function trackCollectionView(
+  collectionId: string, 
+  collectionSlug?: string,
+  collectionName?: string
+): void {
   trackEvent("collection-view", { collectionId, collectionSlug });
+  
+  // Facebook Pixel
+  fbViewCategory({
+    contentId: collectionId,
+    contentName: collectionName || collectionSlug || collectionId,
+  });
 }
 
 /**
  * Track search query
  */
-export function trackSearch(query: string, resultsCount: number): void {
+export function trackSearch(query: string, resultsCount: number, productIds?: string[]): void {
   trackEvent("search", { query, resultsCount });
+  
+  // Facebook Pixel
+  fbSearch({
+    searchString: query,
+    contentIds: productIds,
+  });
 }
 
 /**
  * Track quick add to cart from product card
  */
-export function trackQuickAddToCart(productId: string, variantId: string): void {
+export function trackQuickAddToCart(
+  productId: string, 
+  variantId: string,
+  productName?: string,
+  price?: number,
+  quantity?: number
+): void {
   trackEvent("cart-add", { productId, variantId, source: "quick_add" });
+  
+  // Facebook Pixel
+  fbAddToCart({
+    contentId: variantId,
+    contentName: productName || productId,
+    value: price || 0,
+    quantity: quantity || 1,
+  });
 }
 
 /**
  * Track remove from cart
  */
-export function trackCartRemove(productId: string, variantId: string): void {
+export function trackCartRemove(
+  productId: string, 
+  variantId: string,
+  productName?: string,
+  price?: number
+): void {
   trackEvent("cart-remove", { productId, variantId });
+  
+  // Facebook Pixel
+  fbRemoveFromCart({
+    contentId: variantId,
+    contentName: productName || productId,
+    value: price || 0,
+  });
 }
 
 /**
@@ -83,15 +150,40 @@ export function trackFavouriteToggle(productId: string, action: "add" | "remove"
 /**
  * Track wishlist add/remove
  */
-export function trackWishlistToggle(productId: string, action: "add" | "remove"): void {
+export function trackWishlistToggle(
+  productId: string, 
+  action: "add" | "remove",
+  productName?: string,
+  price?: number
+): void {
   trackEvent(`wishlist-${action}`, { productId });
+  
+  // Facebook Pixel - only track add (no standard remove event)
+  if (action === "add") {
+    fbAddToWishlist({
+      contentId: productId,
+      contentName: productName || productId,
+      value: price,
+    });
+  }
 }
 
 /**
  * Track checkout page view
  */
-export function trackCheckoutView(cartItemCount: number, cartTotal: number): void {
+export function trackCheckoutView(
+  cartItemCount: number, 
+  cartTotal: number,
+  variantIds?: string[]
+): void {
   trackEvent("checkout-view", { cartItemCount, cartTotal });
+  
+  // Facebook Pixel
+  fbInitiateCheckout({
+    contentIds: variantIds || [],
+    value: cartTotal,
+    numItems: cartItemCount,
+  });
 }
 
 /**
@@ -111,6 +203,19 @@ export function trackCheckoutAbandon(step: string, cartItemCount: number, cartTo
 /**
  * Track order completion
  */
-export function trackOrderComplete(orderId: string, total: number, itemCount: number): void {
+export function trackOrderComplete(
+  orderId: string, 
+  total: number, 
+  itemCount: number,
+  variantIds?: string[]
+): void {
   trackEvent("order-complete", { orderId, total, itemCount });
+  
+  // Facebook Pixel
+  fbPurchase({
+    contentIds: variantIds || [],
+    value: total,
+    numItems: itemCount,
+    orderId,
+  });
 }

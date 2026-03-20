@@ -66,9 +66,11 @@ export function ProductPageClient({ product, relatedProducts, locale }: ProductP
   useEffect(() => {
     if (!hasTrackedView.current) {
       hasTrackedView.current = true;
-      trackProductView(product.id, product.slug);
+      const productName = isArabic ? product.nameAr : product.nameEn;
+      const productPrice = product.variants?.[0]?.price;
+      trackProductView(product.id, product.slug, productName, productPrice);
     }
-  }, [product.id, product.slug]);
+  }, [product.id, product.slug, product.nameEn, product.nameAr, product.variants, isArabic]);
 
   // Derived values
   const name = isArabic ? product.nameAr : product.nameEn;

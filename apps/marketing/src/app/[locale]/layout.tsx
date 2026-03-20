@@ -10,6 +10,7 @@ import "../globals.css";
 import { Header, Footer } from "@/components/layout";
 import { InfiniteMarquee } from "@/components/ui";
 import { CartDrawer } from "@/components/cart/cart-drawer";
+import { FacebookPixel } from "@/components/analytics";
 import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -75,6 +76,9 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
 
   return (
     <html lang={locale} dir={isRtl ? "rtl" : "ltr"}>
+      <head>
+        <FacebookPixel />
+      </head>
       <body className={`${inter.className} overflow-x-hidden`}>
         <NextIntlClientProvider messages={messages}>
           <Providers>

@@ -53,10 +53,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy built files
-COPY --from=builder /app/apps/marketing/public ./public
+# In a monorepo, standalone output mirrors the original directory structure:
+# .next/standalone/apps/marketing/server.js
+COPY --from=builder /app/apps/marketing/public ./apps/marketing/public
 COPY --from=builder --chown=nextjs:nodejs /app/apps/marketing/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/marketing/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/marketing/.next/static ./apps/marketing/.next/static
 
 USER nextjs
 
@@ -65,4 +66,4 @@ ENV HOSTNAME="0.0.0.0"
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "apps/marketing/server.js"]

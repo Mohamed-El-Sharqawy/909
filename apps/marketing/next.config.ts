@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import path from "path";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -14,7 +15,12 @@ const nextConfig: NextConfig = {
       static: 180, // 3 minutes for static pages
     },
   },
-  
+
+  turbopack: {
+    // Absolute path to workspace root — required for monorepo Docker builds
+    root: path.resolve(__dirname, "../../"),
+  },
+
   images: {
     remotePatterns: [
       {
