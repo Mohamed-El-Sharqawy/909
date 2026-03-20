@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { useCollectionFilters, useCollectionProducts } from "./hooks";
 import { CollectionHeader, ProductGrid, LoadMore, FilterDrawer } from "./components";
 import { trackCollectionView } from "@/lib/analytics";
 import type { CollectionPageClientProps, SortOption } from "./types";
 
-export function CollectionPageClient({
+function CollectionPageContent({
   locale,
   slug,
   title,
@@ -104,5 +104,13 @@ export function CollectionPageClient({
         onMaxPriceChange={setMaxPrice}
       />
     </div>
+  );
+}
+
+export function CollectionPageClient(props: CollectionPageClientProps) {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-8" />}>
+      <CollectionPageContent {...props} />
+    </Suspense>
   );
 }
