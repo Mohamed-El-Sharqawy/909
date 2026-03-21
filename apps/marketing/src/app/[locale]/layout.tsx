@@ -79,7 +79,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
       <head>
         <FacebookPixel />
       </head>
-      <body className={`${inter.className} overflow-x-hidden`}>
+      <body className={`${inter.className}`}>
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <InfiniteMarquee

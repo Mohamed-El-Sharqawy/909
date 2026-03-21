@@ -37,7 +37,7 @@ export function QuickViewModal({
   );
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+
   // Animation states
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -135,31 +135,29 @@ export function QuickViewModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop with fade */}
-      <div 
-        className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`} 
-        onClick={handleClose} 
+      <div
+        className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"
+          }`}
+        onClick={handleClose}
       />
       {/* Modal with slide animation */}
-      <div 
-        className={`relative bg-background rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-auto transition-all duration-300 ease-out ${
-          isVisible 
-            ? "opacity-100 translate-x-0" 
-            : isClosing 
-              ? "opacity-0 translate-x-8" 
-              : "opacity-0 -translate-x-8"
-        }`}
+      <div
+        className={`relative bg-background rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-auto transition-all duration-300 ease-out ${isVisible
+          ? "opacity-100 translate-x-0"
+          : isClosing
+            ? "opacity-0 translate-x-8"
+            : "opacity-0 -translate-x-8"
+          }`}
       >
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 z-10 p-2 hover:bg-muted rounded-full"
+          className="absolute top-4 right-4 z-10 p-2 hover:bg-muted bg-white border border-gray-200 rounded-full"
           aria-label="Close"
         >
           <X className="h-5 w-5" />
         </button>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+
           {/* Image Gallery */}
           <div className="relative aspect-square bg-neutral-100 rounded-lg overflow-hidden">
             {images.length > 0 ? (
@@ -236,11 +234,10 @@ export function QuickViewModal({
                     <button
                       key={color.id}
                       onClick={() => handleColorSelect(color.id)}
-                      className={`h-8 w-8 rounded-full border-2 transition ${
-                        selectedVariant?.color?.id === color.id
-                          ? "border-primary ring-2 ring-primary ring-offset-2"
-                          : "border-border"
-                      }`}
+                      className={`h-8 w-8 rounded-full border-2 transition ${selectedVariant?.color?.id === color.id
+                        ? "border-primary ring-2 ring-primary ring-offset-2"
+                        : "border-border"
+                        }`}
                       style={{ backgroundColor: color.hex }}
                       aria-label={isArabic ? color.nameAr : color.nameEn}
                     />
@@ -258,11 +255,10 @@ export function QuickViewModal({
                     <button
                       key={size.id}
                       onClick={() => handleSizeSelect(size.id)}
-                      className={`px-4 py-2 text-sm border rounded transition ${
-                        selectedVariant?.size?.id === size.id
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "border-border hover:border-primary"
-                      }`}
+                      className={`px-4 py-2 text-sm border rounded transition ${selectedVariant?.size?.id === size.id
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border hover:border-primary"
+                        }`}
                     >
                       {isArabic ? size.nameAr : size.nameEn}
                     </button>

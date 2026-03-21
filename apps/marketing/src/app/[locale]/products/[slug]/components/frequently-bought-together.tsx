@@ -103,7 +103,9 @@ export function FrequentlyBoughtTogether({
       {/* Mobile Layout */}
       <div className="md:hidden">
         <div className="bg-gray-50 rounded-2xl p-4 border">
-          <div className="flex items-center gap-2 overflow-x-auto pb-4 -mx-2 px-2 scrollbar-hide">
+          <div
+            className="flex items-center gap-2 overflow-x-auto pt-4 pb-4 -mx-2 px-2 scrollbar-hide"
+          >
             {allProducts.map((p, index) => {
               const isSelected = selectedProducts.has(p.id);
               const isCurrentProduct = p.id === currentProduct.id;
@@ -114,17 +116,15 @@ export function FrequentlyBoughtTogether({
               return (
                 <div key={p.id} className="flex items-center gap-2 shrink-0">
                   <div
-                    className={`relative flex flex-col items-center p-3 rounded-xl border-2 transition-all cursor-pointer w-[100px] ${
-                      isSelected
-                        ? "border-black bg-white shadow-sm"
-                        : "border-gray-200 bg-white opacity-50"
-                    }`}
+                    className={`relative flex flex-col items-center p-3 rounded-xl border-2 transition-all cursor-pointer w-[100px] ${isSelected
+                      ? "border-black bg-white shadow-sm"
+                      : "border-gray-200 bg-white opacity-50"
+                      }`}
                     onClick={() => toggleProduct(p.id)}
                   >
                     <div
-                      className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${
-                        isSelected ? "bg-black border-black" : "bg-white border-gray-300"
-                      }`}
+                      className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${isSelected ? "bg-black border-black" : "bg-white border-gray-300"
+                        }`}
                     >
                       {isSelected && <Check className="h-3 w-3 text-white" />}
                     </div>
@@ -198,17 +198,15 @@ export function FrequentlyBoughtTogether({
             return (
               <div key={p.id} className="flex items-center gap-4">
                 <div
-                  className={`relative flex flex-col items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${
-                    isSelected
-                      ? "border-black bg-white shadow-md"
-                      : "border-gray-200 bg-gray-50 opacity-60"
-                  } ${isCurrentProduct ? "ring-2 ring-black ring-offset-2" : ""}`}
+                  className={`relative flex flex-col items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${isSelected
+                    ? "border-black bg-white shadow-md"
+                    : "border-gray-200 bg-gray-50 opacity-60"
+                    } ${isCurrentProduct ? "ring-2 ring-black ring-offset-2" : ""}`}
                   onClick={() => toggleProduct(p.id)}
                 >
                   <div
-                    className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${
-                      isSelected ? "bg-black border-black" : "bg-white border-gray-300"
-                    } ${isCurrentProduct ? "cursor-not-allowed" : "cursor-pointer"}`}
+                    className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all z-10 ${isSelected ? "bg-black border-black" : "bg-white border-gray-300"
+                      } ${isCurrentProduct ? "cursor-not-allowed" : "cursor-pointer"}`}
                   >
                     {isSelected && <Check className="h-3 w-3 text-white" />}
                   </div>

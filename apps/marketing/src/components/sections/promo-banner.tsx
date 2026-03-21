@@ -11,7 +11,7 @@ export async function PromoBanner({ locale }: PromoBannerProps) {
   const t = await getTranslations("home.promoBanner");
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16">
+    <section className="mx-auto max-w-7xl px-4 py-16 overflow-hidden">
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-center">
         <AnimateOnScroll direction="left">
           <div className="space-y-4">

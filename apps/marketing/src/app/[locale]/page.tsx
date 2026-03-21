@@ -48,7 +48,7 @@ export default async function HomePage({ params }: PageProps) {
   ]);
 
   return (
-    <div>
+    <div className="overflow-hidden">
       {/* Hero Banner Carousel */}
       {banners.length > 0 && (
         <HeroBanner banners={banners} locale={locale} />

@@ -248,9 +248,9 @@ export function ProductCardWithVariants({
             </div>
           </Link>
 
-          {/* Hover Overlay with Quick Actions */}
+          {/* Hover Overlay with Quick Actions - Hidden on mobile, visible on tablets and up */}
           <div
-            className={`absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm transition-all duration-300 ${
+            className={`hidden md:block absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm transition-all duration-300 ${
               isCardHovered
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-4 pointer-events-none"

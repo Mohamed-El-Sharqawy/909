@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface Language {
   code: string;
@@ -64,7 +65,7 @@ export function LanguageSwitcher() {
 
       {isOpen && (
         <div
-          className="absolute right-0 mt-1 w-36 bg-white border rounded-lg shadow-lg py-1 z-50"
+          className={cn("absolute mt-1 w-36 bg-white border rounded-lg shadow-lg py-1 z-50", locale === "ar" ? "left-0": "right-0")}
           role="listbox"
           aria-label="Select language"
         >
