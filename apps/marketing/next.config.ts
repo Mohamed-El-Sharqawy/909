@@ -7,7 +7,7 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   output: "standalone",
   transpilePackages: ["@ecommerce/shared-types", "@ecommerce/shared-utils"],
-  
+
   // Enable static generation with ISR for dynamic pages
   experimental: {
     staleTimes: {
@@ -31,9 +31,13 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "flagcdn.com",
+      },
     ],
   },
-  
+
   // Caching headers for static assets
   async headers() {
     return [

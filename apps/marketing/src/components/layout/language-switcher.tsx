@@ -4,16 +4,17 @@ import { useState, useRef, useEffect } from "react";
 import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 interface Language {
   code: string;
   name: string;
-  flag: string;
+  flagUrl: string;
 }
 
 const LANGUAGES: Language[] = [
-  { code: "en", name: "English", flag: "🇺🇸" },
-  { code: "ar", name: "العربية", flag: "🇦🇪" },
+  { code: "en", name: "English", flagUrl: "https://flagcdn.com/w40/us.png" },
+  { code: "ar", name: "العربية", flagUrl: "https://flagcdn.com/w40/eg.png" },
 ];
 
 export function LanguageSwitcher() {
@@ -50,8 +51,14 @@ export function LanguageSwitcher() {
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <span className="text-base">{currentLanguage.flag}</span>
         <span className="hidden sm:inline text-xs font-medium">{currentLanguage.code.toUpperCase()}</span>
+        <Image 
+          src={currentLanguage.flagUrl} 
+          alt={currentLanguage.name}
+          width={30}
+          height={25}
+          className="rounded-sm"
+        />
         <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
@@ -71,7 +78,13 @@ export function LanguageSwitcher() {
               role="option"
               aria-selected={lang.code === locale}
             >
-              <span className="text-base">{lang.flag}</span>
+              <Image 
+                src={lang.flagUrl} 
+                alt={lang.name}
+                width={30}
+                height={25}
+                className="rounded-sm"
+              />
               <span>{lang.name}</span>
             </button>
           ))}
