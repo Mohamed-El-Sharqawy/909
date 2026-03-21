@@ -35,6 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function HomePage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
+  
 
   const [t, featuredProducts, shoppableVideos, instagramPosts, reviews, banners, heroCollections] = await Promise.all([
     getTranslations("home"),
@@ -60,6 +61,7 @@ export default async function HomePage({ params }: PageProps) {
           textClassName="text-sm font-semibold uppercase tracking-wider text-white"
           separator="—"
           speed="normal"
+          isArabic={locale === "ar"}
         />
       </AnimateOnScroll>
 

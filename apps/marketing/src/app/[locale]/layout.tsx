@@ -92,6 +92,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
               textClassName="text-xs font-semibold text-white uppercase tracking-wider"
               separator="—"
               speed="normal"
+              isArabic={locale === "ar"}
             />
             <Header />
             <main>{children}</main>

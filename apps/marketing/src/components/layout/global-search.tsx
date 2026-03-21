@@ -146,7 +146,7 @@ export function GlobalSearch() {
           />
 
           {/* Search Container */}
-          <div className="fixed inset-x-0 top-0 z-50 p-4 md:absolute md:inset-auto md:right-0 md:top-full md:mt-2 md:w-[400px] md:p-0">
+          <div className="fixed left-1/2 -translate-x-1/2 top-4 w-[calc(100%-2rem)] max-w-md z-50 md:absolute md:translate-x-0 md:left-auto md:right-0 md:top-full md:mt-2 md:w-[400px]">
             <div className="bg-white rounded-xl shadow-2xl border overflow-hidden">
               {/* Search Input */}
               <div className="flex items-center gap-3 p-4 border-b">

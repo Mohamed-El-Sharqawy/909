@@ -25,7 +25,8 @@ function GridIcon({
   onClick: () => void;
 }) {
   const dots = [];
-  const size = cols <= 2 ? 2 : cols <= 4 ? 3 : 4;
+  // Generate correct number of dots: 1 for 1 col, 4 for 2 cols, 9 for 3 cols, 16 for 4 cols
+  const size = cols === 1 ? 1 : cols === 2 ? 2 : cols === 3 ? 3 : 4;
   for (let i = 0; i < size * size; i++) {
     dots.push(
       <div
@@ -68,8 +69,8 @@ export function CollectionHeader({
         {t("filter")}
       </button>
 
-      {/* Grid View Toggle */}
-      <div className="flex items-center gap-1">
+      {/* Grid View Toggle - Hidden on mobile, visible on tablets and up */}
+      <div className="hidden md:flex items-center gap-1">
         <GridIcon cols={1} gridColumns={gridColumns} onClick={() => setGridColumns(1)} />
         <GridIcon cols={2} gridColumns={gridColumns} onClick={() => setGridColumns(2)} />
         <GridIcon cols={3} gridColumns={gridColumns} onClick={() => setGridColumns(3)} />

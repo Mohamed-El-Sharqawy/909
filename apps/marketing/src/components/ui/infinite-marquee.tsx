@@ -8,6 +8,7 @@ interface InfiniteMarqueeProps {
   textClassName?: string;
   separator?: string;
   speed?: "slow" | "normal" | "fast";
+  isArabic?: boolean;
 }
 
 export function InfiniteMarquee({
@@ -16,6 +17,7 @@ export function InfiniteMarquee({
   textClassName,
   separator = "—",
   speed = "normal",
+  isArabic = false,
 }: InfiniteMarqueeProps) {
   const speedClass = {
     slow: "animate-marquee-slow",
@@ -26,18 +28,33 @@ export function InfiniteMarquee({
   const items = Array(20).fill(`${text} ${separator} `);
 
   return (
-    <div className={cn("overflow-hidden whitespace-nowrap", className)}>
-      <div className={cn("inline-flex", speedClass)}>
-        {items.map((item, i) => (
-          <span key={i} className={cn("mx-4", textClassName)}>
-            {item}
-          </span>
-        ))}
-        {items.map((item, i) => (
-          <span key={`dup-${i}`} className={cn("mx-4", textClassName)}>
-            {item}
-          </span>
-        ))}
+    <div className={cn("overflow-hidden", className)}>
+      <div className={cn("flex", speedClass)} dir="ltr">
+        {/* GROUP 1 */}
+        <div className="flex shrink-0">
+          {items.map((item, i) => (
+            <span
+              key={i}
+              className={cn("mx-4 shrink-0 whitespace-nowrap", textClassName)}
+              dir={isArabic ? "rtl" : "ltr"}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+
+        {/* GROUP 2 (duplicate) */}
+        <div className="flex shrink-0">
+          {items.map((item, i) => (
+            <span
+              key={`dup-${i}`}
+              className={cn("mx-4 shrink-0 whitespace-nowrap", textClassName)}
+              dir={isArabic ? "rtl" : "ltr"}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
