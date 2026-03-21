@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { Suspense } from "react";
 import { CheckoutPageClient } from "./client";
 
 export const metadata: Metadata = {
@@ -13,9 +12,5 @@ interface Props {
 
 export default async function CheckoutPage({ params }: Props) {
   const { locale } = await params;
-  return (
-    <Suspense>
-      <CheckoutPageClient locale={locale} />
-    </Suspense>
-  );
+  return <CheckoutPageClient locale={locale} />;
 }

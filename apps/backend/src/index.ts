@@ -24,12 +24,6 @@ import { analyticsController } from "./modules/analytics";
 
 const port = process.env.PORT || 3001;
 
-// CORS: if CORS_ORIGIN is "*" or not set, allow all origins (true)
-// Otherwise parse as comma-separated list of specific domains
-const corsOrigin = !process.env.CORS_ORIGIN || process.env.CORS_ORIGIN === "*"
-  ? true
-  : process.env.CORS_ORIGIN.split(",").map(o => o.trim());
-
 const app = new Elysia()
   .use(requestLogger)
   .use(

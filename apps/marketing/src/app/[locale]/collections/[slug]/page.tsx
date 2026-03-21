@@ -123,8 +123,6 @@ export default async function CollectionPage({ params }: PageProps) {
     return locale === "ar" ? collection?.nameAr : collection?.nameEn;
   };
 
-  console.log(initialData.data.length)
-
   return (
     <CollectionPageClient
       locale={locale}

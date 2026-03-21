@@ -19,6 +19,7 @@ import {
   RelatedProducts,
   FixedBottomBar,
   FrequentlyBoughtTogether,
+  ProductPageSkeleton,
 } from "./components";
 import { FREQUENTLY_BOUGHT_LIMIT } from "./constants";
 import type { ProductPageClientProps } from "./types";
@@ -191,7 +192,7 @@ function ProductPageContent({ product, relatedProducts, locale }: ProductPageCli
 
 export function ProductPageClient(props: ProductPageClientProps) {
   return (
-    <Suspense fallback={<div className="min-h-screen" />}>
+    <Suspense fallback={<ProductPageSkeleton />}>
       <ProductPageContent {...props} />
     </Suspense>
   );

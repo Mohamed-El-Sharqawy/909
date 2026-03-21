@@ -11,9 +11,6 @@ export const searchController = new Elysia({ prefix: "/search" })
       return { products: [], collections: [] };
     }
 
-    // Search in both Arabic and English columns
-    const searchTerm = `%${q}%`;
-
     const [products, collections] = await Promise.all([
       // Search products
       prisma.product.findMany({

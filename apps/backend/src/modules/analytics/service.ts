@@ -42,14 +42,13 @@ class AnalyticsService {
   private eventBuffer: AnalyticsEventInput[] = [];
   private readonly batchSize = 50;
   private readonly flushInterval = 5000; // 5 seconds
-  private flushTimer: NodeJS.Timeout | null = null;
 
   constructor() {
     this.startFlushTimer();
   }
 
   private startFlushTimer() {
-    this.flushTimer = setInterval(() => {
+    setInterval(() => {
       this.flush();
     }, this.flushInterval);
   }
@@ -287,7 +286,7 @@ class AnalyticsService {
 
   // Aggregated stats for dashboard
   async getEventStats(options: { startDate?: Date; endDate?: Date; groupBy?: "day" | "hour" }) {
-    const { startDate, endDate, groupBy = "day" } = options;
+    const { startDate, endDate } = options;
 
     const where: any = {};
     if (startDate || endDate) {

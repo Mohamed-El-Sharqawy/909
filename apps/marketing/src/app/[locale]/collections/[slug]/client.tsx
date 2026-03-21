@@ -3,7 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { useCollectionFilters, useCollectionProducts } from "./hooks";
-import { CollectionHeader, ProductGrid, LoadMore, FilterDrawer } from "./components";
+import { CollectionHeader, ProductGrid, LoadMore, FilterDrawer, CollectionPageSkeleton } from "./components";
 import { trackCollectionView } from "@/lib/analytics";
 import type { CollectionPageClientProps, SortOption } from "./types";
 
@@ -109,7 +109,7 @@ function CollectionPageContent({
 
 export function CollectionPageClient(props: CollectionPageClientProps) {
   return (
-    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-8" />}>
+    <Suspense fallback={<CollectionPageSkeleton />}>
       <CollectionPageContent {...props} />
     </Suspense>
   );

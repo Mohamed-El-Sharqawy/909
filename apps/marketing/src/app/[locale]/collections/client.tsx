@@ -8,6 +8,7 @@ import {
   NoResults,
   ProductResults,
   CollectionsGrid,
+  CollectionsPageSkeleton,
 } from "./components";
 import type { CollectionsPageClientProps } from "./types";
 
@@ -59,7 +60,7 @@ function CollectionsPageContent({ collections, locale }: CollectionsPageClientPr
 
 export function CollectionsPageClient(props: CollectionsPageClientProps) {
   return (
-    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-12" />}>
+    <Suspense fallback={<CollectionsPageSkeleton />}>
       <CollectionsPageContent {...props} />
     </Suspense>
   );

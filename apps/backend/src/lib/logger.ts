@@ -50,10 +50,10 @@ function getTimestamp(): string {
 
 // Request/Response Logger Plugin
 export const requestLogger = new Elysia({ name: "request-logger" })
-  .onRequest(({ request, store }) => {
+  .onRequest(({ store }) => {
     (store as any).startTime = performance.now();
   })
-  .onAfterResponse(({ request, response, store, set }) => {
+  .onAfterResponse(({ request, store, set }) => {
     const startTime = (store as any).startTime || performance.now();
     const duration = performance.now() - startTime;
     const method = request.method;

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { CollectionsPageClient } from "./client";
 import { generatePageMetadata, STATIC_PAGE_METADATA } from "@/lib/metadata";
@@ -41,11 +40,9 @@ export default async function CollectionsPage({ params }: PageProps) {
   const collections = await getCollections();
 
   return (
-    <Suspense>
-      <CollectionsPageClient
-        collections={collections}
-        locale={locale}
-      />
-    </Suspense>
+    <CollectionsPageClient
+      collections={collections}
+      locale={locale}
+    />
   );
 }

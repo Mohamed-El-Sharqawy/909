@@ -46,7 +46,7 @@ export abstract class AuthService {
       where: { email: body.email },
     });
 
-    if (!user) return { ok: false, error: "Invalid credentials", status: 401 };
+    if (!user || !user.password) return { ok: false, error: "Invalid credentials", status: 401 };
 
     const valid = await compare(body.password, user.password);
     if (!valid) return { ok: false, error: "Invalid credentials", status: 401 };

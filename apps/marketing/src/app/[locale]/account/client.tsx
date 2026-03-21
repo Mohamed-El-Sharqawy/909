@@ -15,6 +15,7 @@ import { useAccountTabs, useAddresses, usePhoneEdit } from "./hooks";
 import {
   AccountLayout,
   AccountSidebar,
+  AccountPageSkeleton,
   ProfileTab,
   OrdersTab,
   FavouritesTab,
@@ -159,11 +160,7 @@ function AccountPageContent({ locale }: AccountPageClientProps) {
 
 export function AccountPageClient(props: AccountPageClientProps) {
   return (
-    <Suspense fallback={
-      <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400 mb-4" />
-      </div>
-    }>
+    <Suspense fallback={<AccountPageSkeleton />}>
       <AccountPageContent {...props} />
     </Suspense>
   );

@@ -5,3 +5,4 @@ export { ReviewsSection } from "./reviews-section";
 export { RelatedProducts } from "./related-products";
 export { FixedBottomBar } from "./fixed-bottom-bar";
 export { FrequentlyBoughtTogether } from "./frequently-bought-together";
+export { ProductPageSkeleton } from "./product-page-skeleton";
