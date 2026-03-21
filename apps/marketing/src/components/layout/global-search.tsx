@@ -157,7 +157,7 @@ export function GlobalSearch() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={isArabic ? "ابحث عن منتجات أو مجموعات..." : "Search products or collections..."}
-                  className="flex-1 outline-none text-sm"
+                  className="flex-1 outline-none text-base"
                   dir={isArabic ? "rtl" : "ltr"}
                 />
                 {isLoading ? (
