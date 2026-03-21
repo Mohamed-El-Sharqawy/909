@@ -83,6 +83,7 @@ export function HeroBanner({ banners, locale }: HeroBannerProps) {
             src={banner.imageUrl}
             alt={isArabic ? banner.titleAr : banner.titleEn}
             fill
+            loading="eager"
             priority={index === 0}
             className="object-cover"
             sizes="100vw"

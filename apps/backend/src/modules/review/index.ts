@@ -10,11 +10,11 @@ export const reviewController = new Elysia({ prefix: "/reviews" })
     const reviews = await ReviewService.listForHomepage(6);
     return reviews;
   })
-  // Public: Get reviews for a product
-  .get("/product/:productId", async ({ params }) => {
-    const reviews = await ReviewService.getByProductId(params.productId);
+  // Public: Get reviews for a product (includes user's own reviews if authenticated)
+  .get("/product/:productId", async ({ params, user }) => {
+    const reviews = await ReviewService.getByProductId(params.productId, user?.id);
     return reviews;
-  })
+  }, { optionalAuth: true })
   // Admin: Get all reviews
   .get("/", async () => {
     const reviews = await ReviewService.list();
@@ -29,20 +29,28 @@ export const reviewController = new Elysia({ prefix: "/reviews" })
     return review;
   }, { isAdmin: true })
   // Authenticated: Create review
-  .post("/", async ({ body, user }) => {
+  .post("/", async ({ body, user, set }) => {
     const customerName = user
       ? `${user.firstName} ${user.lastName}`
       : body.customerName || "Anonymous";
 
-    const review = await ReviewService.create({
-      productId: body.productId,
-      userId: user?.id,
-      customerName,
-      title: body.title,
-      content: body.content,
-      rating: body.rating,
-    });
-    return review;
+    try {
+      const review = await ReviewService.create({
+        productId: body.productId,
+        userId: user?.id,
+        customerName,
+        title: body.title,
+        content: body.content,
+        rating: body.rating,
+      });
+      return review;
+    } catch (error) {
+      if (error instanceof Error && error.message === "You have already reviewed this product") {
+        set.status = 409;
+        return { error: error.message };
+      }
+      throw error;
+    }
   }, {
     body: ReviewModel.create,
     optionalAuth: true,

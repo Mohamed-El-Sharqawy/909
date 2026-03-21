@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function getCollections(): Promise<Collection[]> {
   try {
-    const data = await apiGet<{ data: Collection[] }>("/api/collections", { next: { revalidate: 3600 } });
+    const data = await apiGet<{ data: Collection[] }>("/api/collections", { next: { revalidate: 10 } });
     const collections = data?.data ?? [];
     // Filter out collections with 0 products
     return collections.filter((c: any) => c._count?.products > 0);

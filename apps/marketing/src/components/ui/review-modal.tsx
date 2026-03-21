@@ -14,11 +14,12 @@ interface ReviewModalProps {
   onClose: () => void;
   product: Product;
   locale: string;
+  onReviewSubmitted?: () => void;
 }
 
 type ModalState = "loading" | "auth" | "not-purchased" | "review";
 
-export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalProps) {
+export function ReviewModal({ isOpen, onClose, product, locale, onReviewSubmitted }: ReviewModalProps) {
   const { user, isAuthenticated, isLoading: authLoading, signIn, signUp, getAccessToken } = useAuth();
   const { addItem } = useCart();
   const isArabic = locale === "ar";
@@ -124,10 +125,11 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmittingReview(true);
+    setAuthError("");
 
     try {
       const token = getAccessToken();
-      await apiPost(
+      const response = await apiPost(
         "/api/reviews",
         {
           productId: product.id,
@@ -138,14 +140,30 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
         { token: token || undefined }
       );
 
+      // Check if response has error (409 for duplicate review)
+      if (response && typeof response === 'object' && 'error' in response) {
+        setAuthError(response.error as string);
+        setIsSubmittingReview(false);
+        return;
+      }
+
       setReviewSuccess(true);
+      
+      // Invalidate reviews cache to refetch
+      if (onReviewSubmitted) {
+        onReviewSubmitted();
+      }
+      
       setTimeout(() => {
         onClose();
         setReviewSuccess(false);
         setRating(5);
         setReviewTitle("");
         setReviewContent("");
+        setAuthError("");
       }, 2000);
+    } catch (error) {
+      setAuthError(isArabic ? "حدث خطأ أثناء إرسال المراجعة" : "Failed to submit review");
     } finally {
       setIsSubmittingReview(false);
     }
@@ -466,6 +484,12 @@ export function ReviewModal({ isOpen, onClose, product, locale }: ReviewModalPro
                           className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
                         />
                       </div>
+
+                      {authError && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                          <p className="text-sm text-red-800">{authError}</p>
+                        </div>
+                      )}
 
                       <button
                         type="submit"

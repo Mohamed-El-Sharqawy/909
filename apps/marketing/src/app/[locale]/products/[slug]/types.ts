@@ -35,6 +35,7 @@ export interface Review {
   content: string;
   customerName?: string;
   userId?: string;
+  isApproved: boolean;
   createdAt: string;
 }
 

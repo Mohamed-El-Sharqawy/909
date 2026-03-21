@@ -10,7 +10,7 @@ interface Props {
 
 async function getProduct(slug: string) {
   try {
-    const data = await apiGet<{ data: any }>(`/api/products/${slug}`, { next: { revalidate: 3600 } });
+    const data = await apiGet<{ data: any }>(`/api/products/${slug}`, { next: { revalidate: 60 } });
     return data.data;
   } catch {
     return null;
@@ -37,7 +37,7 @@ async function getRelatedProducts(product: any) {
       if (product.collection?.parentId) {
         try {
           const parentParams = new URLSearchParams({ limit: "6", collectionId: product.collection.parentId });
-          const parentData = await apiGet<{ data: { data: any[] } }>(`/api/products?${parentParams}`, { next: { revalidate: 60 } });
+          const parentData = await apiGet<{ data: { data: any[] } }>(`/api/products?${parentParams}`, { next: { revalidate: 10 } });
           const parentProducts = (parentData.data.data || []).filter(
             (p: any) => p.id !== excludeId && !products.find((existing: any) => existing.id === p.id)
           );
@@ -56,7 +56,7 @@ async function getRelatedProducts(product: any) {
   
   // Fallback: get featured products if no collection
   try {
-    const fallbackData = await apiGet<{ data: { data: any[] } }>("/api/products?limit=4&isFeatured=true", { next: { revalidate: 60 } });
+    const fallbackData = await apiGet<{ data: { data: any[] } }>("/api/products?limit=4&isFeatured=true", { next: { revalidate: 10 } });
     return (fallbackData.data.data || []).filter((p: any) => p.id !== excludeId).slice(0, 4);
   } catch {
     return [];
@@ -66,7 +66,7 @@ async function getRelatedProducts(product: any) {
 // Generate static params for all active products
 export async function generateStaticParams() {
   try {
-    const data = await apiGet<{ data: { data: any[] } }>("/api/products?limit=1000&isActive=true", { next: { revalidate: 3600 } });
+    const data = await apiGet<{ data: { data: any[] } }>("/api/products?limit=1000&isActive=true", { next: { revalidate: 10 } });
     const products = data?.data?.data || [];
     
     // Generate params for both locales

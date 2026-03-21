@@ -20,7 +20,7 @@ export async function PromoBanner({ locale }: PromoBannerProps) {
             </h2>
             <p className="text-muted-foreground max-w-md">{t("description")}</p>
             <Link
-              href="/shop"
+              href="/collections/all-products"
               className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
             >
               {t("cta")} →

@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
-import { Link } from "@/i18n/navigation";
 import {
-  CollectionCard,
   InfiniteMarquee,
   AnimateOnScroll,
 } from "@/components/ui";
@@ -38,7 +35,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function HomePage({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const isArabic = locale === "ar";
 
   const [t, featuredProducts, shoppableVideos, instagramPosts, reviews, banners, heroCollections] = await Promise.all([
     getTranslations("home"),

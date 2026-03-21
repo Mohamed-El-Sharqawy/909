@@ -51,12 +51,31 @@ export abstract class ReviewService {
     });
   }
 
-  static async getByProductId(productId: string) {
+  static async getByProductId(productId: string, userId?: string) {
+    // Get approved reviews OR user's own reviews (even if not approved)
+    const where = userId
+      ? {
+          productId,
+          isActive: true,
+          OR: [
+            { isApproved: true },
+            { userId, isApproved: false },
+          ],
+        }
+      : { productId, isApproved: true, isActive: true };
+
     return prisma.review.findMany({
-      where: { productId, isApproved: true, isActive: true },
+      where,
       include: REVIEW_INCLUDE,
       orderBy: { createdAt: "desc" },
     });
+  }
+
+  static async hasUserReviewed(productId: string, userId: string) {
+    const existing = await prisma.review.findFirst({
+      where: { productId, userId },
+    });
+    return !!existing;
   }
 
   static async create(data: {
@@ -67,6 +86,16 @@ export abstract class ReviewService {
     content: string;
     rating: number;
   }) {
+    // Check if user already reviewed this product
+    if (data.userId) {
+      const existing = await prisma.review.findFirst({
+        where: { productId: data.productId, userId: data.userId },
+      });
+      if (existing) {
+        throw new Error("You have already reviewed this product");
+      }
+    }
+
     return prisma.review.create({
       data: {
         productId: data.productId,

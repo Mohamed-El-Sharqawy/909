@@ -9,6 +9,7 @@ interface ReviewsSectionProps {
   isLoading: boolean;
   averageRating: number;
   locale: string;
+  currentUserId?: string;
   onWriteReview: () => void;
 }
 
@@ -17,6 +18,7 @@ export function ReviewsSection({
   isLoading,
   averageRating,
   locale,
+  currentUserId,
   onWriteReview,
 }: ReviewsSectionProps) {
   const t = useTranslations("product");
@@ -65,40 +67,50 @@ export function ReviewsSection({
         </div>
       ) : (
         <div className="space-y-6">
-          {reviews.map((review) => (
-            <div key={review.id} className="border-b pb-6">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`h-4 w-4 ${
-                        star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                      }`}
-                    />
-                  ))}
+          {reviews.map((review) => {
+            const isOwnReview = currentUserId && review.userId === currentUserId;
+            const isPending = !review.isApproved;
+            
+            return (
+              <div key={review.id} className={`border-b pb-6 ${isPending && isOwnReview ? "bg-amber-50/30 -mx-4 px-4 py-4 rounded-lg" : ""}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`h-4 w-4 ${
+                          star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium">
+                      {review.customerName?.charAt(0)?.toUpperCase() || "U"}
+                    </span>
+                    <span className="font-medium text-sm">{review.customerName || "Anonymous"}</span>
+                    {review.userId && (
+                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{t("verified")}</span>
+                    )}
+                    {isPending && isOwnReview && (
+                      <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">
+                        {isArabic ? "قيد المراجعة" : "Pending Approval"}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium">
-                    {review.customerName?.charAt(0)?.toUpperCase() || "U"}
-                  </span>
-                  <span className="font-medium text-sm">{review.customerName || "Anonymous"}</span>
-                  {review.userId && (
-                    <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">{t("verified")}</span>
-                  )}
-                </div>
+                {review.title && <h4 className="font-semibold text-sm mb-1">{review.title}</h4>}
+                <p className="text-sm text-muted-foreground">{review.content}</p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {new Date(review.createdAt).toLocaleDateString(isArabic ? "ar-EG" : "en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
               </div>
-              {review.title && <h4 className="font-semibold text-sm mb-1">{review.title}</h4>}
-              <p className="text-sm text-muted-foreground">{review.content}</p>
-              <p className="text-xs text-muted-foreground mt-2">
-                {new Date(review.createdAt).toLocaleDateString(isArabic ? "ar-EG" : "en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

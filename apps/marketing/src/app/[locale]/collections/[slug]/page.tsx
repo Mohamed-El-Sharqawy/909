@@ -11,7 +11,7 @@ interface PageProps {
 
 async function getCollection(slug: string) {
   try {
-    const data = await apiGet<{ data: any }>(`/api/collections/${slug}`, { next: { revalidate: 3600 } });
+    const data = await apiGet<{ data: any }>(`/api/collections/${slug}`, { next: { revalidate: 60 } });
     return data?.data ?? null;
   } catch {
     return null;
@@ -20,7 +20,7 @@ async function getCollection(slug: string) {
 
 async function getCollections() {
   try {
-    const data = await apiGet<{ data: any[] }>("/api/collections", { next: { revalidate: 3600 } });
+    const data = await apiGet<{ data: any[] }>("/api/collections", { next: { revalidate: 60 } });
     return data?.data ?? [];
   } catch {
     return [];
@@ -41,7 +41,7 @@ async function getInitialProducts(slug: string) {
       params.set("collectionSlug", slug);
     }
 
-    const response = await apiGet<{ data: any }>(`/api/products?${params}`, { next: { revalidate: 3600 } });
+    const response = await apiGet<{ data: any }>(`/api/products?${params}`, { next: { revalidate: 60 } });
     return response?.data ?? { data: [], meta: { total: 0, page: 1, limit: 32, totalPages: 0 } };
   } catch {
     return { data: [], meta: { total: 0, page: 1, limit: 32, totalPages: 0 } };
@@ -51,7 +51,7 @@ async function getInitialProducts(slug: string) {
 // Generate static params for all collections
 export async function generateStaticParams() {
   try {
-    const data = await apiGet<{ data: any[] }>("/api/collections", { next: { revalidate: 3600 } });
+    const data = await apiGet<{ data: any[] }>("/api/collections", { next: { revalidate: 60 } });
     const collections = data?.data || [];
     
     // Generate params for both locales, including children

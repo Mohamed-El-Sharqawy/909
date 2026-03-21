@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useTranslations } from "next-intl";
+import { useAuth } from "@/contexts/auth-context";
 import { ReviewModal } from "@/components/ui/review-modal";
 import { SizeGuideModal } from "@/components/ui/size-guide-modal";
 import { trackProductView } from "@/lib/analytics";
@@ -27,6 +28,7 @@ import type { ProductPageClientProps } from "./types";
 function ProductPageContent({ product, relatedProducts, locale }: ProductPageClientProps) {
   const t = useTranslations("product");
   const isArabic = locale === "ar";
+  const { user } = useAuth();
 
   // Modals
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -58,7 +60,7 @@ function ProductPageContent({ product, relatedProducts, locale }: ProductPageCli
     updateCartQuantity,
   } = useProductActions(product, locale);
 
-  const { reviews, isLoading: isLoadingReviews, averageRating, reviewCount } = useProductReviews(product.id);
+  const { reviews, isLoading: isLoadingReviews, averageRating, reviewCount, invalidateReviews } = useProductReviews(product.id);
 
   const { showFixedBar, productInfoRef } = useFixedBar();
 
@@ -139,6 +141,7 @@ function ProductPageContent({ product, relatedProducts, locale }: ProductPageCli
         isLoading={isLoadingReviews}
         averageRating={averageRating}
         locale={locale}
+        currentUserId={user?.id}
         onWriteReview={() => setIsReviewModalOpen(true)}
       />
 
@@ -175,6 +178,7 @@ function ProductPageContent({ product, relatedProducts, locale }: ProductPageCli
         onClose={() => setIsReviewModalOpen(false)}
         product={product}
         locale={locale}
+        onReviewSubmitted={invalidateReviews}
       />
 
       {/* Size Guide Modal */}
