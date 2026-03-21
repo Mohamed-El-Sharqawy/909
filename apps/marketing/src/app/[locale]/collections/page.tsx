@@ -27,7 +27,7 @@ async function getCollections(): Promise<Collection[]> {
     const data = await apiGet<{ data: Collection[] }>("/api/collections", { next: { revalidate: 10 } });
     const collections = data?.data ?? [];
     // Filter out collections with 0 products
-    return collections.filter((c: any) => c._count?.products > 0);
+    return collections.filter((c: Collection) => c?._count?.products > 0);
   } catch {
     return [];
   }

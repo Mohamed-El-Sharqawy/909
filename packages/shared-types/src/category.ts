@@ -24,9 +24,10 @@ export interface Collection {
   homeFeaturedPosition?: number;
   createdAt: Date;
   updatedAt: Date;
+  _count: { products: number };
 }
 
 export interface CollectionWithProducts extends Collection {
   products?: import("./product").Product[];
-  _count?: { products: number };
+  _count: { products: number };
 }
