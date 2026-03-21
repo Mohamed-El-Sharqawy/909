@@ -10,9 +10,7 @@ export function MobileMenu() {
   const t = useTranslations("header");
 
   const navItems = [
-    { label: t("shopAll"), href: "/shop" },
-    { label: t("women"), href: "/shop?gender=women" },
-    { label: t("men"), href: "/shop?gender=men" },
+    { label: t("shopAll"), href: "/collections/all-product" },
     { label: t("shopByCollection"), href: "/collections" },
     { label: t("returnPolicy"), href: "/return-policy" },
     { label: t("contactUs"), href: "/contact" },

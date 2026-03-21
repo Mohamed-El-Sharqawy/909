@@ -37,7 +37,7 @@ const app = new Elysia()
       origin: true, // Allow all origins
       credentials: false, // Disable credentials to avoid CORS preflight issues
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: ["Content-Type", "Authorization", "x-session-id"],
     })
   )
   .use(
